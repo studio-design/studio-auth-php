@@ -1,0 +1,35 @@
+{
+    "name": "studio-design/auth-sdk-php",
+    "description": "PHP SDK for Studio Auth Service API",
+    "type": "library",
+    "keywords": [
+        "oauth2",
+        "oidc",
+        "authentication",
+        "api",
+        "sdk",
+        "php"
+    ],
+    "homepage": "https://github.com/studio-design/auth-sdk-php",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Studio Design"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/studio-design/auth-sdk-php/issues",
+        "source": "https://github.com/studio-design/auth-sdk-php"
+    },
+    "require": {
+        "php": "^8.2",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "guzzlehttp/guzzle": "^7.4.5",
+        "guzzlehttp/psr7": "^2.0"
+    },
+    "autoload": {
+        "psr-4": { "Studio\\Auth\\" : "src/" }
+    }
+}
