@@ -72,7 +72,9 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
         'sub' => 'string',
         'aud' => '\Studio\Auth\Model\IntrospectResponseAud',
         'iss' => 'string',
-        'jti' => 'string'
+        'jti' => 'string',
+        'email' => 'string',
+        'emailVerified' => 'bool'
     ];
 
     /**
@@ -92,7 +94,9 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
         'sub' => null,
         'aud' => null,
         'iss' => null,
-        'jti' => null
+        'jti' => null,
+        'email' => 'email',
+        'emailVerified' => null
     ];
 
     /**
@@ -112,7 +116,9 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
         'sub' => false,
         'aud' => false,
         'iss' => false,
-        'jti' => false
+        'jti' => false,
+        'email' => false,
+        'emailVerified' => false
     ];
 
     /**
@@ -212,7 +218,9 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
         'sub' => 'sub',
         'aud' => 'aud',
         'iss' => 'iss',
-        'jti' => 'jti'
+        'jti' => 'jti',
+        'email' => 'email',
+        'emailVerified' => 'email_verified'
     ];
 
     /**
@@ -232,7 +240,9 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
         'sub' => 'setSub',
         'aud' => 'setAud',
         'iss' => 'setIss',
-        'jti' => 'setJti'
+        'jti' => 'setJti',
+        'email' => 'setEmail',
+        'emailVerified' => 'setEmailVerified'
     ];
 
     /**
@@ -252,7 +262,9 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
         'sub' => 'getSub',
         'aud' => 'getAud',
         'iss' => 'getIss',
-        'jti' => 'getJti'
+        'jti' => 'getJti',
+        'email' => 'getEmail',
+        'emailVerified' => 'getEmailVerified'
     ];
 
     /**
@@ -323,6 +335,8 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
         $this->setIfExists('aud', $data ?? [], null);
         $this->setIfExists('iss', $data ?? [], null);
         $this->setIfExists('jti', $data ?? [], null);
+        $this->setIfExists('email', $data ?? [], null);
+        $this->setIfExists('emailVerified', $data ?? [], null);
     }
 
     /**
@@ -690,6 +704,60 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
             throw new InvalidArgumentException('non-nullable jti cannot be null');
         }
         $this->container['jti'] = $jti;
+
+        return $this;
+    }
+
+    /**
+     * Gets email
+     *
+     * @return string|null
+     */
+    public function getEmail(): ?string
+    {
+        return $this->container['email'];
+    }
+
+    /**
+     * Sets email
+     *
+     * @param string|null $email トークンに関連付けられたユーザーのメールアドレス。 \"email\" スコープがトークンのスコープに含まれる場合のみ返されます。
+     *
+     * @return $this
+     */
+    public function setEmail(?string $email): static
+    {
+        if (is_null($email)) {
+            throw new InvalidArgumentException('non-nullable email cannot be null');
+        }
+        $this->container['email'] = $email;
+
+        return $this;
+    }
+
+    /**
+     * Gets emailVerified
+     *
+     * @return bool|null
+     */
+    public function getEmailVerified(): ?bool
+    {
+        return $this->container['emailVerified'];
+    }
+
+    /**
+     * Sets emailVerified
+     *
+     * @param bool|null $emailVerified ユーザーのメールアドレスが検証済みかどうかを示すブール値。 \"email\" スコープがトークンのスコープに含まれる場合のみ返されます。
+     *
+     * @return $this
+     */
+    public function setEmailVerified(?bool $emailVerified): static
+    {
+        if (is_null($emailVerified)) {
+            throw new InvalidArgumentException('non-nullable emailVerified cannot be null');
+        }
+        $this->container['emailVerified'] = $emailVerified;
 
         return $this;
     }
