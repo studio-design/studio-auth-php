@@ -32,7 +32,7 @@ namespace Studio\Auth\Model;
 /**
  * OrganizationRole Class Doc Comment
  *
- * @description 組織内でのロール。 - &#x60;owner&#x60;: 組織のオーナー。すべての権限を持つ。 - &#x60;admin&#x60;: 管理者。メンバーの招待・削除および請求管理が可能。ロール変更やセキュリティ管理は不可。 - &#x60;security_admin&#x60;: セキュリティ管理者。セキュリティ設定の管理が可能。メンバー管理や請求管理は不可。
+ * @description 組織内でのロール。 - &#x60;owner&#x60;: 組織のオーナー。すべての権限を持つ。 - &#x60;admin&#x60;: 管理者。メンバーの招待・削除および請求管理が可能。ロール変更やセキュリティ管理は不可。 - &#x60;security_admin&#x60;: セキュリティ管理者。セキュリティ設定の管理が可能。メンバー管理や請求管理は不可。 - &#x60;member&#x60;: 一般メンバー。管理権限なし。
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
@@ -44,6 +44,8 @@ enum OrganizationRole: string
     case ADMIN = 'admin';
 
     case SECURITY_ADMIN = 'security_admin';
+
+    case MEMBER = 'member';
 }
 
 
