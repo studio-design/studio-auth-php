@@ -79,6 +79,7 @@ try {
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*APIApi* | **checkSsoEnforcement** | **GET** /api/sso-enforcement/check | SSO 強制判定エンドポイント
 *AdminApi* | **createAdminPortalSession** | **POST** /admin/organizations/{organization_id}/admin-portal-sessions | Admin Portal セッション生成
 *AdminApi* | **createClient** | **POST** /admin/clients | クライアント登録
 *AdminApi* | **createOrganization** | **POST** /admin/organizations | 組織登録
@@ -126,6 +127,7 @@ Class | Method | HTTP request | Description
 - AdminOrganizationUpdateRequest
 - AdminPortalSessionCreateRequest
 - AdminPortalSessionCreatedResponse
+- CheckSsoEnforcementResponse
 - Client
 - CodeChallengeMethod
 - HealthStatus
@@ -145,6 +147,7 @@ Class | Method | HTTP request | Description
 - PaginationMeta
 - ProblemDetails
 - RevokeErrorResponse
+- SsoEnforcementErrorResponse
 - TokenErrorResponse
 - TokenResponse
 - UserinfoResponse
