@@ -1642,6 +1642,7 @@ class AuthApi
      * @param  string $codeChallenge codeChallenge (required)
      * @param  string $nonce OIDC リプレイ攻撃対策用の値。レスポンスに含めて検証します。 (required)
      * @param  string|null $organizationId 組織固有の SSO プロバイダ（Okta, Azure AD 等）へルーティングするための組織 ID。未指定時は AuthKit のデフォルトログインフローが使用されます。 (optional)
+     * @param  string|null $invitationToken WorkOS 招待メールに含まれるトークン。指定時は WorkOS AuthKit に招待受諾フローとしてパススルーされます。 (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['initiateAuthorization'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -1658,10 +1659,11 @@ class AuthApi
         string $codeChallenge,
         string $nonce,
         ?string $organizationId = null,
+        ?string $invitationToken = null,
         string $contentType = self::contentTypes['initiateAuthorization'][0]
     ): string|\Studio\Auth\Model\ProblemDetails|null
     {
-        list($response) = $this->initiateAuthorizationWithHttpInfo($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $contentType);
+        list($response) = $this->initiateAuthorizationWithHttpInfo($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $invitationToken, $contentType);
         return $response;
     }
 
@@ -1679,6 +1681,7 @@ class AuthApi
      * @param  string $codeChallenge (required)
      * @param  string $nonce OIDC リプレイ攻撃対策用の値。レスポンスに含めて検証します。 (required)
      * @param  string|null $organizationId 組織固有の SSO プロバイダ（Okta, Azure AD 等）へルーティングするための組織 ID。未指定時は AuthKit のデフォルトログインフローが使用されます。 (optional)
+     * @param  string|null $invitationToken WorkOS 招待メールに含まれるトークン。指定時は WorkOS AuthKit に招待受諾フローとしてパススルーされます。 (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['initiateAuthorization'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -1695,10 +1698,11 @@ class AuthApi
         string $codeChallenge,
         string $nonce,
         ?string $organizationId = null,
+        ?string $invitationToken = null,
         string $contentType = self::contentTypes['initiateAuthorization'][0]
     ): array
     {
-        $request = $this->initiateAuthorizationRequest($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $contentType);
+        $request = $this->initiateAuthorizationRequest($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $invitationToken, $contentType);
 
         try {
             $options = $this->createHttpClientOption();
@@ -1786,6 +1790,7 @@ class AuthApi
      * @param  string $codeChallenge (required)
      * @param  string $nonce OIDC リプレイ攻撃対策用の値。レスポンスに含めて検証します。 (required)
      * @param  string|null $organizationId 組織固有の SSO プロバイダ（Okta, Azure AD 等）へルーティングするための組織 ID。未指定時は AuthKit のデフォルトログインフローが使用されます。 (optional)
+     * @param  string|null $invitationToken WorkOS 招待メールに含まれるトークン。指定時は WorkOS AuthKit に招待受諾フローとしてパススルーされます。 (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['initiateAuthorization'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1801,10 +1806,11 @@ class AuthApi
         string $codeChallenge,
         string $nonce,
         ?string $organizationId = null,
+        ?string $invitationToken = null,
         string $contentType = self::contentTypes['initiateAuthorization'][0]
     ): PromiseInterface
     {
-        return $this->initiateAuthorizationAsyncWithHttpInfo($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $contentType)
+        return $this->initiateAuthorizationAsyncWithHttpInfo($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $invitationToken, $contentType)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1826,6 +1832,7 @@ class AuthApi
      * @param  string $codeChallenge (required)
      * @param  string $nonce OIDC リプレイ攻撃対策用の値。レスポンスに含めて検証します。 (required)
      * @param  string|null $organizationId 組織固有の SSO プロバイダ（Okta, Azure AD 等）へルーティングするための組織 ID。未指定時は AuthKit のデフォルトログインフローが使用されます。 (optional)
+     * @param  string|null $invitationToken WorkOS 招待メールに含まれるトークン。指定時は WorkOS AuthKit に招待受諾フローとしてパススルーされます。 (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['initiateAuthorization'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1841,11 +1848,12 @@ class AuthApi
         string $codeChallenge,
         string $nonce,
         ?string $organizationId = null,
+        ?string $invitationToken = null,
         string $contentType = self::contentTypes['initiateAuthorization'][0]
     ): PromiseInterface
     {
         $returnType = '';
-        $request = $this->initiateAuthorizationRequest($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $contentType);
+        $request = $this->initiateAuthorizationRequest($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $invitationToken, $contentType);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1882,6 +1890,7 @@ class AuthApi
      * @param  string $codeChallenge (required)
      * @param  string $nonce OIDC リプレイ攻撃対策用の値。レスポンスに含めて検証します。 (required)
      * @param  string|null $organizationId 組織固有の SSO プロバイダ（Okta, Azure AD 等）へルーティングするための組織 ID。未指定時は AuthKit のデフォルトログインフローが使用されます。 (optional)
+     * @param  string|null $invitationToken WorkOS 招待メールに含まれるトークン。指定時は WorkOS AuthKit に招待受諾フローとしてパススルーされます。 (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['initiateAuthorization'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1897,6 +1906,7 @@ class AuthApi
         string $codeChallenge,
         string $nonce,
         ?string $organizationId = null,
+        ?string $invitationToken = null,
         string $contentType = self::contentTypes['initiateAuthorization'][0]
     ): Request
     {
@@ -2003,6 +2013,13 @@ class AuthApi
             throw new InvalidArgumentException("invalid value for \"organizationId\" when calling AuthApi.initiateAuthorization, must conform to the pattern /^org_[A-Za-z0-9]{1,64}$/.");
         }
         
+        if ($invitationToken !== null && strlen($invitationToken) > 512) {
+            throw new InvalidArgumentException('invalid length for "$invitationToken" when calling AuthApi.initiateAuthorization, must be smaller than or equal to 512.');
+        }
+        if ($invitationToken !== null && strlen($invitationToken) < 1) {
+            throw new InvalidArgumentException('invalid length for "$invitationToken" when calling AuthApi.initiateAuthorization, must be bigger than or equal to 1.');
+        }
+        
 
         $resourcePath = '/oauth/authorize';
         $formParams = [];
@@ -2087,6 +2104,15 @@ class AuthApi
         $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
             $organizationId,
             'organization_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $invitationToken,
+            'invitation_token', // param base name
             'string', // openApiType
             'form', // style
             true, // explode
