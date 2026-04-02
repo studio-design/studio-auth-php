@@ -910,12 +910,12 @@ class AuthApi
         $formDataProcessor = new FormDataProcessor();
 
         $formData = $formDataProcessor->prepare([
-            'idTokenHint' => $idTokenHint,
-            'logoutHint' => $logoutHint,
-            'postLogoutRedirectUri' => $postLogoutRedirectUri,
-            'clientId' => $clientId,
+            'id_token_hint' => $idTokenHint,
+            'logout_hint' => $logoutHint,
+            'post_logout_redirect_uri' => $postLogoutRedirectUri,
+            'client_id' => $clientId,
             'state' => $state,
-            'uiLocales' => $uiLocales,
+            'ui_locales' => $uiLocales,
         ]);
 
         $formParams = $formDataProcessor->flatten($formData);
@@ -2481,7 +2481,7 @@ class AuthApi
 
         $formData = $formDataProcessor->prepare([
             'token' => $token,
-            'tokenTypeHint' => $tokenTypeHint,
+            'token_type_hint' => $tokenTypeHint,
         ]);
 
         $formParams = $formDataProcessor->flatten($formData);
@@ -2925,13 +2925,13 @@ class AuthApi
         $formDataProcessor = new FormDataProcessor();
 
         $formData = $formDataProcessor->prepare([
-            'grantType' => $grantType,
-            'clientId' => $clientId,
-            'clientSecret' => $clientSecret,
+            'grant_type' => $grantType,
+            'client_id' => $clientId,
+            'client_secret' => $clientSecret,
             'code' => $code,
-            'redirectUri' => $redirectUri,
-            'codeVerifier' => $codeVerifier,
-            'refreshToken' => $refreshToken,
+            'redirect_uri' => $redirectUri,
+            'code_verifier' => $codeVerifier,
+            'refresh_token' => $refreshToken,
             'scope' => $scope,
         ]);
 
@@ -3554,7 +3554,7 @@ class AuthApi
 
         $formData = $formDataProcessor->prepare([
             'token' => $token,
-            'tokenTypeHint' => $tokenTypeHint,
+            'token_type_hint' => $tokenTypeHint,
         ]);
 
         $formParams = $formDataProcessor->flatten($formData);
