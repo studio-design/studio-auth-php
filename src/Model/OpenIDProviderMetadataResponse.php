@@ -75,6 +75,7 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         'tokenEndpointAuthMethodsSupported' => 'string[]',
         'claimsSupported' => 'string[]',
         'codeChallengeMethodsSupported' => 'string[]',
+        'promptValuesSupported' => 'string[]',
         'revocationEndpoint' => 'string',
         'introspectionEndpoint' => 'string',
         'endSessionEndpoint' => 'string'
@@ -100,6 +101,7 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         'tokenEndpointAuthMethodsSupported' => null,
         'claimsSupported' => null,
         'codeChallengeMethodsSupported' => null,
+        'promptValuesSupported' => null,
         'revocationEndpoint' => 'uri',
         'introspectionEndpoint' => 'uri',
         'endSessionEndpoint' => 'uri'
@@ -125,6 +127,7 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         'tokenEndpointAuthMethodsSupported' => false,
         'claimsSupported' => false,
         'codeChallengeMethodsSupported' => false,
+        'promptValuesSupported' => false,
         'revocationEndpoint' => false,
         'introspectionEndpoint' => false,
         'endSessionEndpoint' => false
@@ -220,6 +223,7 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         'tokenEndpointAuthMethodsSupported' => 'token_endpoint_auth_methods_supported',
         'claimsSupported' => 'claims_supported',
         'codeChallengeMethodsSupported' => 'code_challenge_methods_supported',
+        'promptValuesSupported' => 'prompt_values_supported',
         'revocationEndpoint' => 'revocation_endpoint',
         'introspectionEndpoint' => 'introspection_endpoint',
         'endSessionEndpoint' => 'end_session_endpoint'
@@ -245,6 +249,7 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         'tokenEndpointAuthMethodsSupported' => 'setTokenEndpointAuthMethodsSupported',
         'claimsSupported' => 'setClaimsSupported',
         'codeChallengeMethodsSupported' => 'setCodeChallengeMethodsSupported',
+        'promptValuesSupported' => 'setPromptValuesSupported',
         'revocationEndpoint' => 'setRevocationEndpoint',
         'introspectionEndpoint' => 'setIntrospectionEndpoint',
         'endSessionEndpoint' => 'setEndSessionEndpoint'
@@ -270,6 +275,7 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         'tokenEndpointAuthMethodsSupported' => 'getTokenEndpointAuthMethodsSupported',
         'claimsSupported' => 'getClaimsSupported',
         'codeChallengeMethodsSupported' => 'getCodeChallengeMethodsSupported',
+        'promptValuesSupported' => 'getPromptValuesSupported',
         'revocationEndpoint' => 'getRevocationEndpoint',
         'introspectionEndpoint' => 'getIntrospectionEndpoint',
         'endSessionEndpoint' => 'getEndSessionEndpoint'
@@ -308,6 +314,8 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     }
 
     public const SUBJECT_TYPES_SUPPORTED__PUBLIC = 'public';
+    public const PROMPT_VALUES_SUPPORTED_NONE = 'none';
+    public const PROMPT_VALUES_SUPPORTED_LOGIN = 'login';
 
     /**
      * Gets allowable values of the enum
@@ -318,6 +326,19 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     {
         return [
             self::SUBJECT_TYPES_SUPPORTED__PUBLIC,
+        ];
+    }
+
+    /**
+     * Gets allowable values of the enum
+     *
+     * @return string[]
+     */
+    public static function getPromptValuesSupportedAllowableValues()
+    {
+        return [
+            self::PROMPT_VALUES_SUPPORTED_NONE,
+            self::PROMPT_VALUES_SUPPORTED_LOGIN,
         ];
     }
 
@@ -349,6 +370,7 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         $this->setIfExists('tokenEndpointAuthMethodsSupported', $data ?? [], null);
         $this->setIfExists('claimsSupported', $data ?? [], null);
         $this->setIfExists('codeChallengeMethodsSupported', $data ?? [], null);
+        $this->setIfExists('promptValuesSupported', $data ?? [], null);
         $this->setIfExists('revocationEndpoint', $data ?? [], null);
         $this->setIfExists('introspectionEndpoint', $data ?? [], null);
         $this->setIfExists('endSessionEndpoint', $data ?? [], null);
@@ -795,6 +817,42 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
             throw new InvalidArgumentException('non-nullable codeChallengeMethodsSupported cannot be null');
         }
         $this->container['codeChallengeMethodsSupported'] = $codeChallengeMethodsSupported;
+
+        return $this;
+    }
+
+    /**
+     * Gets promptValuesSupported
+     *
+     * @return string[]|null
+     */
+    public function getPromptValuesSupported(): ?array
+    {
+        return $this->container['promptValuesSupported'];
+    }
+
+    /**
+     * Sets promptValuesSupported
+     *
+     * @param string[]|null $promptValuesSupported サポートする prompt パラメータ値のリスト (OIDC Discovery 1.0 Section 3)。
+     *
+     * @return $this
+     */
+    public function setPromptValuesSupported(?array $promptValuesSupported): static
+    {
+        if (is_null($promptValuesSupported)) {
+            throw new InvalidArgumentException('non-nullable promptValuesSupported cannot be null');
+        }
+        $allowedValues = self::getPromptValuesSupportedAllowableValues();
+        if (array_diff($promptValuesSupported, $allowedValues)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    "Invalid value for 'promptValuesSupported', must be one of '%s'",
+                    implode("', '", $allowedValues)
+                )
+            );
+        }
+        $this->container['promptValuesSupported'] = $promptValuesSupported;
 
         return $this;
     }
