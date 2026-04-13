@@ -105,6 +105,7 @@ Class | Method | HTTP request | Description
 *AuthApi* | **issueTokens** | **POST** /oauth/token | トークンエンドポイント
 *AuthApi* | **postUserinfo** | **POST** /oauth/userinfo | ユーザー情報の取得 (POST)
 *AuthApi* | **revokeToken** | **POST** /oauth/revoke | トークン無効化エンドポイント
+*OrganizationApi* | **sendInvitation** | **POST** /organizations/{organization_id}/invitations | 組織Adminによるメンバー招待
 *SystemApi* | **getHealthStatus** | **GET** /health | ヘルスチェック
 *SystemApi* | **getJwks** | **GET** /jwks | JSON Web Key Set の取得
 *SystemApi* | **getOpenIDConfiguration** | **GET** /.well-known/openid-configuration | OpenID Connect Discovery
@@ -142,6 +143,8 @@ Class | Method | HTTP request | Description
 - OpenIDProviderMetadataResponse
 - Organization
 - OrganizationInvitation
+- OrganizationInvitationCreateRequest
+- OrganizationInvitationCreatedResponse
 - OrganizationMember
 - OrganizationMemberUser
 - OrganizationRole
