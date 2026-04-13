@@ -130,6 +130,7 @@ Class | Method | HTTP request | Description
 - CheckSsoEnforcementResponse
 - Client
 - CodeChallengeMethod
+- EcJsonWebKey
 - HealthStatus
 - InlineObject
 - InlineObject1
@@ -147,6 +148,7 @@ Class | Method | HTTP request | Description
 - PaginationMeta
 - ProblemDetails
 - RevokeErrorResponse
+- RsaJsonWebKey
 - SsoEnforcementErrorResponse
 - TokenErrorResponse
 - TokenResponse

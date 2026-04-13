@@ -1644,6 +1644,7 @@ class AuthApi
      * @param  string|null $organizationId 組織固有の SSO プロバイダ（Okta, Azure AD 等）へルーティングするための組織 ID。未指定時は AuthKit のデフォルトログインフローが使用されます。 (optional)
      * @param  string|null $invitationToken WorkOS 招待メールに含まれるトークン。指定時は WorkOS AuthKit に招待受諾フローとしてパススルーされます。 (optional)
      * @param  string|null $prompt OIDC 認証プロンプト制御。 - &#x60;none&#x60;: ユーザーインタラクションなしで認証を試みる。セッションがない場合は &#x60;login_required&#x60; エラーをリダイレクト - &#x60;login&#x60;: 既存セッションを無視して再認証を強制 - 未指定: セッションがあれば利用、なければ IdP リダイレクト (optional)
+     * @param  string|null $context WorkOS AuthKit の Sign-in endpoint から渡される不透明トークン。招待受諾やパスワードリセット等、アプリ外から開始されたフローのコンテキストを保持します。 (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['initiateAuthorization'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -1662,10 +1663,11 @@ class AuthApi
         ?string $organizationId = null,
         ?string $invitationToken = null,
         ?string $prompt = null,
+        ?string $context = null,
         string $contentType = self::contentTypes['initiateAuthorization'][0]
     ): string|\Studio\Auth\Model\ProblemDetails|null
     {
-        list($response) = $this->initiateAuthorizationWithHttpInfo($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $invitationToken, $prompt, $contentType);
+        list($response) = $this->initiateAuthorizationWithHttpInfo($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $invitationToken, $prompt, $context, $contentType);
         return $response;
     }
 
@@ -1685,6 +1687,7 @@ class AuthApi
      * @param  string|null $organizationId 組織固有の SSO プロバイダ（Okta, Azure AD 等）へルーティングするための組織 ID。未指定時は AuthKit のデフォルトログインフローが使用されます。 (optional)
      * @param  string|null $invitationToken WorkOS 招待メールに含まれるトークン。指定時は WorkOS AuthKit に招待受諾フローとしてパススルーされます。 (optional)
      * @param  string|null $prompt OIDC 認証プロンプト制御。 - &#x60;none&#x60;: ユーザーインタラクションなしで認証を試みる。セッションがない場合は &#x60;login_required&#x60; エラーをリダイレクト - &#x60;login&#x60;: 既存セッションを無視して再認証を強制 - 未指定: セッションがあれば利用、なければ IdP リダイレクト (optional)
+     * @param  string|null $context WorkOS AuthKit の Sign-in endpoint から渡される不透明トークン。招待受諾やパスワードリセット等、アプリ外から開始されたフローのコンテキストを保持します。 (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['initiateAuthorization'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -1703,10 +1706,11 @@ class AuthApi
         ?string $organizationId = null,
         ?string $invitationToken = null,
         ?string $prompt = null,
+        ?string $context = null,
         string $contentType = self::contentTypes['initiateAuthorization'][0]
     ): array
     {
-        $request = $this->initiateAuthorizationRequest($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $invitationToken, $prompt, $contentType);
+        $request = $this->initiateAuthorizationRequest($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $invitationToken, $prompt, $context, $contentType);
 
         try {
             $options = $this->createHttpClientOption();
@@ -1796,6 +1800,7 @@ class AuthApi
      * @param  string|null $organizationId 組織固有の SSO プロバイダ（Okta, Azure AD 等）へルーティングするための組織 ID。未指定時は AuthKit のデフォルトログインフローが使用されます。 (optional)
      * @param  string|null $invitationToken WorkOS 招待メールに含まれるトークン。指定時は WorkOS AuthKit に招待受諾フローとしてパススルーされます。 (optional)
      * @param  string|null $prompt OIDC 認証プロンプト制御。 - &#x60;none&#x60;: ユーザーインタラクションなしで認証を試みる。セッションがない場合は &#x60;login_required&#x60; エラーをリダイレクト - &#x60;login&#x60;: 既存セッションを無視して再認証を強制 - 未指定: セッションがあれば利用、なければ IdP リダイレクト (optional)
+     * @param  string|null $context WorkOS AuthKit の Sign-in endpoint から渡される不透明トークン。招待受諾やパスワードリセット等、アプリ外から開始されたフローのコンテキストを保持します。 (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['initiateAuthorization'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1813,10 +1818,11 @@ class AuthApi
         ?string $organizationId = null,
         ?string $invitationToken = null,
         ?string $prompt = null,
+        ?string $context = null,
         string $contentType = self::contentTypes['initiateAuthorization'][0]
     ): PromiseInterface
     {
-        return $this->initiateAuthorizationAsyncWithHttpInfo($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $invitationToken, $prompt, $contentType)
+        return $this->initiateAuthorizationAsyncWithHttpInfo($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $invitationToken, $prompt, $context, $contentType)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1840,6 +1846,7 @@ class AuthApi
      * @param  string|null $organizationId 組織固有の SSO プロバイダ（Okta, Azure AD 等）へルーティングするための組織 ID。未指定時は AuthKit のデフォルトログインフローが使用されます。 (optional)
      * @param  string|null $invitationToken WorkOS 招待メールに含まれるトークン。指定時は WorkOS AuthKit に招待受諾フローとしてパススルーされます。 (optional)
      * @param  string|null $prompt OIDC 認証プロンプト制御。 - &#x60;none&#x60;: ユーザーインタラクションなしで認証を試みる。セッションがない場合は &#x60;login_required&#x60; エラーをリダイレクト - &#x60;login&#x60;: 既存セッションを無視して再認証を強制 - 未指定: セッションがあれば利用、なければ IdP リダイレクト (optional)
+     * @param  string|null $context WorkOS AuthKit の Sign-in endpoint から渡される不透明トークン。招待受諾やパスワードリセット等、アプリ外から開始されたフローのコンテキストを保持します。 (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['initiateAuthorization'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1857,11 +1864,12 @@ class AuthApi
         ?string $organizationId = null,
         ?string $invitationToken = null,
         ?string $prompt = null,
+        ?string $context = null,
         string $contentType = self::contentTypes['initiateAuthorization'][0]
     ): PromiseInterface
     {
         $returnType = '';
-        $request = $this->initiateAuthorizationRequest($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $invitationToken, $prompt, $contentType);
+        $request = $this->initiateAuthorizationRequest($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $invitationToken, $prompt, $context, $contentType);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1900,6 +1908,7 @@ class AuthApi
      * @param  string|null $organizationId 組織固有の SSO プロバイダ（Okta, Azure AD 等）へルーティングするための組織 ID。未指定時は AuthKit のデフォルトログインフローが使用されます。 (optional)
      * @param  string|null $invitationToken WorkOS 招待メールに含まれるトークン。指定時は WorkOS AuthKit に招待受諾フローとしてパススルーされます。 (optional)
      * @param  string|null $prompt OIDC 認証プロンプト制御。 - &#x60;none&#x60;: ユーザーインタラクションなしで認証を試みる。セッションがない場合は &#x60;login_required&#x60; エラーをリダイレクト - &#x60;login&#x60;: 既存セッションを無視して再認証を強制 - 未指定: セッションがあれば利用、なければ IdP リダイレクト (optional)
+     * @param  string|null $context WorkOS AuthKit の Sign-in endpoint から渡される不透明トークン。招待受諾やパスワードリセット等、アプリ外から開始されたフローのコンテキストを保持します。 (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['initiateAuthorization'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1917,6 +1926,7 @@ class AuthApi
         ?string $organizationId = null,
         ?string $invitationToken = null,
         ?string $prompt = null,
+        ?string $context = null,
         string $contentType = self::contentTypes['initiateAuthorization'][0]
     ): Request
     {
@@ -2031,6 +2041,13 @@ class AuthApi
         }
         
 
+        if ($context !== null && strlen($context) > 2048) {
+            throw new InvalidArgumentException('invalid length for "$context" when calling AuthApi.initiateAuthorization, must be smaller than or equal to 2048.');
+        }
+        if ($context !== null && strlen($context) < 1) {
+            throw new InvalidArgumentException('invalid length for "$context" when calling AuthApi.initiateAuthorization, must be bigger than or equal to 1.');
+        }
+        
 
         $resourcePath = '/oauth/authorize';
         $formParams = [];
@@ -2133,6 +2150,15 @@ class AuthApi
         $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
             $prompt,
             'prompt', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $context,
+            'context', // param base name
             'string', // openApiType
             'form', // style
             true, // explode
