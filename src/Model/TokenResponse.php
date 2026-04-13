@@ -38,7 +38,7 @@ use Studio\Auth\ObjectSerializer;
 /**
  * TokenResponse Class Doc Comment
  *
- * @description RFC 6749 OAuth 2.0 Token Response に準拠したトークン発行レスポンス。  アクセストークン、リフレッシュトークン、および OpenID Connect の ID トークンを含みます。
+ * @description RFC 6749 OAuth 2.0 Token Response に準拠したトークン発行レスポンス。  アクセストークンを必ず含み、条件に応じてリフレッシュトークンおよび OpenID Connect の ID トークンを含みます。
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
@@ -470,7 +470,7 @@ class TokenResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets refreshToken
      *
-     * @param string|null $refreshToken 長寿命トークン。アクセストークンの更新に使用します。セキュアストレージで保管し、漏洩時は即座に失効させてください。
+     * @param string|null $refreshToken 長寿命トークン。アクセストークンの更新に使用します。セキュアストレージで保管し、漏洩時は即座に失効させてください。 認可リクエストに `offline_access` スコープを含む場合のみ返却されます。
      *
      * @return $this
      */
