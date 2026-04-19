@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * OrganizationMember
+ * MemberRoleCounts
  *
  * PHP version 8.1
  *
@@ -36,15 +36,15 @@ use ReturnTypeWillChange;
 use Studio\Auth\ObjectSerializer;
 
 /**
- * OrganizationMember Class Doc Comment
+ * MemberRoleCounts Class Doc Comment
  *
- * @description 組織メンバー情報。
+ * @description ロール別のメンバー数集計（フィルタ適用前の総件数）。 &#x60;include_counts&#x3D;true&#x60; の場合のみレスポンスに含まれます。
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  * @implements ArrayAccess<string, mixed>
  */
-class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializable
+class MemberRoleCounts implements ModelInterface, ArrayAccess, JsonSerializable
 {
     public const DISCRIMINATOR = null;
 
@@ -53,7 +53,7 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
      *
      * @var string
      */
-    protected static string $openAPIModelName = 'OrganizationMember';
+    protected static string $openAPIModelName = 'MemberRoleCounts';
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -61,13 +61,10 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
-        'id' => 'string',
-        'user' => '\Studio\Auth\Model\OrganizationMemberUser',
-        'role' => '\Studio\Auth\Model\OrganizationRole',
-        'avatarSrc' => 'string',
-        'lastAccess' => '\DateTime',
-        'domainType' => '\Studio\Auth\Model\OrganizationMemberDomainType',
-        'joinedAt' => '\DateTime'
+        'owner' => 'int',
+        'admin' => 'int',
+        'securityAdmin' => 'int',
+        'member' => 'int'
     ];
 
     /**
@@ -76,13 +73,10 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
      * @var array<string, string|null>
      */
     protected static array $openAPIFormats = [
-        'id' => 'uuid',
-        'user' => null,
-        'role' => null,
-        'avatarSrc' => 'uri',
-        'lastAccess' => 'date-time',
-        'domainType' => null,
-        'joinedAt' => 'date-time'
+        'owner' => null,
+        'admin' => null,
+        'securityAdmin' => null,
+        'member' => null
     ];
 
     /**
@@ -91,13 +85,10 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
      * @var array<string, bool>
      */
     protected static array $openAPINullables = [
-        'id' => false,
-        'user' => false,
-        'role' => false,
-        'avatarSrc' => true,
-        'lastAccess' => true,
-        'domainType' => false,
-        'joinedAt' => false
+        'owner' => false,
+        'admin' => false,
+        'securityAdmin' => false,
+        'member' => false
     ];
 
     /**
@@ -176,13 +167,10 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
      * @var array<string, string>
      */
     protected static array $attributeMap = [
-        'id' => 'id',
-        'user' => 'user',
-        'role' => 'role',
-        'avatarSrc' => 'avatar_src',
-        'lastAccess' => 'last_access',
-        'domainType' => 'domain_type',
-        'joinedAt' => 'joined_at'
+        'owner' => 'owner',
+        'admin' => 'admin',
+        'securityAdmin' => 'security_admin',
+        'member' => 'member'
     ];
 
     /**
@@ -191,13 +179,10 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
      * @var array<string, string>
      */
     protected static array $setters = [
-        'id' => 'setId',
-        'user' => 'setUser',
-        'role' => 'setRole',
-        'avatarSrc' => 'setAvatarSrc',
-        'lastAccess' => 'setLastAccess',
-        'domainType' => 'setDomainType',
-        'joinedAt' => 'setJoinedAt'
+        'owner' => 'setOwner',
+        'admin' => 'setAdmin',
+        'securityAdmin' => 'setSecurityAdmin',
+        'member' => 'setMember'
     ];
 
     /**
@@ -206,13 +191,10 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
      * @var array<string, string>
      */
     protected static array $getters = [
-        'id' => 'getId',
-        'user' => 'getUser',
-        'role' => 'getRole',
-        'avatarSrc' => 'getAvatarSrc',
-        'lastAccess' => 'getLastAccess',
-        'domainType' => 'getDomainType',
-        'joinedAt' => 'getJoinedAt'
+        'owner' => 'getOwner',
+        'admin' => 'getAdmin',
+        'securityAdmin' => 'getSecurityAdmin',
+        'member' => 'getMember'
     ];
 
     /**
@@ -262,13 +244,10 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
      */
     public function __construct(?array $data = null)
     {
-        $this->setIfExists('id', $data ?? [], null);
-        $this->setIfExists('user', $data ?? [], null);
-        $this->setIfExists('role', $data ?? [], null);
-        $this->setIfExists('avatarSrc', $data ?? [], null);
-        $this->setIfExists('lastAccess', $data ?? [], null);
-        $this->setIfExists('domainType', $data ?? [], null);
-        $this->setIfExists('joinedAt', $data ?? [], null);
+        $this->setIfExists('owner', $data ?? [], null);
+        $this->setIfExists('admin', $data ?? [], null);
+        $this->setIfExists('securityAdmin', $data ?? [], null);
+        $this->setIfExists('member', $data ?? [], null);
     }
 
     /**
@@ -296,18 +275,34 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
     {
         $invalidProperties = [];
 
-        if ($this->container['id'] === null) {
-            $invalidProperties[] = "'id' can't be null";
+        if ($this->container['owner'] === null) {
+            $invalidProperties[] = "'owner' can't be null";
         }
-        if ($this->container['user'] === null) {
-            $invalidProperties[] = "'user' can't be null";
+        if (($this->container['owner'] < 0)) {
+            $invalidProperties[] = "invalid value for 'owner', must be bigger than or equal to 0.";
         }
-        if ($this->container['role'] === null) {
-            $invalidProperties[] = "'role' can't be null";
+
+        if ($this->container['admin'] === null) {
+            $invalidProperties[] = "'admin' can't be null";
         }
-        if ($this->container['joinedAt'] === null) {
-            $invalidProperties[] = "'joinedAt' can't be null";
+        if (($this->container['admin'] < 0)) {
+            $invalidProperties[] = "invalid value for 'admin', must be bigger than or equal to 0.";
         }
+
+        if ($this->container['securityAdmin'] === null) {
+            $invalidProperties[] = "'securityAdmin' can't be null";
+        }
+        if (($this->container['securityAdmin'] < 0)) {
+            $invalidProperties[] = "invalid value for 'securityAdmin', must be bigger than or equal to 0.";
+        }
+
+        if ($this->container['member'] === null) {
+            $invalidProperties[] = "'member' can't be null";
+        }
+        if (($this->container['member'] < 0)) {
+            $invalidProperties[] = "invalid value for 'member', must be bigger than or equal to 0.";
+        }
+
         return $invalidProperties;
     }
 
@@ -321,204 +316,129 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
 
 
     /**
-     * Gets id
+     * Gets owner
      *
-     * @return string
+     * @return int
      */
-    public function getId(): string
+    public function getOwner(): int
     {
-        return $this->container['id'];
+        return $this->container['owner'];
     }
 
     /**
-     * Sets id
+     * Sets owner
      *
-     * @param string $id メンバー識別子（UUID形式）。
+     * @param int $owner Owner ロールのメンバー数。
      *
      * @return $this
      */
-    public function setId(string $id): static
+    public function setOwner(int $owner): static
     {
-        if (is_null($id)) {
-            throw new InvalidArgumentException('non-nullable id cannot be null');
+        if (is_null($owner)) {
+            throw new InvalidArgumentException('non-nullable owner cannot be null');
         }
-        $this->container['id'] = $id;
+
+        if (($owner < 0)) {
+            throw new InvalidArgumentException('invalid value for $owner when calling MemberRoleCounts., must be bigger than or equal to 0.');
+        }
+
+        $this->container['owner'] = $owner;
 
         return $this;
     }
 
     /**
-     * Gets user
+     * Gets admin
      *
-     * @return \Studio\Auth\Model\OrganizationMemberUser
+     * @return int
      */
-    public function getUser(): \Studio\Auth\Model\OrganizationMemberUser
+    public function getAdmin(): int
     {
-        return $this->container['user'];
+        return $this->container['admin'];
     }
 
     /**
-     * Sets user
+     * Sets admin
      *
-     * @param \Studio\Auth\Model\OrganizationMemberUser $user user
+     * @param int $admin Admin ロールのメンバー数。
      *
      * @return $this
      */
-    public function setUser(\Studio\Auth\Model\OrganizationMemberUser $user): static
+    public function setAdmin(int $admin): static
     {
-        if (is_null($user)) {
-            throw new InvalidArgumentException('non-nullable user cannot be null');
+        if (is_null($admin)) {
+            throw new InvalidArgumentException('non-nullable admin cannot be null');
         }
-        $this->container['user'] = $user;
+
+        if (($admin < 0)) {
+            throw new InvalidArgumentException('invalid value for $admin when calling MemberRoleCounts., must be bigger than or equal to 0.');
+        }
+
+        $this->container['admin'] = $admin;
 
         return $this;
     }
 
     /**
-     * Gets role
+     * Gets securityAdmin
      *
-     * @return \Studio\Auth\Model\OrganizationRole
+     * @return int
      */
-    public function getRole(): \Studio\Auth\Model\OrganizationRole
+    public function getSecurityAdmin(): int
     {
-        return $this->container['role'];
+        return $this->container['securityAdmin'];
     }
 
     /**
-     * Sets role
+     * Sets securityAdmin
      *
-     * @param \Studio\Auth\Model\OrganizationRole $role role
+     * @param int $securityAdmin Security Admin ロールのメンバー数。
      *
      * @return $this
      */
-    public function setRole(\Studio\Auth\Model\OrganizationRole $role): static
+    public function setSecurityAdmin(int $securityAdmin): static
     {
-        if (is_null($role)) {
-            throw new InvalidArgumentException('non-nullable role cannot be null');
+        if (is_null($securityAdmin)) {
+            throw new InvalidArgumentException('non-nullable securityAdmin cannot be null');
         }
-        $this->container['role'] = $role;
+
+        if (($securityAdmin < 0)) {
+            throw new InvalidArgumentException('invalid value for $securityAdmin when calling MemberRoleCounts., must be bigger than or equal to 0.');
+        }
+
+        $this->container['securityAdmin'] = $securityAdmin;
 
         return $this;
     }
 
     /**
-     * Gets avatarSrc
+     * Gets member
      *
-     * @return string|null
+     * @return int
      */
-    public function getAvatarSrc(): ?string
+    public function getMember(): int
     {
-        return $this->container['avatarSrc'];
+        return $this->container['member'];
     }
 
     /**
-     * Sets avatarSrc
+     * Sets member
      *
-     * @param string|null $avatarSrc メンバーのアバター画像 URL。アバター未設定時は `null`。 ユーザーレコードの `picture_url` を参照します。
+     * @param int $member 一般 Member ロールのメンバー数。
      *
      * @return $this
      */
-    public function setAvatarSrc(?string $avatarSrc): static
+    public function setMember(int $member): static
     {
-        if (is_null($avatarSrc)) {
-            array_push($this->openAPINullablesSetToNull, 'avatarSrc');
-        } else {
-            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
-            $index = array_search('avatarSrc', $nullablesSetToNull);
-            if ($index !== FALSE) {
-                unset($nullablesSetToNull[$index]);
-                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
-            }
+        if (is_null($member)) {
+            throw new InvalidArgumentException('non-nullable member cannot be null');
         }
-        $this->container['avatarSrc'] = $avatarSrc;
 
-        return $this;
-    }
-
-    /**
-     * Gets lastAccess
-     *
-     * @return \DateTime|null
-     */
-    public function getLastAccess(): ?\DateTime
-    {
-        return $this->container['lastAccess'];
-    }
-
-    /**
-     * Sets lastAccess
-     *
-     * @param \DateTime|null $lastAccess 組織への最終アクセス日時（ISO 8601 形式）。 組織コンテキストでまだアクセスしていないメンバーは `null`。
-     *
-     * @return $this
-     */
-    public function setLastAccess(?\DateTime $lastAccess): static
-    {
-        if (is_null($lastAccess)) {
-            array_push($this->openAPINullablesSetToNull, 'lastAccess');
-        } else {
-            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
-            $index = array_search('lastAccess', $nullablesSetToNull);
-            if ($index !== FALSE) {
-                unset($nullablesSetToNull[$index]);
-                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
-            }
+        if (($member < 0)) {
+            throw new InvalidArgumentException('invalid value for $member when calling MemberRoleCounts., must be bigger than or equal to 0.');
         }
-        $this->container['lastAccess'] = $lastAccess;
 
-        return $this;
-    }
-
-    /**
-     * Gets domainType
-     *
-     * @return \Studio\Auth\Model\OrganizationMemberDomainType|null
-     */
-    public function getDomainType(): ?\Studio\Auth\Model\OrganizationMemberDomainType
-    {
-        return $this->container['domainType'];
-    }
-
-    /**
-     * Sets domainType
-     *
-     * @param \Studio\Auth\Model\OrganizationMemberDomainType|null $domainType domainType
-     *
-     * @return $this
-     */
-    public function setDomainType(?\Studio\Auth\Model\OrganizationMemberDomainType $domainType): static
-    {
-        if (is_null($domainType)) {
-            throw new InvalidArgumentException('non-nullable domainType cannot be null');
-        }
-        $this->container['domainType'] = $domainType;
-
-        return $this;
-    }
-
-    /**
-     * Gets joinedAt
-     *
-     * @return \DateTime
-     */
-    public function getJoinedAt(): \DateTime
-    {
-        return $this->container['joinedAt'];
-    }
-
-    /**
-     * Sets joinedAt
-     *
-     * @param \DateTime $joinedAt 組織への参加日時（ISO 8601 形式）。
-     *
-     * @return $this
-     */
-    public function setJoinedAt(\DateTime $joinedAt): static
-    {
-        if (is_null($joinedAt)) {
-            throw new InvalidArgumentException('non-nullable joinedAt cannot be null');
-        }
-        $this->container['joinedAt'] = $joinedAt;
+        $this->container['member'] = $member;
 
         return $this;
     }

@@ -3524,6 +3524,12 @@ class AdminApi
      * @param  string $organizationId 組織識別子（UUID形式）。 (required)
      * @param  int|null $page 取得するページ番号（1始まり）。 (optional, default to 1)
      * @param  int|null $perPage 1ページあたりの取得件数。 (optional, default to 20)
+     * @param  string|null $sortBy ソート基準フィールド。 - &#x60;name&#x60;: ユーザー表示名 - &#x60;email&#x60;: ユーザーメールアドレス - &#x60;role&#x60;: 組織内ロール - &#x60;joined_at&#x60;: 組織への参加日時 - &#x60;last_access&#x60;: 組織への最終アクセス日時 (optional, default to 'joined_at')
+     * @param  string|null $sortOrder ソート順。 - &#x60;asc&#x60;: 昇順 - &#x60;desc&#x60;: 降順 (optional, default to 'desc')
+     * @param  \Studio\Auth\Model\OrganizationRole[]|null $role ロールでメンバーを絞り込みます。カンマ区切りで複数値を指定可能（例: &#x60;?role&#x3D;owner,admin&#x60;）。 未指定時は全ロールを返却します。 (optional)
+     * @param  \Studio\Auth\Model\OrganizationMemberDomainType[]|null $domainType メンバーのメールドメインが組織の verified ドメインと一致するか (&#x60;corporate&#x60;)、しないか (&#x60;personal&#x60;) で絞り込みます。 カンマ区切りで複数値を指定可能（例: &#x60;?domain_type&#x3D;corporate,personal&#x60;）。未指定時は全件返却します。 (optional)
+     * @param  string|null $search メンバーの表示名またはメールアドレスに対する部分一致検索文字列。 1〜255 文字。空文字列はバリデーションエラー（400）となります。 (optional)
+     * @param  bool|null $includeCounts &#x60;true&#x60; の場合、レスポンスのトップレベルに &#x60;role_counts&#x60; と &#x60;domain_counts&#x60;（フィルタ適用前の総件数集計）を含めて返却します。 集計コストを避けるためデフォルトは &#x60;false&#x60;。 (optional, default to false)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['listOrganizationMembers'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -3534,10 +3540,16 @@ class AdminApi
         string $organizationId,
         ?int $page = 1,
         ?int $perPage = 20,
+        ?string $sortBy = 'joined_at',
+        ?string $sortOrder = 'desc',
+        ?array $role = null,
+        ?array $domainType = null,
+        ?string $search = null,
+        ?bool $includeCounts = false,
         string $contentType = self::contentTypes['listOrganizationMembers'][0]
     ): \Studio\Auth\Model\AdminOrganizationMemberListResponse|\Studio\Auth\Model\ProblemDetails
     {
-        list($response) = $this->listOrganizationMembersWithHttpInfo($organizationId, $page, $perPage, $contentType);
+        list($response) = $this->listOrganizationMembersWithHttpInfo($organizationId, $page, $perPage, $sortBy, $sortOrder, $role, $domainType, $search, $includeCounts, $contentType);
         return $response;
     }
 
@@ -3549,6 +3561,12 @@ class AdminApi
      * @param  string $organizationId 組織識別子（UUID形式）。 (required)
      * @param  int|null $page 取得するページ番号（1始まり）。 (optional, default to 1)
      * @param  int|null $perPage 1ページあたりの取得件数。 (optional, default to 20)
+     * @param  string|null $sortBy ソート基準フィールド。 - &#x60;name&#x60;: ユーザー表示名 - &#x60;email&#x60;: ユーザーメールアドレス - &#x60;role&#x60;: 組織内ロール - &#x60;joined_at&#x60;: 組織への参加日時 - &#x60;last_access&#x60;: 組織への最終アクセス日時 (optional, default to 'joined_at')
+     * @param  string|null $sortOrder ソート順。 - &#x60;asc&#x60;: 昇順 - &#x60;desc&#x60;: 降順 (optional, default to 'desc')
+     * @param  \Studio\Auth\Model\OrganizationRole[]|null $role ロールでメンバーを絞り込みます。カンマ区切りで複数値を指定可能（例: &#x60;?role&#x3D;owner,admin&#x60;）。 未指定時は全ロールを返却します。 (optional)
+     * @param  \Studio\Auth\Model\OrganizationMemberDomainType[]|null $domainType メンバーのメールドメインが組織の verified ドメインと一致するか (&#x60;corporate&#x60;)、しないか (&#x60;personal&#x60;) で絞り込みます。 カンマ区切りで複数値を指定可能（例: &#x60;?domain_type&#x3D;corporate,personal&#x60;）。未指定時は全件返却します。 (optional)
+     * @param  string|null $search メンバーの表示名またはメールアドレスに対する部分一致検索文字列。 1〜255 文字。空文字列はバリデーションエラー（400）となります。 (optional)
+     * @param  bool|null $includeCounts &#x60;true&#x60; の場合、レスポンスのトップレベルに &#x60;role_counts&#x60; と &#x60;domain_counts&#x60;（フィルタ適用前の総件数集計）を含めて返却します。 集計コストを避けるためデフォルトは &#x60;false&#x60;。 (optional, default to false)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['listOrganizationMembers'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -3559,10 +3577,16 @@ class AdminApi
         string $organizationId,
         ?int $page = 1,
         ?int $perPage = 20,
+        ?string $sortBy = 'joined_at',
+        ?string $sortOrder = 'desc',
+        ?array $role = null,
+        ?array $domainType = null,
+        ?string $search = null,
+        ?bool $includeCounts = false,
         string $contentType = self::contentTypes['listOrganizationMembers'][0]
     ): array
     {
-        $request = $this->listOrganizationMembersRequest($organizationId, $page, $perPage, $contentType);
+        $request = $this->listOrganizationMembersRequest($organizationId, $page, $perPage, $sortBy, $sortOrder, $role, $domainType, $search, $includeCounts, $contentType);
 
         try {
             $options = $this->createHttpClientOption();
@@ -3593,6 +3617,12 @@ class AdminApi
                         $request,
                         $response,
                     );
+                case 400:
+                    return $this->handleResponseWithDataType(
+                        '\Studio\Auth\Model\ProblemDetails',
+                        $request,
+                        $response,
+                    );
                 case 401:
                     return $this->handleResponseWithDataType(
                         '\Studio\Auth\Model\ProblemDetails',
@@ -3600,12 +3630,6 @@ class AdminApi
                         $response,
                     );
                 case 403:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-                case 404:
                     return $this->handleResponseWithDataType(
                         '\Studio\Auth\Model\ProblemDetails',
                         $request,
@@ -3654,6 +3678,14 @@ class AdminApi
                     );
                     $e->setResponseObject($data);
                     throw $e;
+                case 400:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Studio\Auth\Model\ProblemDetails',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
                 case 401:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
@@ -3663,14 +3695,6 @@ class AdminApi
                     $e->setResponseObject($data);
                     throw $e;
                 case 403:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 404:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
                         '\Studio\Auth\Model\ProblemDetails',
@@ -3708,6 +3732,12 @@ class AdminApi
      * @param  string $organizationId 組織識別子（UUID形式）。 (required)
      * @param  int|null $page 取得するページ番号（1始まり）。 (optional, default to 1)
      * @param  int|null $perPage 1ページあたりの取得件数。 (optional, default to 20)
+     * @param  string|null $sortBy ソート基準フィールド。 - &#x60;name&#x60;: ユーザー表示名 - &#x60;email&#x60;: ユーザーメールアドレス - &#x60;role&#x60;: 組織内ロール - &#x60;joined_at&#x60;: 組織への参加日時 - &#x60;last_access&#x60;: 組織への最終アクセス日時 (optional, default to 'joined_at')
+     * @param  string|null $sortOrder ソート順。 - &#x60;asc&#x60;: 昇順 - &#x60;desc&#x60;: 降順 (optional, default to 'desc')
+     * @param  \Studio\Auth\Model\OrganizationRole[]|null $role ロールでメンバーを絞り込みます。カンマ区切りで複数値を指定可能（例: &#x60;?role&#x3D;owner,admin&#x60;）。 未指定時は全ロールを返却します。 (optional)
+     * @param  \Studio\Auth\Model\OrganizationMemberDomainType[]|null $domainType メンバーのメールドメインが組織の verified ドメインと一致するか (&#x60;corporate&#x60;)、しないか (&#x60;personal&#x60;) で絞り込みます。 カンマ区切りで複数値を指定可能（例: &#x60;?domain_type&#x3D;corporate,personal&#x60;）。未指定時は全件返却します。 (optional)
+     * @param  string|null $search メンバーの表示名またはメールアドレスに対する部分一致検索文字列。 1〜255 文字。空文字列はバリデーションエラー（400）となります。 (optional)
+     * @param  bool|null $includeCounts &#x60;true&#x60; の場合、レスポンスのトップレベルに &#x60;role_counts&#x60; と &#x60;domain_counts&#x60;（フィルタ適用前の総件数集計）を含めて返却します。 集計コストを避けるためデフォルトは &#x60;false&#x60;。 (optional, default to false)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['listOrganizationMembers'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -3717,10 +3747,16 @@ class AdminApi
         string $organizationId,
         ?int $page = 1,
         ?int $perPage = 20,
+        ?string $sortBy = 'joined_at',
+        ?string $sortOrder = 'desc',
+        ?array $role = null,
+        ?array $domainType = null,
+        ?string $search = null,
+        ?bool $includeCounts = false,
         string $contentType = self::contentTypes['listOrganizationMembers'][0]
     ): PromiseInterface
     {
-        return $this->listOrganizationMembersAsyncWithHttpInfo($organizationId, $page, $perPage, $contentType)
+        return $this->listOrganizationMembersAsyncWithHttpInfo($organizationId, $page, $perPage, $sortBy, $sortOrder, $role, $domainType, $search, $includeCounts, $contentType)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -3736,6 +3772,12 @@ class AdminApi
      * @param  string $organizationId 組織識別子（UUID形式）。 (required)
      * @param  int|null $page 取得するページ番号（1始まり）。 (optional, default to 1)
      * @param  int|null $perPage 1ページあたりの取得件数。 (optional, default to 20)
+     * @param  string|null $sortBy ソート基準フィールド。 - &#x60;name&#x60;: ユーザー表示名 - &#x60;email&#x60;: ユーザーメールアドレス - &#x60;role&#x60;: 組織内ロール - &#x60;joined_at&#x60;: 組織への参加日時 - &#x60;last_access&#x60;: 組織への最終アクセス日時 (optional, default to 'joined_at')
+     * @param  string|null $sortOrder ソート順。 - &#x60;asc&#x60;: 昇順 - &#x60;desc&#x60;: 降順 (optional, default to 'desc')
+     * @param  \Studio\Auth\Model\OrganizationRole[]|null $role ロールでメンバーを絞り込みます。カンマ区切りで複数値を指定可能（例: &#x60;?role&#x3D;owner,admin&#x60;）。 未指定時は全ロールを返却します。 (optional)
+     * @param  \Studio\Auth\Model\OrganizationMemberDomainType[]|null $domainType メンバーのメールドメインが組織の verified ドメインと一致するか (&#x60;corporate&#x60;)、しないか (&#x60;personal&#x60;) で絞り込みます。 カンマ区切りで複数値を指定可能（例: &#x60;?domain_type&#x3D;corporate,personal&#x60;）。未指定時は全件返却します。 (optional)
+     * @param  string|null $search メンバーの表示名またはメールアドレスに対する部分一致検索文字列。 1〜255 文字。空文字列はバリデーションエラー（400）となります。 (optional)
+     * @param  bool|null $includeCounts &#x60;true&#x60; の場合、レスポンスのトップレベルに &#x60;role_counts&#x60; と &#x60;domain_counts&#x60;（フィルタ適用前の総件数集計）を含めて返却します。 集計コストを避けるためデフォルトは &#x60;false&#x60;。 (optional, default to false)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['listOrganizationMembers'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -3745,11 +3787,17 @@ class AdminApi
         string $organizationId,
         ?int $page = 1,
         ?int $perPage = 20,
+        ?string $sortBy = 'joined_at',
+        ?string $sortOrder = 'desc',
+        ?array $role = null,
+        ?array $domainType = null,
+        ?string $search = null,
+        ?bool $includeCounts = false,
         string $contentType = self::contentTypes['listOrganizationMembers'][0]
     ): PromiseInterface
     {
         $returnType = '\Studio\Auth\Model\AdminOrganizationMemberListResponse';
-        $request = $this->listOrganizationMembersRequest($organizationId, $page, $perPage, $contentType);
+        $request = $this->listOrganizationMembersRequest($organizationId, $page, $perPage, $sortBy, $sortOrder, $role, $domainType, $search, $includeCounts, $contentType);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -3793,6 +3841,12 @@ class AdminApi
      * @param  string $organizationId 組織識別子（UUID形式）。 (required)
      * @param  int|null $page 取得するページ番号（1始まり）。 (optional, default to 1)
      * @param  int|null $perPage 1ページあたりの取得件数。 (optional, default to 20)
+     * @param  string|null $sortBy ソート基準フィールド。 - &#x60;name&#x60;: ユーザー表示名 - &#x60;email&#x60;: ユーザーメールアドレス - &#x60;role&#x60;: 組織内ロール - &#x60;joined_at&#x60;: 組織への参加日時 - &#x60;last_access&#x60;: 組織への最終アクセス日時 (optional, default to 'joined_at')
+     * @param  string|null $sortOrder ソート順。 - &#x60;asc&#x60;: 昇順 - &#x60;desc&#x60;: 降順 (optional, default to 'desc')
+     * @param  \Studio\Auth\Model\OrganizationRole[]|null $role ロールでメンバーを絞り込みます。カンマ区切りで複数値を指定可能（例: &#x60;?role&#x3D;owner,admin&#x60;）。 未指定時は全ロールを返却します。 (optional)
+     * @param  \Studio\Auth\Model\OrganizationMemberDomainType[]|null $domainType メンバーのメールドメインが組織の verified ドメインと一致するか (&#x60;corporate&#x60;)、しないか (&#x60;personal&#x60;) で絞り込みます。 カンマ区切りで複数値を指定可能（例: &#x60;?domain_type&#x3D;corporate,personal&#x60;）。未指定時は全件返却します。 (optional)
+     * @param  string|null $search メンバーの表示名またはメールアドレスに対する部分一致検索文字列。 1〜255 文字。空文字列はバリデーションエラー（400）となります。 (optional)
+     * @param  bool|null $includeCounts &#x60;true&#x60; の場合、レスポンスのトップレベルに &#x60;role_counts&#x60; と &#x60;domain_counts&#x60;（フィルタ適用前の総件数集計）を含めて返却します。 集計コストを避けるためデフォルトは &#x60;false&#x60;。 (optional, default to false)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['listOrganizationMembers'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -3802,6 +3856,12 @@ class AdminApi
         string $organizationId,
         ?int $page = 1,
         ?int $perPage = 20,
+        ?string $sortBy = 'joined_at',
+        ?string $sortOrder = 'desc',
+        ?array $role = null,
+        ?array $domainType = null,
+        ?string $search = null,
+        ?bool $includeCounts = false,
         string $contentType = self::contentTypes['listOrganizationMembers'][0]
     ): Request
     {
@@ -3825,6 +3885,18 @@ class AdminApi
         }
         
 
+
+        
+        
+        if ($search !== null && strlen($search) > 255) {
+            throw new InvalidArgumentException('invalid length for "$search" when calling AdminApi.listOrganizationMembers, must be smaller than or equal to 255.');
+        }
+        if ($search !== null && strlen($search) < 1) {
+            throw new InvalidArgumentException('invalid length for "$search" when calling AdminApi.listOrganizationMembers, must be bigger than or equal to 1.');
+        }
+        
+
+
         $resourcePath = '/admin/organizations/{organization_id}/members';
         $formParams = [];
         $queryParams = [];
@@ -3846,6 +3918,60 @@ class AdminApi
             $perPage,
             'per_page', // param base name
             'integer', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $sortBy,
+            'sort_by', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $sortOrder,
+            'sort_order', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $role,
+            'role', // param base name
+            'array', // openApiType
+            'form', // style
+            false, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $domainType,
+            'domain_type', // param base name
+            'array', // openApiType
+            'form', // style
+            false, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $search,
+            'search', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $includeCounts,
+            'include_counts', // param base name
+            'boolean', // openApiType
             'form', // style
             true, // explode
             false // required

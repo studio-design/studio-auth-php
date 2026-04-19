@@ -38,7 +38,7 @@ use Studio\Auth\ObjectSerializer;
 /**
  * AdminOrganizationMemberListResponse Class Doc Comment
  *
- * @description 組織メンバー一覧レスポンス（ページネーション付き）。
+ * @description 組織メンバー一覧レスポンス（ページネーション付き）。 &#x60;include_counts&#x3D;true&#x60; クエリ指定時のみ &#x60;role_counts&#x60; と &#x60;domain_counts&#x60; を含みます（フィルタ適用前の総件数）。
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
@@ -62,7 +62,9 @@ class AdminOrganizationMemberListResponse implements ModelInterface, ArrayAccess
      */
     protected static array $openAPITypes = [
         'data' => '\Studio\Auth\Model\OrganizationMember[]',
-        'meta' => '\Studio\Auth\Model\PaginationMeta'
+        'meta' => '\Studio\Auth\Model\PaginationMeta',
+        'roleCounts' => '\Studio\Auth\Model\MemberRoleCounts',
+        'domainCounts' => '\Studio\Auth\Model\MemberDomainTypeCounts'
     ];
 
     /**
@@ -72,7 +74,9 @@ class AdminOrganizationMemberListResponse implements ModelInterface, ArrayAccess
      */
     protected static array $openAPIFormats = [
         'data' => null,
-        'meta' => null
+        'meta' => null,
+        'roleCounts' => null,
+        'domainCounts' => null
     ];
 
     /**
@@ -82,7 +86,9 @@ class AdminOrganizationMemberListResponse implements ModelInterface, ArrayAccess
      */
     protected static array $openAPINullables = [
         'data' => false,
-        'meta' => false
+        'meta' => false,
+        'roleCounts' => false,
+        'domainCounts' => false
     ];
 
     /**
@@ -162,7 +168,9 @@ class AdminOrganizationMemberListResponse implements ModelInterface, ArrayAccess
      */
     protected static array $attributeMap = [
         'data' => 'data',
-        'meta' => 'meta'
+        'meta' => 'meta',
+        'roleCounts' => 'role_counts',
+        'domainCounts' => 'domain_counts'
     ];
 
     /**
@@ -172,7 +180,9 @@ class AdminOrganizationMemberListResponse implements ModelInterface, ArrayAccess
      */
     protected static array $setters = [
         'data' => 'setData',
-        'meta' => 'setMeta'
+        'meta' => 'setMeta',
+        'roleCounts' => 'setRoleCounts',
+        'domainCounts' => 'setDomainCounts'
     ];
 
     /**
@@ -182,7 +192,9 @@ class AdminOrganizationMemberListResponse implements ModelInterface, ArrayAccess
      */
     protected static array $getters = [
         'data' => 'getData',
-        'meta' => 'getMeta'
+        'meta' => 'getMeta',
+        'roleCounts' => 'getRoleCounts',
+        'domainCounts' => 'getDomainCounts'
     ];
 
     /**
@@ -234,6 +246,8 @@ class AdminOrganizationMemberListResponse implements ModelInterface, ArrayAccess
     {
         $this->setIfExists('data', $data ?? [], null);
         $this->setIfExists('meta', $data ?? [], null);
+        $this->setIfExists('roleCounts', $data ?? [], null);
+        $this->setIfExists('domainCounts', $data ?? [], null);
     }
 
     /**
@@ -329,6 +343,60 @@ class AdminOrganizationMemberListResponse implements ModelInterface, ArrayAccess
             throw new InvalidArgumentException('non-nullable meta cannot be null');
         }
         $this->container['meta'] = $meta;
+
+        return $this;
+    }
+
+    /**
+     * Gets roleCounts
+     *
+     * @return \Studio\Auth\Model\MemberRoleCounts|null
+     */
+    public function getRoleCounts(): ?\Studio\Auth\Model\MemberRoleCounts
+    {
+        return $this->container['roleCounts'];
+    }
+
+    /**
+     * Sets roleCounts
+     *
+     * @param \Studio\Auth\Model\MemberRoleCounts|null $roleCounts roleCounts
+     *
+     * @return $this
+     */
+    public function setRoleCounts(?\Studio\Auth\Model\MemberRoleCounts $roleCounts): static
+    {
+        if (is_null($roleCounts)) {
+            throw new InvalidArgumentException('non-nullable roleCounts cannot be null');
+        }
+        $this->container['roleCounts'] = $roleCounts;
+
+        return $this;
+    }
+
+    /**
+     * Gets domainCounts
+     *
+     * @return \Studio\Auth\Model\MemberDomainTypeCounts|null
+     */
+    public function getDomainCounts(): ?\Studio\Auth\Model\MemberDomainTypeCounts
+    {
+        return $this->container['domainCounts'];
+    }
+
+    /**
+     * Sets domainCounts
+     *
+     * @param \Studio\Auth\Model\MemberDomainTypeCounts|null $domainCounts domainCounts
+     *
+     * @return $this
+     */
+    public function setDomainCounts(?\Studio\Auth\Model\MemberDomainTypeCounts $domainCounts): static
+    {
+        if (is_null($domainCounts)) {
+            throw new InvalidArgumentException('non-nullable domainCounts cannot be null');
+        }
+        $this->container['domainCounts'] = $domainCounts;
 
         return $this;
     }

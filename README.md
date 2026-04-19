@@ -105,6 +105,7 @@ Class | Method | HTTP request | Description
 *AuthApi* | **issueTokens** | **POST** /oauth/token | トークンエンドポイント
 *AuthApi* | **postUserinfo** | **POST** /oauth/userinfo | ユーザー情報の取得 (POST)
 *AuthApi* | **revokeToken** | **POST** /oauth/revoke | トークン無効化エンドポイント
+*OrganizationApi* | **listMembers** | **GET** /organizations/{organization_id}/members | 組織メンバー一覧取得（組織メンバー向け）
 *OrganizationApi* | **sendInvitation** | **POST** /organizations/{organization_id}/invitations | 組織Adminによるメンバー招待
 *SystemApi* | **getHealthStatus** | **GET** /health | ヘルスチェック
 *SystemApi* | **getJwks** | **GET** /jwks | JSON Web Key Set の取得
@@ -141,12 +142,16 @@ Class | Method | HTTP request | Description
 - IntrospectResponseAud
 - JsonWebKey
 - JwksResponse
+- MemberDomainTypeCounts
+- MemberRoleCounts
 - OpenIDProviderMetadataResponse
 - Organization
 - OrganizationInvitation
 - OrganizationInvitationCreateRequest
 - OrganizationInvitationCreatedResponse
 - OrganizationMember
+- OrganizationMemberDomainType
+- OrganizationMemberListResponse
 - OrganizationMemberUser
 - OrganizationRole
 - PaginationMeta

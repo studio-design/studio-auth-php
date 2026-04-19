@@ -74,7 +74,8 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
         'iss' => 'string',
         'jti' => 'string',
         'email' => 'string',
-        'emailVerified' => 'bool'
+        'emailVerified' => 'bool',
+        'orgId' => 'string'
     ];
 
     /**
@@ -96,7 +97,8 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
         'iss' => null,
         'jti' => null,
         'email' => 'email',
-        'emailVerified' => null
+        'emailVerified' => null,
+        'orgId' => 'uuid'
     ];
 
     /**
@@ -118,7 +120,8 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
         'iss' => false,
         'jti' => false,
         'email' => false,
-        'emailVerified' => false
+        'emailVerified' => false,
+        'orgId' => true
     ];
 
     /**
@@ -210,7 +213,8 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
         'iss' => 'iss',
         'jti' => 'jti',
         'email' => 'email',
-        'emailVerified' => 'email_verified'
+        'emailVerified' => 'email_verified',
+        'orgId' => 'org_id'
     ];
 
     /**
@@ -232,7 +236,8 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
         'iss' => 'setIss',
         'jti' => 'setJti',
         'email' => 'setEmail',
-        'emailVerified' => 'setEmailVerified'
+        'emailVerified' => 'setEmailVerified',
+        'orgId' => 'setOrgId'
     ];
 
     /**
@@ -254,7 +259,8 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
         'iss' => 'getIss',
         'jti' => 'getJti',
         'email' => 'getEmail',
-        'emailVerified' => 'getEmailVerified'
+        'emailVerified' => 'getEmailVerified',
+        'orgId' => 'getOrgId'
     ];
 
     /**
@@ -318,6 +324,7 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
         $this->setIfExists('jti', $data ?? [], null);
         $this->setIfExists('email', $data ?? [], null);
         $this->setIfExists('emailVerified', $data ?? [], null);
+        $this->setIfExists('orgId', $data ?? [], null);
     }
 
     /**
@@ -734,6 +741,40 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
             throw new InvalidArgumentException('non-nullable emailVerified cannot be null');
         }
         $this->container['emailVerified'] = $emailVerified;
+
+        return $this;
+    }
+
+    /**
+     * Gets orgId
+     *
+     * @return string|null
+     */
+    public function getOrgId(): ?string
+    {
+        return $this->container['orgId'];
+    }
+
+    /**
+     * Sets orgId
+     *
+     * @param string|null $orgId トークンに紐づく組織識別子（UUID形式）。 アクセストークンに `org_id` クレームが含まれている場合に返却されます。 組織コンテキストを持たないトークンの場合は `null` または不在となります。
+     *
+     * @return $this
+     */
+    public function setOrgId(?string $orgId): static
+    {
+        if (is_null($orgId)) {
+            array_push($this->openAPINullablesSetToNull, 'orgId');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('orgId', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['orgId'] = $orgId;
 
         return $this;
     }

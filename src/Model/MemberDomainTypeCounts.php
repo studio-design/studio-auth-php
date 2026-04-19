@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * OrganizationMember
+ * MemberDomainTypeCounts
  *
  * PHP version 8.1
  *
@@ -36,15 +36,15 @@ use ReturnTypeWillChange;
 use Studio\Auth\ObjectSerializer;
 
 /**
- * OrganizationMember Class Doc Comment
+ * MemberDomainTypeCounts Class Doc Comment
  *
- * @description 組織メンバー情報。
+ * @description メールドメイン分類別のメンバー数集計（フィルタ適用前の総件数）。 &#x60;include_counts&#x3D;true&#x60; の場合のみレスポンスに含まれます。
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  * @implements ArrayAccess<string, mixed>
  */
-class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializable
+class MemberDomainTypeCounts implements ModelInterface, ArrayAccess, JsonSerializable
 {
     public const DISCRIMINATOR = null;
 
@@ -53,7 +53,7 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
      *
      * @var string
      */
-    protected static string $openAPIModelName = 'OrganizationMember';
+    protected static string $openAPIModelName = 'MemberDomainTypeCounts';
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -61,13 +61,8 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
-        'id' => 'string',
-        'user' => '\Studio\Auth\Model\OrganizationMemberUser',
-        'role' => '\Studio\Auth\Model\OrganizationRole',
-        'avatarSrc' => 'string',
-        'lastAccess' => '\DateTime',
-        'domainType' => '\Studio\Auth\Model\OrganizationMemberDomainType',
-        'joinedAt' => '\DateTime'
+        'corporate' => 'int',
+        'personal' => 'int'
     ];
 
     /**
@@ -76,13 +71,8 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
      * @var array<string, string|null>
      */
     protected static array $openAPIFormats = [
-        'id' => 'uuid',
-        'user' => null,
-        'role' => null,
-        'avatarSrc' => 'uri',
-        'lastAccess' => 'date-time',
-        'domainType' => null,
-        'joinedAt' => 'date-time'
+        'corporate' => null,
+        'personal' => null
     ];
 
     /**
@@ -91,13 +81,8 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
      * @var array<string, bool>
      */
     protected static array $openAPINullables = [
-        'id' => false,
-        'user' => false,
-        'role' => false,
-        'avatarSrc' => true,
-        'lastAccess' => true,
-        'domainType' => false,
-        'joinedAt' => false
+        'corporate' => false,
+        'personal' => false
     ];
 
     /**
@@ -176,13 +161,8 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
      * @var array<string, string>
      */
     protected static array $attributeMap = [
-        'id' => 'id',
-        'user' => 'user',
-        'role' => 'role',
-        'avatarSrc' => 'avatar_src',
-        'lastAccess' => 'last_access',
-        'domainType' => 'domain_type',
-        'joinedAt' => 'joined_at'
+        'corporate' => 'corporate',
+        'personal' => 'personal'
     ];
 
     /**
@@ -191,13 +171,8 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
      * @var array<string, string>
      */
     protected static array $setters = [
-        'id' => 'setId',
-        'user' => 'setUser',
-        'role' => 'setRole',
-        'avatarSrc' => 'setAvatarSrc',
-        'lastAccess' => 'setLastAccess',
-        'domainType' => 'setDomainType',
-        'joinedAt' => 'setJoinedAt'
+        'corporate' => 'setCorporate',
+        'personal' => 'setPersonal'
     ];
 
     /**
@@ -206,13 +181,8 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
      * @var array<string, string>
      */
     protected static array $getters = [
-        'id' => 'getId',
-        'user' => 'getUser',
-        'role' => 'getRole',
-        'avatarSrc' => 'getAvatarSrc',
-        'lastAccess' => 'getLastAccess',
-        'domainType' => 'getDomainType',
-        'joinedAt' => 'getJoinedAt'
+        'corporate' => 'getCorporate',
+        'personal' => 'getPersonal'
     ];
 
     /**
@@ -262,13 +232,8 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
      */
     public function __construct(?array $data = null)
     {
-        $this->setIfExists('id', $data ?? [], null);
-        $this->setIfExists('user', $data ?? [], null);
-        $this->setIfExists('role', $data ?? [], null);
-        $this->setIfExists('avatarSrc', $data ?? [], null);
-        $this->setIfExists('lastAccess', $data ?? [], null);
-        $this->setIfExists('domainType', $data ?? [], null);
-        $this->setIfExists('joinedAt', $data ?? [], null);
+        $this->setIfExists('corporate', $data ?? [], null);
+        $this->setIfExists('personal', $data ?? [], null);
     }
 
     /**
@@ -296,18 +261,20 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
     {
         $invalidProperties = [];
 
-        if ($this->container['id'] === null) {
-            $invalidProperties[] = "'id' can't be null";
+        if ($this->container['corporate'] === null) {
+            $invalidProperties[] = "'corporate' can't be null";
         }
-        if ($this->container['user'] === null) {
-            $invalidProperties[] = "'user' can't be null";
+        if (($this->container['corporate'] < 0)) {
+            $invalidProperties[] = "invalid value for 'corporate', must be bigger than or equal to 0.";
         }
-        if ($this->container['role'] === null) {
-            $invalidProperties[] = "'role' can't be null";
+
+        if ($this->container['personal'] === null) {
+            $invalidProperties[] = "'personal' can't be null";
         }
-        if ($this->container['joinedAt'] === null) {
-            $invalidProperties[] = "'joinedAt' can't be null";
+        if (($this->container['personal'] < 0)) {
+            $invalidProperties[] = "invalid value for 'personal', must be bigger than or equal to 0.";
         }
+
         return $invalidProperties;
     }
 
@@ -321,204 +288,65 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
 
 
     /**
-     * Gets id
+     * Gets corporate
      *
-     * @return string
+     * @return int
      */
-    public function getId(): string
+    public function getCorporate(): int
     {
-        return $this->container['id'];
+        return $this->container['corporate'];
     }
 
     /**
-     * Sets id
+     * Sets corporate
      *
-     * @param string $id メンバー識別子（UUID形式）。
+     * @param int $corporate 組織の verified ドメインに一致するメールを持つメンバー数。
      *
      * @return $this
      */
-    public function setId(string $id): static
+    public function setCorporate(int $corporate): static
     {
-        if (is_null($id)) {
-            throw new InvalidArgumentException('non-nullable id cannot be null');
+        if (is_null($corporate)) {
+            throw new InvalidArgumentException('non-nullable corporate cannot be null');
         }
-        $this->container['id'] = $id;
+
+        if (($corporate < 0)) {
+            throw new InvalidArgumentException('invalid value for $corporate when calling MemberDomainTypeCounts., must be bigger than or equal to 0.');
+        }
+
+        $this->container['corporate'] = $corporate;
 
         return $this;
     }
 
     /**
-     * Gets user
+     * Gets personal
      *
-     * @return \Studio\Auth\Model\OrganizationMemberUser
+     * @return int
      */
-    public function getUser(): \Studio\Auth\Model\OrganizationMemberUser
+    public function getPersonal(): int
     {
-        return $this->container['user'];
+        return $this->container['personal'];
     }
 
     /**
-     * Sets user
+     * Sets personal
      *
-     * @param \Studio\Auth\Model\OrganizationMemberUser $user user
+     * @param int $personal 組織の verified ドメインに一致しないメールを持つメンバー数。
      *
      * @return $this
      */
-    public function setUser(\Studio\Auth\Model\OrganizationMemberUser $user): static
+    public function setPersonal(int $personal): static
     {
-        if (is_null($user)) {
-            throw new InvalidArgumentException('non-nullable user cannot be null');
+        if (is_null($personal)) {
+            throw new InvalidArgumentException('non-nullable personal cannot be null');
         }
-        $this->container['user'] = $user;
 
-        return $this;
-    }
-
-    /**
-     * Gets role
-     *
-     * @return \Studio\Auth\Model\OrganizationRole
-     */
-    public function getRole(): \Studio\Auth\Model\OrganizationRole
-    {
-        return $this->container['role'];
-    }
-
-    /**
-     * Sets role
-     *
-     * @param \Studio\Auth\Model\OrganizationRole $role role
-     *
-     * @return $this
-     */
-    public function setRole(\Studio\Auth\Model\OrganizationRole $role): static
-    {
-        if (is_null($role)) {
-            throw new InvalidArgumentException('non-nullable role cannot be null');
+        if (($personal < 0)) {
+            throw new InvalidArgumentException('invalid value for $personal when calling MemberDomainTypeCounts., must be bigger than or equal to 0.');
         }
-        $this->container['role'] = $role;
 
-        return $this;
-    }
-
-    /**
-     * Gets avatarSrc
-     *
-     * @return string|null
-     */
-    public function getAvatarSrc(): ?string
-    {
-        return $this->container['avatarSrc'];
-    }
-
-    /**
-     * Sets avatarSrc
-     *
-     * @param string|null $avatarSrc メンバーのアバター画像 URL。アバター未設定時は `null`。 ユーザーレコードの `picture_url` を参照します。
-     *
-     * @return $this
-     */
-    public function setAvatarSrc(?string $avatarSrc): static
-    {
-        if (is_null($avatarSrc)) {
-            array_push($this->openAPINullablesSetToNull, 'avatarSrc');
-        } else {
-            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
-            $index = array_search('avatarSrc', $nullablesSetToNull);
-            if ($index !== FALSE) {
-                unset($nullablesSetToNull[$index]);
-                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
-            }
-        }
-        $this->container['avatarSrc'] = $avatarSrc;
-
-        return $this;
-    }
-
-    /**
-     * Gets lastAccess
-     *
-     * @return \DateTime|null
-     */
-    public function getLastAccess(): ?\DateTime
-    {
-        return $this->container['lastAccess'];
-    }
-
-    /**
-     * Sets lastAccess
-     *
-     * @param \DateTime|null $lastAccess 組織への最終アクセス日時（ISO 8601 形式）。 組織コンテキストでまだアクセスしていないメンバーは `null`。
-     *
-     * @return $this
-     */
-    public function setLastAccess(?\DateTime $lastAccess): static
-    {
-        if (is_null($lastAccess)) {
-            array_push($this->openAPINullablesSetToNull, 'lastAccess');
-        } else {
-            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
-            $index = array_search('lastAccess', $nullablesSetToNull);
-            if ($index !== FALSE) {
-                unset($nullablesSetToNull[$index]);
-                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
-            }
-        }
-        $this->container['lastAccess'] = $lastAccess;
-
-        return $this;
-    }
-
-    /**
-     * Gets domainType
-     *
-     * @return \Studio\Auth\Model\OrganizationMemberDomainType|null
-     */
-    public function getDomainType(): ?\Studio\Auth\Model\OrganizationMemberDomainType
-    {
-        return $this->container['domainType'];
-    }
-
-    /**
-     * Sets domainType
-     *
-     * @param \Studio\Auth\Model\OrganizationMemberDomainType|null $domainType domainType
-     *
-     * @return $this
-     */
-    public function setDomainType(?\Studio\Auth\Model\OrganizationMemberDomainType $domainType): static
-    {
-        if (is_null($domainType)) {
-            throw new InvalidArgumentException('non-nullable domainType cannot be null');
-        }
-        $this->container['domainType'] = $domainType;
-
-        return $this;
-    }
-
-    /**
-     * Gets joinedAt
-     *
-     * @return \DateTime
-     */
-    public function getJoinedAt(): \DateTime
-    {
-        return $this->container['joinedAt'];
-    }
-
-    /**
-     * Sets joinedAt
-     *
-     * @param \DateTime $joinedAt 組織への参加日時（ISO 8601 形式）。
-     *
-     * @return $this
-     */
-    public function setJoinedAt(\DateTime $joinedAt): static
-    {
-        if (is_null($joinedAt)) {
-            throw new InvalidArgumentException('non-nullable joinedAt cannot be null');
-        }
-        $this->container['joinedAt'] = $joinedAt;
+        $this->container['personal'] = $personal;
 
         return $this;
     }
