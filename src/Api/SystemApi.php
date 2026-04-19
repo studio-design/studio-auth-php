@@ -85,6 +85,9 @@ class SystemApi
         'getOpenIDConfiguration' => [
             'application/json',
         ],
+        'getServiceInfo' => [
+            'application/json',
+        ],
     ];
 
     /**
@@ -917,6 +920,274 @@ class SystemApi
 
 
         $resourcePath = '/.well-known/openid-configuration';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+
+
+        $headers = $this->headerSelector->selectHeaders(
+            ['application/json', 'application/problem+json', ],
+            $contentType,
+            $multipart
+        );
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the form parameters
+                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
+            } else {
+                // for HTTP post (form)
+                $httpBody = ObjectSerializer::buildQuery($formParams);
+            }
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $operationHost = $this->config->getHost();
+        $query = ObjectSerializer::buildQuery($queryParams);
+        return new Request(
+            'GET',
+            $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation getServiceInfo
+     *
+     * サービス情報
+     *
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['getServiceInfo'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return \Studio\Auth\Model\ServiceInfoResponse|\Studio\Auth\Model\ProblemDetails
+     */
+    public function getServiceInfo(
+        string $contentType = self::contentTypes['getServiceInfo'][0]
+    ): \Studio\Auth\Model\ServiceInfoResponse|\Studio\Auth\Model\ProblemDetails
+    {
+        list($response) = $this->getServiceInfoWithHttpInfo($contentType);
+        return $response;
+    }
+
+    /**
+     * Operation getServiceInfoWithHttpInfo
+     *
+     * サービス情報
+     *
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['getServiceInfo'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return array of \Studio\Auth\Model\ServiceInfoResponse|\Studio\Auth\Model\ProblemDetails, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function getServiceInfoWithHttpInfo(
+        string $contentType = self::contentTypes['getServiceInfo'][0]
+    ): array
+    {
+        $request = $this->getServiceInfoRequest($contentType);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+            switch($statusCode) {
+                case 200:
+                    return $this->handleResponseWithDataType(
+                        '\Studio\Auth\Model\ServiceInfoResponse',
+                        $request,
+                        $response,
+                    );
+                case 404:
+                    return $this->handleResponseWithDataType(
+                        '\Studio\Auth\Model\ProblemDetails',
+                        $request,
+                        $response,
+                    );
+            }
+            
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            return $this->handleResponseWithDataType(
+                '\Studio\Auth\Model\ServiceInfoResponse',
+                $request,
+                $response,
+            );
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Studio\Auth\Model\ServiceInfoResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 404:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Studio\Auth\Model\ProblemDetails',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+            }
+        
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation getServiceInfoAsync
+     *
+     * サービス情報
+     *
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['getServiceInfo'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function getServiceInfoAsync(
+        string $contentType = self::contentTypes['getServiceInfo'][0]
+    ): PromiseInterface
+    {
+        return $this->getServiceInfoAsyncWithHttpInfo($contentType)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation getServiceInfoAsyncWithHttpInfo
+     *
+     * サービス情報
+     *
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['getServiceInfo'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function getServiceInfoAsyncWithHttpInfo(
+        string $contentType = self::contentTypes['getServiceInfo'][0]
+    ): PromiseInterface
+    {
+        $returnType = '\Studio\Auth\Model\ServiceInfoResponse';
+        $request = $this->getServiceInfoRequest($contentType);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                        if ($returnType !== 'string') {
+                            $content = json_decode($content);
+                        }
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'getServiceInfo'
+     *
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['getServiceInfo'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function getServiceInfoRequest(
+        string $contentType = self::contentTypes['getServiceInfo'][0]
+    ): Request
+    {
+
+
+        $resourcePath = '/';
         $formParams = [];
         $queryParams = [];
         $headerParams = [];

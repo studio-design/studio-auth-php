@@ -109,6 +109,7 @@ Class | Method | HTTP request | Description
 *SystemApi* | **getHealthStatus** | **GET** /health | ヘルスチェック
 *SystemApi* | **getJwks** | **GET** /jwks | JSON Web Key Set の取得
 *SystemApi* | **getOpenIDConfiguration** | **GET** /.well-known/openid-configuration | OpenID Connect Discovery
+*SystemApi* | **getServiceInfo** | **GET** / | サービス情報
 
 
 ## モデル一覧
@@ -152,6 +153,7 @@ Class | Method | HTTP request | Description
 - ProblemDetails
 - RevokeErrorResponse
 - RsaJsonWebKey
+- ServiceInfoResponse
 - SsoEnforcementErrorResponse
 - TokenErrorResponse
 - TokenResponse
