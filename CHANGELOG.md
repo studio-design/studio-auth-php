@@ -1,4 +1,12 @@
-# studio-design/auth-sdk-php
+# studio-design/studio-auth-php
+
+## [0.2.21](https://github.com/studio-design/studio-auth/compare/sdk-v0.2.20...sdk-v0.2.21) (2026-04-20)
+
+
+### Features
+
+* **sdk:** document error handling for getMyOrganization in TS SDK ([ffc71da](https://github.com/studio-design/studio-auth/commit/ffc71da1754dfdfff73cd1dae4cfb28419754845))
+* **sdk:** document error handling for getMyOrganization in TS SDK ([a1b94fc](https://github.com/studio-design/studio-auth/commit/a1b94fce772698528f208aabd6fdde2f275d3a7f))
 
 ## [0.2.20](https://github.com/studio-design/studio-auth/compare/sdk-v0.2.19...sdk-v0.2.20) (2026-04-20)
 
