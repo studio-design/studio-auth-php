@@ -107,6 +107,7 @@ Class | Method | HTTP request | Description
 *AuthApi* | **revokeToken** | **POST** /oauth/revoke | トークン無効化エンドポイント
 *OrganizationApi* | **getMemberMe** | **GET** /organizations/{organization_id}/members/me | 自分自身の組織メンバー情報取得（組織メンバー向け）
 *OrganizationApi* | **listMembers** | **GET** /organizations/{organization_id}/members | 組織メンバー一覧取得（組織メンバー向け）
+*OrganizationApi* | **removeMember** | **DELETE** /organizations/{organization_id}/members/{member_id} | メンバー削除（組織メンバー向け）
 *OrganizationApi* | **sendInvitation** | **POST** /organizations/{organization_id}/invitations | 組織Adminによるメンバー招待
 *OrganizationApi* | **updateMemberRole** | **PATCH** /organizations/{organization_id}/members/{member_id} | メンバーロール変更（組織メンバー向け）
 *SystemApi* | **getHealthStatus** | **GET** /health | ヘルスチェック

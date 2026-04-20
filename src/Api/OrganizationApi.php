@@ -85,6 +85,9 @@ class OrganizationApi
         'listMembers' => [
             'application/json',
         ],
+        'removeMember' => [
+            'application/json',
+        ],
         'sendInvitation' => [
             'application/json',
         ],
@@ -930,6 +933,308 @@ class OrganizationApi
         $query = ObjectSerializer::buildQuery($queryParams);
         return new Request(
             'GET',
+            $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation removeMember
+     *
+     * メンバー削除（組織メンバー向け）
+     *
+     * @param  string $organizationId 組織識別子（UUID形式）。 (required)
+     * @param  string $memberId メンバー識別子（UUID形式）。 (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['removeMember'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return void
+     */
+    public function removeMember(
+        string $organizationId,
+        string $memberId,
+        string $contentType = self::contentTypes['removeMember'][0]
+    ): void
+    {
+        $this->removeMemberWithHttpInfo($organizationId, $memberId, $contentType);
+    }
+
+    /**
+     * Operation removeMemberWithHttpInfo
+     *
+     * メンバー削除（組織メンバー向け）
+     *
+     * @param  string $organizationId 組織識別子（UUID形式）。 (required)
+     * @param  string $memberId メンバー識別子（UUID形式）。 (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['removeMember'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return array{0: null, 1: int, 2: array<string, string[]>}
+     */
+    public function removeMemberWithHttpInfo(
+        string $organizationId,
+        string $memberId,
+        string $contentType = self::contentTypes['removeMember'][0]
+    ): array
+    {
+        $request = $this->removeMemberRequest($organizationId, $memberId, $contentType);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
+                    $e,
+                );
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null,
+                    $e,
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            return [null, $statusCode, $response->getHeaders()];
+        } catch (ApiException $e) {
+            // Attempt to decode the error body as a ProblemDetails document (RFC 9457).
+            // Non-JSON bodies or schemas that don't match ProblemDetails leave $problem null,
+            // which is the caller's signal that the upstream did not return a structured error.
+            $problem = null;
+            $body = $e->getResponseBody();
+            if ($body !== null && $body !== '') {
+                try {
+                    $decoded = ObjectSerializer::deserialize(
+                        $body,
+                        ProblemDetails::class,
+                        $e->getResponseHeaders()
+                    );
+                    if ($decoded instanceof ProblemDetails) {
+                        $problem = $decoded;
+                    }
+                } catch (Throwable) {
+                    // Best-effort: keep $problem null and let the caller inspect the raw body.
+                }
+            }
+
+            throw ApiException::specialize($e, $problem);
+        }
+    }
+
+    /**
+     * Operation removeMemberAsync
+     *
+     * メンバー削除（組織メンバー向け）
+     *
+     * @param  string $organizationId 組織識別子（UUID形式）。 (required)
+     * @param  string $memberId メンバー識別子（UUID形式）。 (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['removeMember'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function removeMemberAsync(
+        string $organizationId,
+        string $memberId,
+        string $contentType = self::contentTypes['removeMember'][0]
+    ): PromiseInterface
+    {
+        return $this->removeMemberAsyncWithHttpInfo($organizationId, $memberId, $contentType)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation removeMemberAsyncWithHttpInfo
+     *
+     * メンバー削除（組織メンバー向け）
+     *
+     * @param  string $organizationId 組織識別子（UUID形式）。 (required)
+     * @param  string $memberId メンバー識別子（UUID形式）。 (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['removeMember'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function removeMemberAsyncWithHttpInfo(
+        string $organizationId,
+        string $memberId,
+        string $contentType = self::contentTypes['removeMember'][0]
+    ): PromiseInterface
+    {
+        $returnType = '';
+        $request = $this->removeMemberRequest($organizationId, $memberId, $contentType);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    return [null, $response->getStatusCode(), $response->getHeaders()];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    $body = (string) $response->getBody();
+                    $headers = $response->getHeaders();
+
+                    $base = new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $headers,
+                        $body,
+                        $exception,
+                    );
+
+                    $problem = null;
+                    if ($body !== '') {
+                        try {
+                            $decoded = ObjectSerializer::deserialize(
+                                $body,
+                                ProblemDetails::class,
+                                $headers
+                            );
+                            if ($decoded instanceof ProblemDetails) {
+                                $problem = $decoded;
+                            }
+                        } catch (Throwable) {
+                            // Best-effort: leave $problem null.
+                        }
+                    }
+
+                    throw ApiException::specialize($base, $problem);
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'removeMember'
+     *
+     * @param  string $organizationId 組織識別子（UUID形式）。 (required)
+     * @param  string $memberId メンバー識別子（UUID形式）。 (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['removeMember'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function removeMemberRequest(
+        string $organizationId,
+        string $memberId,
+        string $contentType = self::contentTypes['removeMember'][0]
+    ): Request
+    {
+
+        // verify the required parameter 'organizationId' is set
+        if ($organizationId === null || (is_array($organizationId) && count($organizationId) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $organizationId when calling removeMember'
+            );
+        }
+
+        // verify the required parameter 'memberId' is set
+        if ($memberId === null || (is_array($memberId) && count($memberId) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $memberId when calling removeMember'
+            );
+        }
+
+
+        $resourcePath = '/organizations/{organization_id}/members/{member_id}';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+        // path params
+        if ($organizationId !== null) {
+            $resourcePath = str_replace(
+                '{' . 'organization_id' . '}',
+                ObjectSerializer::toPathValue($organizationId),
+                $resourcePath
+            );
+        }
+        // path params
+        if ($memberId !== null) {
+            $resourcePath = str_replace(
+                '{' . 'member_id' . '}',
+                ObjectSerializer::toPathValue($memberId),
+                $resourcePath
+            );
+        }
+
+
+        $headers = $this->headerSelector->selectHeaders(
+            ['application/problem+json', ],
+            $contentType,
+            $multipart
+        );
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the form parameters
+                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
+            } else {
+                // for HTTP post (form)
+                $httpBody = ObjectSerializer::buildQuery($formParams);
+            }
+        }
+
+        // this endpoint requires Bearer (JWT) authentication (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $operationHost = $this->config->getHost();
+        $query = ObjectSerializer::buildQuery($queryParams);
+        return new Request(
+            'DELETE',
             $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
             $httpBody
