@@ -1,5 +1,5 @@
 {
-    "name": "studio-design/auth-sdk-php",
+    "name": "studio-design/studio-auth-php",
     "description": "PHP SDK for Studio Auth Service API",
     "type": "library",
     "keywords": [
@@ -10,7 +10,7 @@
         "sdk",
         "php"
     ],
-    "homepage": "https://github.com/studio-design/auth-sdk-php",
+    "homepage": "https://github.com/studio-design/studio-auth-php",
     "license": "MIT",
     "authors": [
         {
@@ -18,8 +18,8 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/studio-design/auth-sdk-php/issues",
-        "source": "https://github.com/studio-design/auth-sdk-php"
+        "issues": "https://github.com/studio-design/studio-auth-php/issues",
+        "source": "https://github.com/studio-design/studio-auth-php"
     },
     "require": {
         "php": "^8.2",
