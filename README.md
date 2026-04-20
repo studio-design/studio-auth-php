@@ -105,6 +105,7 @@ Class | Method | HTTP request | Description
 *AuthApi* | **issueTokens** | **POST** /oauth/token | トークンエンドポイント
 *AuthApi* | **postUserinfo** | **POST** /oauth/userinfo | ユーザー情報の取得 (POST)
 *AuthApi* | **revokeToken** | **POST** /oauth/revoke | トークン無効化エンドポイント
+*OrganizationApi* | **getMemberMe** | **GET** /organizations/{organization_id}/members/me | 自分自身の組織メンバー情報取得（組織メンバー向け）
 *OrganizationApi* | **listMembers** | **GET** /organizations/{organization_id}/members | 組織メンバー一覧取得（組織メンバー向け）
 *OrganizationApi* | **sendInvitation** | **POST** /organizations/{organization_id}/invitations | 組織Adminによるメンバー招待
 *SystemApi* | **getHealthStatus** | **GET** /health | ヘルスチェック
