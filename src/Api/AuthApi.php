@@ -29,6 +29,8 @@ declare(strict_types=1);
 namespace Studio\Auth\Api;
 
 use InvalidArgumentException;
+use JsonException;
+use Throwable;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ConnectException;
@@ -43,6 +45,7 @@ use Studio\Auth\ApiException;
 use Studio\Auth\Configuration;
 use Studio\Auth\HeaderSelector;
 use Studio\Auth\FormDataProcessor;
+use Studio\Auth\Model\ProblemDetails;
 use Studio\Auth\ObjectSerializer;
 
 /**
@@ -166,7 +169,7 @@ class AuthApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return string|\Studio\Auth\Model\ProblemDetails|null
+     * @return string
      */
     public function endSession(
         ?string $idTokenHint = null,
@@ -176,9 +179,10 @@ class AuthApi
         ?string $state = null,
         ?string $uiLocales = null,
         string $contentType = self::contentTypes['endSession'][0]
-    ): string|\Studio\Auth\Model\ProblemDetails|null
+    ): string
     {
-        list($response) = $this->endSessionWithHttpInfo($idTokenHint, $logoutHint, $postLogoutRedirectUri, $clientId, $state, $uiLocales, $contentType);
+        [$response] = $this->endSessionWithHttpInfo($idTokenHint, $logoutHint, $postLogoutRedirectUri, $clientId, $state, $uiLocales, $contentType);
+
         return $response;
     }
 
@@ -197,7 +201,7 @@ class AuthApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of string|string|\Studio\Auth\Model\ProblemDetails|\Studio\Auth\Model\ProblemDetails, HTTP status code, HTTP response headers (array of strings)
+     * @return array{0: string, 1: int, 2: array<string, string[]>}
      */
     public function endSessionWithHttpInfo(
         ?string $idTokenHint = null,
@@ -220,51 +224,28 @@ class AuthApi
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
+                    $e,
                 );
             } catch (ConnectException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     null,
-                    null
+                    null,
+                    $e,
                 );
             }
 
             $statusCode = $response->getStatusCode();
 
-            switch($statusCode) {
-                case 200:
-                    return $this->handleResponseWithDataType(
-                        'string',
-                        $request,
-                        $response,
-                    );
-                case 400:
-                    return $this->handleResponseWithDataType(
-                        'string',
-                        $request,
-                        $response,
-                    );
-                case 500:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-                case 503:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-            }
-            
-
+            // Non-2xx responses are thrown as ApiException by Guzzle (http_errors=true),
+            // so execution reaches here only for 2xx. The guard below is a safety net for
+            // edge cases such as 1xx/3xx responses that bypass Guzzle's RequestException.
             if ($statusCode < 200 || $statusCode > 299) {
                 throw new ApiException(
                     sprintf(
-                        '[%d] Error connecting to the API (%s)',
+                        '[%d] Unexpected non-2xx response status received from API (%s)',
                         $statusCode,
                         (string) $request->getUri()
                     ),
@@ -280,42 +261,27 @@ class AuthApi
                 $response,
             );
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        'string',
+            // Attempt to decode the error body as a ProblemDetails document (RFC 9457).
+            // Non-JSON bodies or schemas that don't match ProblemDetails leave $problem null,
+            // which is the caller's signal that the upstream did not return a structured error.
+            $problem = null;
+            $body = $e->getResponseBody();
+            if ($body !== null && $body !== '') {
+                try {
+                    $decoded = ObjectSerializer::deserialize(
+                        $body,
+                        ProblemDetails::class,
                         $e->getResponseHeaders()
                     );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 400:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        'string',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 500:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 503:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
+                    if ($decoded instanceof ProblemDetails) {
+                        $problem = $decoded;
+                    }
+                } catch (Throwable) {
+                    // Best-effort: keep $problem null and let the caller inspect the raw body.
+                }
             }
-        
-            throw $e;
+
+            throw ApiException::specialize($e, $problem);
         }
     }
 
@@ -404,16 +370,38 @@ class AuthApi
                 function ($exception) {
                     $response = $exception->getResponse();
                     $statusCode = $response->getStatusCode();
-                    throw new ApiException(
+                    $body = (string) $response->getBody();
+                    $headers = $response->getHeaders();
+
+                    $base = new ApiException(
                         sprintf(
                             '[%d] Error connecting to the API (%s)',
                             $statusCode,
                             $exception->getRequest()->getUri()
                         ),
                         $statusCode,
-                        $response->getHeaders(),
-                        (string) $response->getBody()
+                        $headers,
+                        $body,
+                        $exception,
                     );
+
+                    $problem = null;
+                    if ($body !== '') {
+                        try {
+                            $decoded = ObjectSerializer::deserialize(
+                                $body,
+                                ProblemDetails::class,
+                                $headers
+                            );
+                            if ($decoded instanceof ProblemDetails) {
+                                $problem = $decoded;
+                            }
+                        } catch (Throwable) {
+                            // Best-effort: leave $problem null.
+                        }
+                    }
+
+                    throw ApiException::specialize($base, $problem);
                 }
             );
     }
@@ -597,7 +585,7 @@ class AuthApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return string|\Studio\Auth\Model\ProblemDetails|null
+     * @return string
      */
     public function endSessionPost(
         ?string $idTokenHint = null,
@@ -607,9 +595,10 @@ class AuthApi
         ?string $state = null,
         ?string $uiLocales = null,
         string $contentType = self::contentTypes['endSessionPost'][0]
-    ): string|\Studio\Auth\Model\ProblemDetails|null
+    ): string
     {
-        list($response) = $this->endSessionPostWithHttpInfo($idTokenHint, $logoutHint, $postLogoutRedirectUri, $clientId, $state, $uiLocales, $contentType);
+        [$response] = $this->endSessionPostWithHttpInfo($idTokenHint, $logoutHint, $postLogoutRedirectUri, $clientId, $state, $uiLocales, $contentType);
+
         return $response;
     }
 
@@ -628,7 +617,7 @@ class AuthApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of string|string|\Studio\Auth\Model\ProblemDetails|\Studio\Auth\Model\ProblemDetails, HTTP status code, HTTP response headers (array of strings)
+     * @return array{0: string, 1: int, 2: array<string, string[]>}
      */
     public function endSessionPostWithHttpInfo(
         ?string $idTokenHint = null,
@@ -651,51 +640,28 @@ class AuthApi
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
+                    $e,
                 );
             } catch (ConnectException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     null,
-                    null
+                    null,
+                    $e,
                 );
             }
 
             $statusCode = $response->getStatusCode();
 
-            switch($statusCode) {
-                case 200:
-                    return $this->handleResponseWithDataType(
-                        'string',
-                        $request,
-                        $response,
-                    );
-                case 400:
-                    return $this->handleResponseWithDataType(
-                        'string',
-                        $request,
-                        $response,
-                    );
-                case 500:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-                case 503:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-            }
-            
-
+            // Non-2xx responses are thrown as ApiException by Guzzle (http_errors=true),
+            // so execution reaches here only for 2xx. The guard below is a safety net for
+            // edge cases such as 1xx/3xx responses that bypass Guzzle's RequestException.
             if ($statusCode < 200 || $statusCode > 299) {
                 throw new ApiException(
                     sprintf(
-                        '[%d] Error connecting to the API (%s)',
+                        '[%d] Unexpected non-2xx response status received from API (%s)',
                         $statusCode,
                         (string) $request->getUri()
                     ),
@@ -711,42 +677,27 @@ class AuthApi
                 $response,
             );
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        'string',
+            // Attempt to decode the error body as a ProblemDetails document (RFC 9457).
+            // Non-JSON bodies or schemas that don't match ProblemDetails leave $problem null,
+            // which is the caller's signal that the upstream did not return a structured error.
+            $problem = null;
+            $body = $e->getResponseBody();
+            if ($body !== null && $body !== '') {
+                try {
+                    $decoded = ObjectSerializer::deserialize(
+                        $body,
+                        ProblemDetails::class,
                         $e->getResponseHeaders()
                     );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 400:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        'string',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 500:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 503:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
+                    if ($decoded instanceof ProblemDetails) {
+                        $problem = $decoded;
+                    }
+                } catch (Throwable) {
+                    // Best-effort: keep $problem null and let the caller inspect the raw body.
+                }
             }
-        
-            throw $e;
+
+            throw ApiException::specialize($e, $problem);
         }
     }
 
@@ -835,16 +786,38 @@ class AuthApi
                 function ($exception) {
                     $response = $exception->getResponse();
                     $statusCode = $response->getStatusCode();
-                    throw new ApiException(
+                    $body = (string) $response->getBody();
+                    $headers = $response->getHeaders();
+
+                    $base = new ApiException(
                         sprintf(
                             '[%d] Error connecting to the API (%s)',
                             $statusCode,
                             $exception->getRequest()->getUri()
                         ),
                         $statusCode,
-                        $response->getHeaders(),
-                        (string) $response->getBody()
+                        $headers,
+                        $body,
+                        $exception,
                     );
+
+                    $problem = null;
+                    if ($body !== '') {
+                        try {
+                            $decoded = ObjectSerializer::deserialize(
+                                $body,
+                                ProblemDetails::class,
+                                $headers
+                            );
+                            if ($decoded instanceof ProblemDetails) {
+                                $problem = $decoded;
+                            }
+                        } catch (Throwable) {
+                            // Best-effort: leave $problem null.
+                        }
+                    }
+
+                    throw ApiException::specialize($base, $problem);
                 }
             );
     }
@@ -982,13 +955,14 @@ class AuthApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return \Studio\Auth\Model\UserinfoResponse|\Studio\Auth\Model\InlineObject|\Studio\Auth\Model\InlineObject1|\Studio\Auth\Model\ProblemDetails
+     * @return \Studio\Auth\Model\UserinfoResponse
      */
     public function getUserinfo(
         string $contentType = self::contentTypes['getUserinfo'][0]
-    ): \Studio\Auth\Model\UserinfoResponse|\Studio\Auth\Model\InlineObject|\Studio\Auth\Model\InlineObject1|\Studio\Auth\Model\ProblemDetails
+    ): \Studio\Auth\Model\UserinfoResponse
     {
-        list($response) = $this->getUserinfoWithHttpInfo($contentType);
+        [$response] = $this->getUserinfoWithHttpInfo($contentType);
+
         return $response;
     }
 
@@ -1001,7 +975,7 @@ class AuthApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of \Studio\Auth\Model\UserinfoResponse|\Studio\Auth\Model\InlineObject|\Studio\Auth\Model\InlineObject1|\Studio\Auth\Model\ProblemDetails|\Studio\Auth\Model\ProblemDetails|\Studio\Auth\Model\ProblemDetails, HTTP status code, HTTP response headers (array of strings)
+     * @return array{0: \Studio\Auth\Model\UserinfoResponse, 1: int, 2: array<string, string[]>}
      */
     public function getUserinfoWithHttpInfo(
         string $contentType = self::contentTypes['getUserinfo'][0]
@@ -1018,63 +992,28 @@ class AuthApi
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
+                    $e,
                 );
             } catch (ConnectException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     null,
-                    null
+                    null,
+                    $e,
                 );
             }
 
             $statusCode = $response->getStatusCode();
 
-            switch($statusCode) {
-                case 200:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\UserinfoResponse',
-                        $request,
-                        $response,
-                    );
-                case 401:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\InlineObject',
-                        $request,
-                        $response,
-                    );
-                case 403:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\InlineObject1',
-                        $request,
-                        $response,
-                    );
-                case 429:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-                case 500:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-                case 503:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-            }
-            
-
+            // Non-2xx responses are thrown as ApiException by Guzzle (http_errors=true),
+            // so execution reaches here only for 2xx. The guard below is a safety net for
+            // edge cases such as 1xx/3xx responses that bypass Guzzle's RequestException.
             if ($statusCode < 200 || $statusCode > 299) {
                 throw new ApiException(
                     sprintf(
-                        '[%d] Error connecting to the API (%s)',
+                        '[%d] Unexpected non-2xx response status received from API (%s)',
                         $statusCode,
                         (string) $request->getUri()
                     ),
@@ -1090,58 +1029,27 @@ class AuthApi
                 $response,
             );
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\UserinfoResponse',
+            // Attempt to decode the error body as a ProblemDetails document (RFC 9457).
+            // Non-JSON bodies or schemas that don't match ProblemDetails leave $problem null,
+            // which is the caller's signal that the upstream did not return a structured error.
+            $problem = null;
+            $body = $e->getResponseBody();
+            if ($body !== null && $body !== '') {
+                try {
+                    $decoded = ObjectSerializer::deserialize(
+                        $body,
+                        ProblemDetails::class,
                         $e->getResponseHeaders()
                     );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 401:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\InlineObject',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 403:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\InlineObject1',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 429:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 500:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 503:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
+                    if ($decoded instanceof ProblemDetails) {
+                        $problem = $decoded;
+                    }
+                } catch (Throwable) {
+                    // Best-effort: keep $problem null and let the caller inspect the raw body.
+                }
             }
-        
-            throw $e;
+
+            throw ApiException::specialize($e, $problem);
         }
     }
 
@@ -1206,16 +1114,38 @@ class AuthApi
                 function ($exception) {
                     $response = $exception->getResponse();
                     $statusCode = $response->getStatusCode();
-                    throw new ApiException(
+                    $body = (string) $response->getBody();
+                    $headers = $response->getHeaders();
+
+                    $base = new ApiException(
                         sprintf(
                             '[%d] Error connecting to the API (%s)',
                             $statusCode,
                             $exception->getRequest()->getUri()
                         ),
                         $statusCode,
-                        $response->getHeaders(),
-                        (string) $response->getBody()
+                        $headers,
+                        $body,
+                        $exception,
                     );
+
+                    $problem = null;
+                    if ($body !== '') {
+                        try {
+                            $decoded = ObjectSerializer::deserialize(
+                                $body,
+                                ProblemDetails::class,
+                                $headers
+                            );
+                            if ($decoded instanceof ProblemDetails) {
+                                $problem = $decoded;
+                            }
+                        } catch (Throwable) {
+                            // Best-effort: leave $problem null.
+                        }
+                    }
+
+                    throw ApiException::specialize($base, $problem);
                 }
             );
     }
@@ -1315,7 +1245,7 @@ class AuthApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return string|\Studio\Auth\Model\ProblemDetails|null
+     * @return void
      */
     public function handleIdpCallback(
         ?string $code = null,
@@ -1323,10 +1253,9 @@ class AuthApi
         ?string $error = null,
         ?string $errorDescription = null,
         string $contentType = self::contentTypes['handleIdpCallback'][0]
-    ): string|\Studio\Auth\Model\ProblemDetails|null
+    ): void
     {
-        list($response) = $this->handleIdpCallbackWithHttpInfo($code, $state, $error, $errorDescription, $contentType);
-        return $response;
+        $this->handleIdpCallbackWithHttpInfo($code, $state, $error, $errorDescription, $contentType);
     }
 
     /**
@@ -1342,7 +1271,7 @@ class AuthApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of null, HTTP status code, HTTP response headers (array of strings)
+     * @return array{0: null, 1: int, 2: array<string, string[]>}
      */
     public function handleIdpCallbackWithHttpInfo(
         ?string $code = null,
@@ -1363,14 +1292,16 @@ class AuthApi
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
+                    $e,
                 );
             } catch (ConnectException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     null,
-                    null
+                    null,
+                    $e,
                 );
             }
 
@@ -1379,34 +1310,27 @@ class AuthApi
 
             return [null, $statusCode, $response->getHeaders()];
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 400:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        'string',
+            // Attempt to decode the error body as a ProblemDetails document (RFC 9457).
+            // Non-JSON bodies or schemas that don't match ProblemDetails leave $problem null,
+            // which is the caller's signal that the upstream did not return a structured error.
+            $problem = null;
+            $body = $e->getResponseBody();
+            if ($body !== null && $body !== '') {
+                try {
+                    $decoded = ObjectSerializer::deserialize(
+                        $body,
+                        ProblemDetails::class,
                         $e->getResponseHeaders()
                     );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 500:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 503:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
+                    if ($decoded instanceof ProblemDetails) {
+                        $problem = $decoded;
+                    }
+                } catch (Throwable) {
+                    // Best-effort: keep $problem null and let the caller inspect the raw body.
+                }
             }
-        
-            throw $e;
+
+            throw ApiException::specialize($e, $problem);
         }
     }
 
@@ -1474,16 +1398,38 @@ class AuthApi
                 function ($exception) {
                     $response = $exception->getResponse();
                     $statusCode = $response->getStatusCode();
-                    throw new ApiException(
+                    $body = (string) $response->getBody();
+                    $headers = $response->getHeaders();
+
+                    $base = new ApiException(
                         sprintf(
                             '[%d] Error connecting to the API (%s)',
                             $statusCode,
                             $exception->getRequest()->getUri()
                         ),
                         $statusCode,
-                        $response->getHeaders(),
-                        (string) $response->getBody()
+                        $headers,
+                        $body,
+                        $exception,
                     );
+
+                    $problem = null;
+                    if ($body !== '') {
+                        try {
+                            $decoded = ObjectSerializer::deserialize(
+                                $body,
+                                ProblemDetails::class,
+                                $headers
+                            );
+                            if ($decoded instanceof ProblemDetails) {
+                                $problem = $decoded;
+                            }
+                        } catch (Throwable) {
+                            // Best-effort: leave $problem null.
+                        }
+                    }
+
+                    throw ApiException::specialize($base, $problem);
                 }
             );
     }
@@ -1649,7 +1595,7 @@ class AuthApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return string|\Studio\Auth\Model\ProblemDetails|null
+     * @return void
      */
     public function initiateAuthorization(
         string $responseType,
@@ -1665,10 +1611,9 @@ class AuthApi
         ?string $prompt = null,
         ?string $context = null,
         string $contentType = self::contentTypes['initiateAuthorization'][0]
-    ): string|\Studio\Auth\Model\ProblemDetails|null
+    ): void
     {
-        list($response) = $this->initiateAuthorizationWithHttpInfo($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $invitationToken, $prompt, $context, $contentType);
-        return $response;
+        $this->initiateAuthorizationWithHttpInfo($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $invitationToken, $prompt, $context, $contentType);
     }
 
     /**
@@ -1692,7 +1637,7 @@ class AuthApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of null, HTTP status code, HTTP response headers (array of strings)
+     * @return array{0: null, 1: int, 2: array<string, string[]>}
      */
     public function initiateAuthorizationWithHttpInfo(
         string $responseType,
@@ -1721,14 +1666,16 @@ class AuthApi
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
+                    $e,
                 );
             } catch (ConnectException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     null,
-                    null
+                    null,
+                    $e,
                 );
             }
 
@@ -1737,50 +1684,27 @@ class AuthApi
 
             return [null, $statusCode, $response->getHeaders()];
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 400:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        'string',
+            // Attempt to decode the error body as a ProblemDetails document (RFC 9457).
+            // Non-JSON bodies or schemas that don't match ProblemDetails leave $problem null,
+            // which is the caller's signal that the upstream did not return a structured error.
+            $problem = null;
+            $body = $e->getResponseBody();
+            if ($body !== null && $body !== '') {
+                try {
+                    $decoded = ObjectSerializer::deserialize(
+                        $body,
+                        ProblemDetails::class,
                         $e->getResponseHeaders()
                     );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 422:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 429:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 500:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 503:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
+                    if ($decoded instanceof ProblemDetails) {
+                        $problem = $decoded;
+                    }
+                } catch (Throwable) {
+                    // Best-effort: keep $problem null and let the caller inspect the raw body.
+                }
             }
-        
-            throw $e;
+
+            throw ApiException::specialize($e, $problem);
         }
     }
 
@@ -1880,16 +1804,38 @@ class AuthApi
                 function ($exception) {
                     $response = $exception->getResponse();
                     $statusCode = $response->getStatusCode();
-                    throw new ApiException(
+                    $body = (string) $response->getBody();
+                    $headers = $response->getHeaders();
+
+                    $base = new ApiException(
                         sprintf(
                             '[%d] Error connecting to the API (%s)',
                             $statusCode,
                             $exception->getRequest()->getUri()
                         ),
                         $statusCode,
-                        $response->getHeaders(),
-                        (string) $response->getBody()
+                        $headers,
+                        $body,
+                        $exception,
                     );
+
+                    $problem = null;
+                    if ($body !== '') {
+                        try {
+                            $decoded = ObjectSerializer::deserialize(
+                                $body,
+                                ProblemDetails::class,
+                                $headers
+                            );
+                            if ($decoded instanceof ProblemDetails) {
+                                $problem = $decoded;
+                            }
+                        } catch (Throwable) {
+                            // Best-effort: leave $problem null.
+                        }
+                    }
+
+                    throw ApiException::specialize($base, $problem);
                 }
             );
     }
@@ -2231,15 +2177,16 @@ class AuthApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return \Studio\Auth\Model\IntrospectResponse|\Studio\Auth\Model\IntrospectErrorResponse|\Studio\Auth\Model\ProblemDetails
+     * @return \Studio\Auth\Model\IntrospectResponse
      */
     public function introspectToken(
         string $token,
         ?string $tokenTypeHint = null,
         string $contentType = self::contentTypes['introspectToken'][0]
-    ): \Studio\Auth\Model\IntrospectResponse|\Studio\Auth\Model\IntrospectErrorResponse|\Studio\Auth\Model\ProblemDetails
+    ): \Studio\Auth\Model\IntrospectResponse
     {
-        list($response) = $this->introspectTokenWithHttpInfo($token, $tokenTypeHint, $contentType);
+        [$response] = $this->introspectTokenWithHttpInfo($token, $tokenTypeHint, $contentType);
+
         return $response;
     }
 
@@ -2254,7 +2201,7 @@ class AuthApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of \Studio\Auth\Model\IntrospectResponse|\Studio\Auth\Model\IntrospectErrorResponse|\Studio\Auth\Model\IntrospectErrorResponse|\Studio\Auth\Model\ProblemDetails|\Studio\Auth\Model\ProblemDetails|\Studio\Auth\Model\ProblemDetails, HTTP status code, HTTP response headers (array of strings)
+     * @return array{0: \Studio\Auth\Model\IntrospectResponse, 1: int, 2: array<string, string[]>}
      */
     public function introspectTokenWithHttpInfo(
         string $token,
@@ -2273,63 +2220,28 @@ class AuthApi
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
+                    $e,
                 );
             } catch (ConnectException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     null,
-                    null
+                    null,
+                    $e,
                 );
             }
 
             $statusCode = $response->getStatusCode();
 
-            switch($statusCode) {
-                case 200:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\IntrospectResponse',
-                        $request,
-                        $response,
-                    );
-                case 400:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\IntrospectErrorResponse',
-                        $request,
-                        $response,
-                    );
-                case 401:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\IntrospectErrorResponse',
-                        $request,
-                        $response,
-                    );
-                case 429:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-                case 500:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-                case 503:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-            }
-            
-
+            // Non-2xx responses are thrown as ApiException by Guzzle (http_errors=true),
+            // so execution reaches here only for 2xx. The guard below is a safety net for
+            // edge cases such as 1xx/3xx responses that bypass Guzzle's RequestException.
             if ($statusCode < 200 || $statusCode > 299) {
                 throw new ApiException(
                     sprintf(
-                        '[%d] Error connecting to the API (%s)',
+                        '[%d] Unexpected non-2xx response status received from API (%s)',
                         $statusCode,
                         (string) $request->getUri()
                     ),
@@ -2345,58 +2257,27 @@ class AuthApi
                 $response,
             );
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\IntrospectResponse',
+            // Attempt to decode the error body as a ProblemDetails document (RFC 9457).
+            // Non-JSON bodies or schemas that don't match ProblemDetails leave $problem null,
+            // which is the caller's signal that the upstream did not return a structured error.
+            $problem = null;
+            $body = $e->getResponseBody();
+            if ($body !== null && $body !== '') {
+                try {
+                    $decoded = ObjectSerializer::deserialize(
+                        $body,
+                        ProblemDetails::class,
                         $e->getResponseHeaders()
                     );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 400:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\IntrospectErrorResponse',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 401:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\IntrospectErrorResponse',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 429:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 500:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 503:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
+                    if ($decoded instanceof ProblemDetails) {
+                        $problem = $decoded;
+                    }
+                } catch (Throwable) {
+                    // Best-effort: keep $problem null and let the caller inspect the raw body.
+                }
             }
-        
-            throw $e;
+
+            throw ApiException::specialize($e, $problem);
         }
     }
 
@@ -2469,16 +2350,38 @@ class AuthApi
                 function ($exception) {
                     $response = $exception->getResponse();
                     $statusCode = $response->getStatusCode();
-                    throw new ApiException(
+                    $body = (string) $response->getBody();
+                    $headers = $response->getHeaders();
+
+                    $base = new ApiException(
                         sprintf(
                             '[%d] Error connecting to the API (%s)',
                             $statusCode,
                             $exception->getRequest()->getUri()
                         ),
                         $statusCode,
-                        $response->getHeaders(),
-                        (string) $response->getBody()
+                        $headers,
+                        $body,
+                        $exception,
                     );
+
+                    $problem = null;
+                    if ($body !== '') {
+                        try {
+                            $decoded = ObjectSerializer::deserialize(
+                                $body,
+                                ProblemDetails::class,
+                                $headers
+                            );
+                            if ($decoded instanceof ProblemDetails) {
+                                $problem = $decoded;
+                            }
+                        } catch (Throwable) {
+                            // Best-effort: leave $problem null.
+                        }
+                    }
+
+                    throw ApiException::specialize($base, $problem);
                 }
             );
     }
@@ -2607,7 +2510,7 @@ class AuthApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return \Studio\Auth\Model\TokenResponse|\Studio\Auth\Model\TokenErrorResponse|\Studio\Auth\Model\ProblemDetails
+     * @return \Studio\Auth\Model\TokenResponse
      */
     public function issueTokens(
         mixed $grantType,
@@ -2619,9 +2522,10 @@ class AuthApi
         ?string $refreshToken = null,
         ?string $scope = null,
         string $contentType = self::contentTypes['issueTokens'][0]
-    ): \Studio\Auth\Model\TokenResponse|\Studio\Auth\Model\TokenErrorResponse|\Studio\Auth\Model\ProblemDetails
+    ): \Studio\Auth\Model\TokenResponse
     {
-        list($response) = $this->issueTokensWithHttpInfo($grantType, $clientId, $clientSecret, $code, $redirectUri, $codeVerifier, $refreshToken, $scope, $contentType);
+        [$response] = $this->issueTokensWithHttpInfo($grantType, $clientId, $clientSecret, $code, $redirectUri, $codeVerifier, $refreshToken, $scope, $contentType);
+
         return $response;
     }
 
@@ -2642,7 +2546,7 @@ class AuthApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of \Studio\Auth\Model\TokenResponse|\Studio\Auth\Model\TokenErrorResponse|\Studio\Auth\Model\TokenErrorResponse|\Studio\Auth\Model\ProblemDetails|\Studio\Auth\Model\ProblemDetails|\Studio\Auth\Model\ProblemDetails, HTTP status code, HTTP response headers (array of strings)
+     * @return array{0: \Studio\Auth\Model\TokenResponse, 1: int, 2: array<string, string[]>}
      */
     public function issueTokensWithHttpInfo(
         mixed $grantType,
@@ -2667,63 +2571,28 @@ class AuthApi
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
+                    $e,
                 );
             } catch (ConnectException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     null,
-                    null
+                    null,
+                    $e,
                 );
             }
 
             $statusCode = $response->getStatusCode();
 
-            switch($statusCode) {
-                case 200:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\TokenResponse',
-                        $request,
-                        $response,
-                    );
-                case 400:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\TokenErrorResponse',
-                        $request,
-                        $response,
-                    );
-                case 401:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\TokenErrorResponse',
-                        $request,
-                        $response,
-                    );
-                case 429:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-                case 500:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-                case 503:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-            }
-            
-
+            // Non-2xx responses are thrown as ApiException by Guzzle (http_errors=true),
+            // so execution reaches here only for 2xx. The guard below is a safety net for
+            // edge cases such as 1xx/3xx responses that bypass Guzzle's RequestException.
             if ($statusCode < 200 || $statusCode > 299) {
                 throw new ApiException(
                     sprintf(
-                        '[%d] Error connecting to the API (%s)',
+                        '[%d] Unexpected non-2xx response status received from API (%s)',
                         $statusCode,
                         (string) $request->getUri()
                     ),
@@ -2739,58 +2608,27 @@ class AuthApi
                 $response,
             );
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\TokenResponse',
+            // Attempt to decode the error body as a ProblemDetails document (RFC 9457).
+            // Non-JSON bodies or schemas that don't match ProblemDetails leave $problem null,
+            // which is the caller's signal that the upstream did not return a structured error.
+            $problem = null;
+            $body = $e->getResponseBody();
+            if ($body !== null && $body !== '') {
+                try {
+                    $decoded = ObjectSerializer::deserialize(
+                        $body,
+                        ProblemDetails::class,
                         $e->getResponseHeaders()
                     );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 400:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\TokenErrorResponse',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 401:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\TokenErrorResponse',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 429:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 500:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 503:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
+                    if ($decoded instanceof ProblemDetails) {
+                        $problem = $decoded;
+                    }
+                } catch (Throwable) {
+                    // Best-effort: keep $problem null and let the caller inspect the raw body.
+                }
             }
-        
-            throw $e;
+
+            throw ApiException::specialize($e, $problem);
         }
     }
 
@@ -2887,16 +2725,38 @@ class AuthApi
                 function ($exception) {
                     $response = $exception->getResponse();
                     $statusCode = $response->getStatusCode();
-                    throw new ApiException(
+                    $body = (string) $response->getBody();
+                    $headers = $response->getHeaders();
+
+                    $base = new ApiException(
                         sprintf(
                             '[%d] Error connecting to the API (%s)',
                             $statusCode,
                             $exception->getRequest()->getUri()
                         ),
                         $statusCode,
-                        $response->getHeaders(),
-                        (string) $response->getBody()
+                        $headers,
+                        $body,
+                        $exception,
                     );
+
+                    $problem = null;
+                    if ($body !== '') {
+                        try {
+                            $decoded = ObjectSerializer::deserialize(
+                                $body,
+                                ProblemDetails::class,
+                                $headers
+                            );
+                            if ($decoded instanceof ProblemDetails) {
+                                $problem = $decoded;
+                            }
+                        } catch (Throwable) {
+                            // Best-effort: leave $problem null.
+                        }
+                    }
+
+                    throw ApiException::specialize($base, $problem);
                 }
             );
     }
@@ -3050,13 +2910,14 @@ class AuthApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return \Studio\Auth\Model\UserinfoResponse|\Studio\Auth\Model\InlineObject|\Studio\Auth\Model\InlineObject1|\Studio\Auth\Model\ProblemDetails
+     * @return \Studio\Auth\Model\UserinfoResponse
      */
     public function postUserinfo(
         string $contentType = self::contentTypes['postUserinfo'][0]
-    ): \Studio\Auth\Model\UserinfoResponse|\Studio\Auth\Model\InlineObject|\Studio\Auth\Model\InlineObject1|\Studio\Auth\Model\ProblemDetails
+    ): \Studio\Auth\Model\UserinfoResponse
     {
-        list($response) = $this->postUserinfoWithHttpInfo($contentType);
+        [$response] = $this->postUserinfoWithHttpInfo($contentType);
+
         return $response;
     }
 
@@ -3069,7 +2930,7 @@ class AuthApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of \Studio\Auth\Model\UserinfoResponse|\Studio\Auth\Model\InlineObject|\Studio\Auth\Model\InlineObject1|\Studio\Auth\Model\ProblemDetails|\Studio\Auth\Model\ProblemDetails|\Studio\Auth\Model\ProblemDetails, HTTP status code, HTTP response headers (array of strings)
+     * @return array{0: \Studio\Auth\Model\UserinfoResponse, 1: int, 2: array<string, string[]>}
      */
     public function postUserinfoWithHttpInfo(
         string $contentType = self::contentTypes['postUserinfo'][0]
@@ -3086,63 +2947,28 @@ class AuthApi
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
+                    $e,
                 );
             } catch (ConnectException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     null,
-                    null
+                    null,
+                    $e,
                 );
             }
 
             $statusCode = $response->getStatusCode();
 
-            switch($statusCode) {
-                case 200:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\UserinfoResponse',
-                        $request,
-                        $response,
-                    );
-                case 401:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\InlineObject',
-                        $request,
-                        $response,
-                    );
-                case 403:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\InlineObject1',
-                        $request,
-                        $response,
-                    );
-                case 429:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-                case 500:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-                case 503:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-            }
-            
-
+            // Non-2xx responses are thrown as ApiException by Guzzle (http_errors=true),
+            // so execution reaches here only for 2xx. The guard below is a safety net for
+            // edge cases such as 1xx/3xx responses that bypass Guzzle's RequestException.
             if ($statusCode < 200 || $statusCode > 299) {
                 throw new ApiException(
                     sprintf(
-                        '[%d] Error connecting to the API (%s)',
+                        '[%d] Unexpected non-2xx response status received from API (%s)',
                         $statusCode,
                         (string) $request->getUri()
                     ),
@@ -3158,58 +2984,27 @@ class AuthApi
                 $response,
             );
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\UserinfoResponse',
+            // Attempt to decode the error body as a ProblemDetails document (RFC 9457).
+            // Non-JSON bodies or schemas that don't match ProblemDetails leave $problem null,
+            // which is the caller's signal that the upstream did not return a structured error.
+            $problem = null;
+            $body = $e->getResponseBody();
+            if ($body !== null && $body !== '') {
+                try {
+                    $decoded = ObjectSerializer::deserialize(
+                        $body,
+                        ProblemDetails::class,
                         $e->getResponseHeaders()
                     );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 401:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\InlineObject',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 403:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\InlineObject1',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 429:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 500:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 503:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
+                    if ($decoded instanceof ProblemDetails) {
+                        $problem = $decoded;
+                    }
+                } catch (Throwable) {
+                    // Best-effort: keep $problem null and let the caller inspect the raw body.
+                }
             }
-        
-            throw $e;
+
+            throw ApiException::specialize($e, $problem);
         }
     }
 
@@ -3274,16 +3069,38 @@ class AuthApi
                 function ($exception) {
                     $response = $exception->getResponse();
                     $statusCode = $response->getStatusCode();
-                    throw new ApiException(
+                    $body = (string) $response->getBody();
+                    $headers = $response->getHeaders();
+
+                    $base = new ApiException(
                         sprintf(
                             '[%d] Error connecting to the API (%s)',
                             $statusCode,
                             $exception->getRequest()->getUri()
                         ),
                         $statusCode,
-                        $response->getHeaders(),
-                        (string) $response->getBody()
+                        $headers,
+                        $body,
+                        $exception,
                     );
+
+                    $problem = null;
+                    if ($body !== '') {
+                        try {
+                            $decoded = ObjectSerializer::deserialize(
+                                $body,
+                                ProblemDetails::class,
+                                $headers
+                            );
+                            if ($decoded instanceof ProblemDetails) {
+                                $problem = $decoded;
+                            }
+                        } catch (Throwable) {
+                            // Best-effort: leave $problem null.
+                        }
+                    }
+
+                    throw ApiException::specialize($base, $problem);
                 }
             );
     }
@@ -3381,16 +3198,15 @@ class AuthApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return \Studio\Auth\Model\RevokeErrorResponse|\Studio\Auth\Model\ProblemDetails|null
+     * @return void
      */
     public function revokeToken(
         string $token,
         ?string $tokenTypeHint = null,
         string $contentType = self::contentTypes['revokeToken'][0]
-    ): \Studio\Auth\Model\RevokeErrorResponse|\Studio\Auth\Model\ProblemDetails|null
+    ): void
     {
-        list($response) = $this->revokeTokenWithHttpInfo($token, $tokenTypeHint, $contentType);
-        return $response;
+        $this->revokeTokenWithHttpInfo($token, $tokenTypeHint, $contentType);
     }
 
     /**
@@ -3404,7 +3220,7 @@ class AuthApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of null, HTTP status code, HTTP response headers (array of strings)
+     * @return array{0: null, 1: int, 2: array<string, string[]>}
      */
     public function revokeTokenWithHttpInfo(
         string $token,
@@ -3423,14 +3239,16 @@ class AuthApi
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
+                    $e,
                 );
             } catch (ConnectException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     null,
-                    null
+                    null,
+                    $e,
                 );
             }
 
@@ -3439,50 +3257,27 @@ class AuthApi
 
             return [null, $statusCode, $response->getHeaders()];
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 400:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\RevokeErrorResponse',
+            // Attempt to decode the error body as a ProblemDetails document (RFC 9457).
+            // Non-JSON bodies or schemas that don't match ProblemDetails leave $problem null,
+            // which is the caller's signal that the upstream did not return a structured error.
+            $problem = null;
+            $body = $e->getResponseBody();
+            if ($body !== null && $body !== '') {
+                try {
+                    $decoded = ObjectSerializer::deserialize(
+                        $body,
+                        ProblemDetails::class,
                         $e->getResponseHeaders()
                     );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 401:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\RevokeErrorResponse',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 429:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 500:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 503:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
+                    if ($decoded instanceof ProblemDetails) {
+                        $problem = $decoded;
+                    }
+                } catch (Throwable) {
+                    // Best-effort: keep $problem null and let the caller inspect the raw body.
+                }
             }
-        
-            throw $e;
+
+            throw ApiException::specialize($e, $problem);
         }
     }
 
@@ -3542,16 +3337,38 @@ class AuthApi
                 function ($exception) {
                     $response = $exception->getResponse();
                     $statusCode = $response->getStatusCode();
-                    throw new ApiException(
+                    $body = (string) $response->getBody();
+                    $headers = $response->getHeaders();
+
+                    $base = new ApiException(
                         sprintf(
                             '[%d] Error connecting to the API (%s)',
                             $statusCode,
                             $exception->getRequest()->getUri()
                         ),
                         $statusCode,
-                        $response->getHeaders(),
-                        (string) $response->getBody()
+                        $headers,
+                        $body,
+                        $exception,
                     );
+
+                    $problem = null;
+                    if ($body !== '') {
+                        try {
+                            $decoded = ObjectSerializer::deserialize(
+                                $body,
+                                ProblemDetails::class,
+                                $headers
+                            );
+                            if ($decoded instanceof ProblemDetails) {
+                                $problem = $decoded;
+                            }
+                        } catch (Throwable) {
+                            // Best-effort: leave $problem null.
+                        }
+                    }
+
+                    throw ApiException::specialize($base, $problem);
                 }
             );
     }
@@ -3694,7 +3511,7 @@ class AuthApi
             if ($dataType !== 'string') {
                 try {
                     $content = json_decode($content, false, 512, JSON_THROW_ON_ERROR);
-                } catch (\JsonException $exception) {
+                } catch (JsonException $exception) {
                     throw new ApiException(
                         sprintf(
                             'Error JSON decoding server response (%s)',
@@ -3702,7 +3519,8 @@ class AuthApi
                         ),
                         $response->getStatusCode(),
                         $response->getHeaders(),
-                        $content
+                        $content,
+                        $exception,
                     );
                 }
             }

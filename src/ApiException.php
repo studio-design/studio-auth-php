@@ -30,6 +30,16 @@ namespace Studio\Auth;
 
 use Exception;
 use stdClass;
+use Throwable;
+use Studio\Auth\Exception\BadRequestException;
+use Studio\Auth\Exception\ConflictException;
+use Studio\Auth\Exception\ForbiddenException;
+use Studio\Auth\Exception\NotFoundException;
+use Studio\Auth\Exception\RateLimitException;
+use Studio\Auth\Exception\ServerException;
+use Studio\Auth\Exception\UnauthorizedException;
+use Studio\Auth\Exception\UnprocessableEntityException;
+use Studio\Auth\Model\ProblemDetails;
 
 /**
  * ApiException Class Doc Comment
@@ -68,10 +78,16 @@ class ApiException extends Exception
      * @param int                   $code            HTTP status code
      * @param string[][]|null       $responseHeaders HTTP response header
      * @param stdClass|string|null  $responseBody    HTTP decoded body of the server response either as stdClass or string
+     * @param Throwable|null        $previous        Previous throwable to preserve the exception chain
      */
-    public function __construct(string $message = "", int $code = 0, ?array $responseHeaders = [], stdClass|string|null $responseBody = null)
-    {
-        parent::__construct($message, $code);
+    public function __construct(
+        string $message = "",
+        int $code = 0,
+        ?array $responseHeaders = [],
+        stdClass|string|null $responseBody = null,
+        ?Throwable $previous = null,
+    ) {
+        parent::__construct($message, $code, $previous);
         $this->responseHeaders = $responseHeaders;
         $this->responseBody = $responseBody;
     }
@@ -116,5 +132,63 @@ class ApiException extends Exception
     public function getResponseObject(): mixed
     {
         return $this->responseObject;
+    }
+
+    /**
+     * Gets the RFC 9457 Problem Details payload if the error response matches that schema.
+     *
+     * Returns null when the response body could not be deserialized as ProblemDetails
+     * (e.g. connection errors, non-JSON error bodies, or unexpected schemas).
+     */
+    public function getProblem(): ?ProblemDetails
+    {
+        return $this->responseObject instanceof ProblemDetails ? $this->responseObject : null;
+    }
+
+    /**
+     * Returns the most specific exception subclass matching the HTTP status code of $e.
+     *
+     * For recognized statuses (400, 401, 403, 404, 409, 422, 429, 5xx) this returns a
+     * fresh subclass instance carrying the same response data and with $e chained as
+     * previous. For any other status — including unmapped 4xx (e.g. 405 Method Not
+     * Allowed) and transport-level failures (status 0 from ConnectException) — the
+     * original $e is returned unchanged; callers should handle those via the base
+     * ApiException catch clause.
+     *
+     * Generated API methods (both sync WithHttpInfo and async rejection handlers)
+     * call this so consumers can `catch (NotFoundException $e)` narrowly instead of
+     * inspecting status codes.
+     *
+     * @param self                $e       The base ApiException constructed from the transport layer.
+     * @param ProblemDetails|null $problem Deserialized RFC 9457 payload to attach via
+     *                                     setResponseObject() when non-null.
+     *                                     Side effect: mutates $e (or the returned subclass)
+     *                                     by setting its responseObject.
+     * @return self The specialized subclass, or $e unchanged for unmapped statuses.
+     */
+    public static function specialize(self $e, ?ProblemDetails $problem = null): self
+    {
+        $statusCode = $e->getCode();
+        $message = $e->getMessage();
+        $headers = $e->getResponseHeaders();
+        $body = $e->getResponseBody();
+
+        $specific = match (true) {
+            $statusCode === 400 => new BadRequestException($message, $headers, $body, $e),
+            $statusCode === 401 => new UnauthorizedException($message, $headers, $body, $e),
+            $statusCode === 403 => new ForbiddenException($message, $headers, $body, $e),
+            $statusCode === 404 => new NotFoundException($message, $headers, $body, $e),
+            $statusCode === 409 => new ConflictException($message, $headers, $body, $e),
+            $statusCode === 422 => new UnprocessableEntityException($message, $headers, $body, $e),
+            $statusCode === 429 => new RateLimitException($message, $headers, $body, $e),
+            $statusCode >= 500 && $statusCode <= 599 => new ServerException($message, $statusCode, $headers, $body, $e),
+            default => $e,
+        };
+
+        if ($problem !== null) {
+            $specific->setResponseObject($problem);
+        }
+
+        return $specific;
     }
 }

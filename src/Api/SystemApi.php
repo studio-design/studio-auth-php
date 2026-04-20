@@ -29,6 +29,8 @@ declare(strict_types=1);
 namespace Studio\Auth\Api;
 
 use InvalidArgumentException;
+use JsonException;
+use Throwable;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ConnectException;
@@ -43,6 +45,7 @@ use Studio\Auth\ApiException;
 use Studio\Auth\Configuration;
 use Studio\Auth\HeaderSelector;
 use Studio\Auth\FormDataProcessor;
+use Studio\Auth\Model\ProblemDetails;
 use Studio\Auth\ObjectSerializer;
 
 /**
@@ -145,13 +148,14 @@ class SystemApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return \Studio\Auth\Model\HealthStatus|\Studio\Auth\Model\ProblemDetails
+     * @return \Studio\Auth\Model\HealthStatus
      */
     public function getHealthStatus(
         string $contentType = self::contentTypes['getHealthStatus'][0]
-    ): \Studio\Auth\Model\HealthStatus|\Studio\Auth\Model\ProblemDetails
+    ): \Studio\Auth\Model\HealthStatus
     {
-        list($response) = $this->getHealthStatusWithHttpInfo($contentType);
+        [$response] = $this->getHealthStatusWithHttpInfo($contentType);
+
         return $response;
     }
 
@@ -164,7 +168,7 @@ class SystemApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of \Studio\Auth\Model\HealthStatus|\Studio\Auth\Model\ProblemDetails, HTTP status code, HTTP response headers (array of strings)
+     * @return array{0: \Studio\Auth\Model\HealthStatus, 1: int, 2: array<string, string[]>}
      */
     public function getHealthStatusWithHttpInfo(
         string $contentType = self::contentTypes['getHealthStatus'][0]
@@ -181,39 +185,28 @@ class SystemApi
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
+                    $e,
                 );
             } catch (ConnectException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     null,
-                    null
+                    null,
+                    $e,
                 );
             }
 
             $statusCode = $response->getStatusCode();
 
-            switch($statusCode) {
-                case 200:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\HealthStatus',
-                        $request,
-                        $response,
-                    );
-                case 503:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-            }
-            
-
+            // Non-2xx responses are thrown as ApiException by Guzzle (http_errors=true),
+            // so execution reaches here only for 2xx. The guard below is a safety net for
+            // edge cases such as 1xx/3xx responses that bypass Guzzle's RequestException.
             if ($statusCode < 200 || $statusCode > 299) {
                 throw new ApiException(
                     sprintf(
-                        '[%d] Error connecting to the API (%s)',
+                        '[%d] Unexpected non-2xx response status received from API (%s)',
                         $statusCode,
                         (string) $request->getUri()
                     ),
@@ -229,26 +222,27 @@ class SystemApi
                 $response,
             );
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\HealthStatus',
+            // Attempt to decode the error body as a ProblemDetails document (RFC 9457).
+            // Non-JSON bodies or schemas that don't match ProblemDetails leave $problem null,
+            // which is the caller's signal that the upstream did not return a structured error.
+            $problem = null;
+            $body = $e->getResponseBody();
+            if ($body !== null && $body !== '') {
+                try {
+                    $decoded = ObjectSerializer::deserialize(
+                        $body,
+                        ProblemDetails::class,
                         $e->getResponseHeaders()
                     );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 503:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
+                    if ($decoded instanceof ProblemDetails) {
+                        $problem = $decoded;
+                    }
+                } catch (Throwable) {
+                    // Best-effort: keep $problem null and let the caller inspect the raw body.
+                }
             }
-        
-            throw $e;
+
+            throw ApiException::specialize($e, $problem);
         }
     }
 
@@ -313,16 +307,38 @@ class SystemApi
                 function ($exception) {
                     $response = $exception->getResponse();
                     $statusCode = $response->getStatusCode();
-                    throw new ApiException(
+                    $body = (string) $response->getBody();
+                    $headers = $response->getHeaders();
+
+                    $base = new ApiException(
                         sprintf(
                             '[%d] Error connecting to the API (%s)',
                             $statusCode,
                             $exception->getRequest()->getUri()
                         ),
                         $statusCode,
-                        $response->getHeaders(),
-                        (string) $response->getBody()
+                        $headers,
+                        $body,
+                        $exception,
                     );
+
+                    $problem = null;
+                    if ($body !== '') {
+                        try {
+                            $decoded = ObjectSerializer::deserialize(
+                                $body,
+                                ProblemDetails::class,
+                                $headers
+                            );
+                            if ($decoded instanceof ProblemDetails) {
+                                $problem = $decoded;
+                            }
+                        } catch (Throwable) {
+                            // Best-effort: leave $problem null.
+                        }
+                    }
+
+                    throw ApiException::specialize($base, $problem);
                 }
             );
     }
@@ -413,13 +429,14 @@ class SystemApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return \Studio\Auth\Model\JwksResponse|\Studio\Auth\Model\ProblemDetails
+     * @return \Studio\Auth\Model\JwksResponse
      */
     public function getJwks(
         string $contentType = self::contentTypes['getJwks'][0]
-    ): \Studio\Auth\Model\JwksResponse|\Studio\Auth\Model\ProblemDetails
+    ): \Studio\Auth\Model\JwksResponse
     {
-        list($response) = $this->getJwksWithHttpInfo($contentType);
+        [$response] = $this->getJwksWithHttpInfo($contentType);
+
         return $response;
     }
 
@@ -432,7 +449,7 @@ class SystemApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of \Studio\Auth\Model\JwksResponse|\Studio\Auth\Model\ProblemDetails|\Studio\Auth\Model\ProblemDetails|\Studio\Auth\Model\ProblemDetails, HTTP status code, HTTP response headers (array of strings)
+     * @return array{0: \Studio\Auth\Model\JwksResponse, 1: int, 2: array<string, string[]>}
      */
     public function getJwksWithHttpInfo(
         string $contentType = self::contentTypes['getJwks'][0]
@@ -449,51 +466,28 @@ class SystemApi
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
+                    $e,
                 );
             } catch (ConnectException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     null,
-                    null
+                    null,
+                    $e,
                 );
             }
 
             $statusCode = $response->getStatusCode();
 
-            switch($statusCode) {
-                case 200:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\JwksResponse',
-                        $request,
-                        $response,
-                    );
-                case 429:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-                case 500:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-                case 503:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-            }
-            
-
+            // Non-2xx responses are thrown as ApiException by Guzzle (http_errors=true),
+            // so execution reaches here only for 2xx. The guard below is a safety net for
+            // edge cases such as 1xx/3xx responses that bypass Guzzle's RequestException.
             if ($statusCode < 200 || $statusCode > 299) {
                 throw new ApiException(
                     sprintf(
-                        '[%d] Error connecting to the API (%s)',
+                        '[%d] Unexpected non-2xx response status received from API (%s)',
                         $statusCode,
                         (string) $request->getUri()
                     ),
@@ -509,42 +503,27 @@ class SystemApi
                 $response,
             );
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\JwksResponse',
+            // Attempt to decode the error body as a ProblemDetails document (RFC 9457).
+            // Non-JSON bodies or schemas that don't match ProblemDetails leave $problem null,
+            // which is the caller's signal that the upstream did not return a structured error.
+            $problem = null;
+            $body = $e->getResponseBody();
+            if ($body !== null && $body !== '') {
+                try {
+                    $decoded = ObjectSerializer::deserialize(
+                        $body,
+                        ProblemDetails::class,
                         $e->getResponseHeaders()
                     );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 429:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 500:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 503:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
+                    if ($decoded instanceof ProblemDetails) {
+                        $problem = $decoded;
+                    }
+                } catch (Throwable) {
+                    // Best-effort: keep $problem null and let the caller inspect the raw body.
+                }
             }
-        
-            throw $e;
+
+            throw ApiException::specialize($e, $problem);
         }
     }
 
@@ -609,16 +588,38 @@ class SystemApi
                 function ($exception) {
                     $response = $exception->getResponse();
                     $statusCode = $response->getStatusCode();
-                    throw new ApiException(
+                    $body = (string) $response->getBody();
+                    $headers = $response->getHeaders();
+
+                    $base = new ApiException(
                         sprintf(
                             '[%d] Error connecting to the API (%s)',
                             $statusCode,
                             $exception->getRequest()->getUri()
                         ),
                         $statusCode,
-                        $response->getHeaders(),
-                        (string) $response->getBody()
+                        $headers,
+                        $body,
+                        $exception,
                     );
+
+                    $problem = null;
+                    if ($body !== '') {
+                        try {
+                            $decoded = ObjectSerializer::deserialize(
+                                $body,
+                                ProblemDetails::class,
+                                $headers
+                            );
+                            if ($decoded instanceof ProblemDetails) {
+                                $problem = $decoded;
+                            }
+                        } catch (Throwable) {
+                            // Best-effort: leave $problem null.
+                        }
+                    }
+
+                    throw ApiException::specialize($base, $problem);
                 }
             );
     }
@@ -709,13 +710,14 @@ class SystemApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return \Studio\Auth\Model\OpenIDProviderMetadataResponse|\Studio\Auth\Model\ProblemDetails
+     * @return \Studio\Auth\Model\OpenIDProviderMetadataResponse
      */
     public function getOpenIDConfiguration(
         string $contentType = self::contentTypes['getOpenIDConfiguration'][0]
-    ): \Studio\Auth\Model\OpenIDProviderMetadataResponse|\Studio\Auth\Model\ProblemDetails
+    ): \Studio\Auth\Model\OpenIDProviderMetadataResponse
     {
-        list($response) = $this->getOpenIDConfigurationWithHttpInfo($contentType);
+        [$response] = $this->getOpenIDConfigurationWithHttpInfo($contentType);
+
         return $response;
     }
 
@@ -728,7 +730,7 @@ class SystemApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of \Studio\Auth\Model\OpenIDProviderMetadataResponse|\Studio\Auth\Model\ProblemDetails|\Studio\Auth\Model\ProblemDetails, HTTP status code, HTTP response headers (array of strings)
+     * @return array{0: \Studio\Auth\Model\OpenIDProviderMetadataResponse, 1: int, 2: array<string, string[]>}
      */
     public function getOpenIDConfigurationWithHttpInfo(
         string $contentType = self::contentTypes['getOpenIDConfiguration'][0]
@@ -745,45 +747,28 @@ class SystemApi
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
+                    $e,
                 );
             } catch (ConnectException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     null,
-                    null
+                    null,
+                    $e,
                 );
             }
 
             $statusCode = $response->getStatusCode();
 
-            switch($statusCode) {
-                case 200:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\OpenIDProviderMetadataResponse',
-                        $request,
-                        $response,
-                    );
-                case 500:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-                case 503:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-            }
-            
-
+            // Non-2xx responses are thrown as ApiException by Guzzle (http_errors=true),
+            // so execution reaches here only for 2xx. The guard below is a safety net for
+            // edge cases such as 1xx/3xx responses that bypass Guzzle's RequestException.
             if ($statusCode < 200 || $statusCode > 299) {
                 throw new ApiException(
                     sprintf(
-                        '[%d] Error connecting to the API (%s)',
+                        '[%d] Unexpected non-2xx response status received from API (%s)',
                         $statusCode,
                         (string) $request->getUri()
                     ),
@@ -799,34 +784,27 @@ class SystemApi
                 $response,
             );
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\OpenIDProviderMetadataResponse',
+            // Attempt to decode the error body as a ProblemDetails document (RFC 9457).
+            // Non-JSON bodies or schemas that don't match ProblemDetails leave $problem null,
+            // which is the caller's signal that the upstream did not return a structured error.
+            $problem = null;
+            $body = $e->getResponseBody();
+            if ($body !== null && $body !== '') {
+                try {
+                    $decoded = ObjectSerializer::deserialize(
+                        $body,
+                        ProblemDetails::class,
                         $e->getResponseHeaders()
                     );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 500:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 503:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
+                    if ($decoded instanceof ProblemDetails) {
+                        $problem = $decoded;
+                    }
+                } catch (Throwable) {
+                    // Best-effort: keep $problem null and let the caller inspect the raw body.
+                }
             }
-        
-            throw $e;
+
+            throw ApiException::specialize($e, $problem);
         }
     }
 
@@ -891,16 +869,38 @@ class SystemApi
                 function ($exception) {
                     $response = $exception->getResponse();
                     $statusCode = $response->getStatusCode();
-                    throw new ApiException(
+                    $body = (string) $response->getBody();
+                    $headers = $response->getHeaders();
+
+                    $base = new ApiException(
                         sprintf(
                             '[%d] Error connecting to the API (%s)',
                             $statusCode,
                             $exception->getRequest()->getUri()
                         ),
                         $statusCode,
-                        $response->getHeaders(),
-                        (string) $response->getBody()
+                        $headers,
+                        $body,
+                        $exception,
                     );
+
+                    $problem = null;
+                    if ($body !== '') {
+                        try {
+                            $decoded = ObjectSerializer::deserialize(
+                                $body,
+                                ProblemDetails::class,
+                                $headers
+                            );
+                            if ($decoded instanceof ProblemDetails) {
+                                $problem = $decoded;
+                            }
+                        } catch (Throwable) {
+                            // Best-effort: leave $problem null.
+                        }
+                    }
+
+                    throw ApiException::specialize($base, $problem);
                 }
             );
     }
@@ -991,13 +991,14 @@ class SystemApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return \Studio\Auth\Model\ServiceInfoResponse|\Studio\Auth\Model\ProblemDetails
+     * @return \Studio\Auth\Model\ServiceInfoResponse
      */
     public function getServiceInfo(
         string $contentType = self::contentTypes['getServiceInfo'][0]
-    ): \Studio\Auth\Model\ServiceInfoResponse|\Studio\Auth\Model\ProblemDetails
+    ): \Studio\Auth\Model\ServiceInfoResponse
     {
-        list($response) = $this->getServiceInfoWithHttpInfo($contentType);
+        [$response] = $this->getServiceInfoWithHttpInfo($contentType);
+
         return $response;
     }
 
@@ -1010,7 +1011,7 @@ class SystemApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of \Studio\Auth\Model\ServiceInfoResponse|\Studio\Auth\Model\ProblemDetails, HTTP status code, HTTP response headers (array of strings)
+     * @return array{0: \Studio\Auth\Model\ServiceInfoResponse, 1: int, 2: array<string, string[]>}
      */
     public function getServiceInfoWithHttpInfo(
         string $contentType = self::contentTypes['getServiceInfo'][0]
@@ -1027,39 +1028,28 @@ class SystemApi
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
+                    $e,
                 );
             } catch (ConnectException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     null,
-                    null
+                    null,
+                    $e,
                 );
             }
 
             $statusCode = $response->getStatusCode();
 
-            switch($statusCode) {
-                case 200:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ServiceInfoResponse',
-                        $request,
-                        $response,
-                    );
-                case 404:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-            }
-            
-
+            // Non-2xx responses are thrown as ApiException by Guzzle (http_errors=true),
+            // so execution reaches here only for 2xx. The guard below is a safety net for
+            // edge cases such as 1xx/3xx responses that bypass Guzzle's RequestException.
             if ($statusCode < 200 || $statusCode > 299) {
                 throw new ApiException(
                     sprintf(
-                        '[%d] Error connecting to the API (%s)',
+                        '[%d] Unexpected non-2xx response status received from API (%s)',
                         $statusCode,
                         (string) $request->getUri()
                     ),
@@ -1075,26 +1065,27 @@ class SystemApi
                 $response,
             );
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ServiceInfoResponse',
+            // Attempt to decode the error body as a ProblemDetails document (RFC 9457).
+            // Non-JSON bodies or schemas that don't match ProblemDetails leave $problem null,
+            // which is the caller's signal that the upstream did not return a structured error.
+            $problem = null;
+            $body = $e->getResponseBody();
+            if ($body !== null && $body !== '') {
+                try {
+                    $decoded = ObjectSerializer::deserialize(
+                        $body,
+                        ProblemDetails::class,
                         $e->getResponseHeaders()
                     );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 404:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
+                    if ($decoded instanceof ProblemDetails) {
+                        $problem = $decoded;
+                    }
+                } catch (Throwable) {
+                    // Best-effort: keep $problem null and let the caller inspect the raw body.
+                }
             }
-        
-            throw $e;
+
+            throw ApiException::specialize($e, $problem);
         }
     }
 
@@ -1159,16 +1150,38 @@ class SystemApi
                 function ($exception) {
                     $response = $exception->getResponse();
                     $statusCode = $response->getStatusCode();
-                    throw new ApiException(
+                    $body = (string) $response->getBody();
+                    $headers = $response->getHeaders();
+
+                    $base = new ApiException(
                         sprintf(
                             '[%d] Error connecting to the API (%s)',
                             $statusCode,
                             $exception->getRequest()->getUri()
                         ),
                         $statusCode,
-                        $response->getHeaders(),
-                        (string) $response->getBody()
+                        $headers,
+                        $body,
+                        $exception,
                     );
+
+                    $problem = null;
+                    if ($body !== '') {
+                        try {
+                            $decoded = ObjectSerializer::deserialize(
+                                $body,
+                                ProblemDetails::class,
+                                $headers
+                            );
+                            if ($decoded instanceof ProblemDetails) {
+                                $problem = $decoded;
+                            }
+                        } catch (Throwable) {
+                            // Best-effort: leave $problem null.
+                        }
+                    }
+
+                    throw ApiException::specialize($base, $problem);
                 }
             );
     }
@@ -1281,7 +1294,7 @@ class SystemApi
             if ($dataType !== 'string') {
                 try {
                     $content = json_decode($content, false, 512, JSON_THROW_ON_ERROR);
-                } catch (\JsonException $exception) {
+                } catch (JsonException $exception) {
                     throw new ApiException(
                         sprintf(
                             'Error JSON decoding server response (%s)',
@@ -1289,7 +1302,8 @@ class SystemApi
                         ),
                         $response->getStatusCode(),
                         $response->getHeaders(),
-                        $content
+                        $content,
+                        $exception,
                     );
                 }
             }

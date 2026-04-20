@@ -29,6 +29,8 @@ declare(strict_types=1);
 namespace Studio\Auth\Api;
 
 use InvalidArgumentException;
+use JsonException;
+use Throwable;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ConnectException;
@@ -43,6 +45,7 @@ use Studio\Auth\ApiException;
 use Studio\Auth\Configuration;
 use Studio\Auth\HeaderSelector;
 use Studio\Auth\FormDataProcessor;
+use Studio\Auth\Model\ProblemDetails;
 use Studio\Auth\ObjectSerializer;
 
 /**
@@ -138,15 +141,16 @@ class APIApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return \Studio\Auth\Model\CheckSsoEnforcementResponse|\Studio\Auth\Model\ProblemDetails|\Studio\Auth\Model\SsoEnforcementErrorResponse
+     * @return \Studio\Auth\Model\CheckSsoEnforcementResponse
      */
     public function checkSsoEnforcement(
         ?string $email = null,
         ?string $sub = null,
         string $contentType = self::contentTypes['checkSsoEnforcement'][0]
-    ): \Studio\Auth\Model\CheckSsoEnforcementResponse|\Studio\Auth\Model\ProblemDetails|\Studio\Auth\Model\SsoEnforcementErrorResponse
+    ): \Studio\Auth\Model\CheckSsoEnforcementResponse
     {
-        list($response) = $this->checkSsoEnforcementWithHttpInfo($email, $sub, $contentType);
+        [$response] = $this->checkSsoEnforcementWithHttpInfo($email, $sub, $contentType);
+
         return $response;
     }
 
@@ -161,7 +165,7 @@ class APIApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of \Studio\Auth\Model\CheckSsoEnforcementResponse|\Studio\Auth\Model\ProblemDetails|\Studio\Auth\Model\SsoEnforcementErrorResponse|\Studio\Auth\Model\ProblemDetails, HTTP status code, HTTP response headers (array of strings)
+     * @return array{0: \Studio\Auth\Model\CheckSsoEnforcementResponse, 1: int, 2: array<string, string[]>}
      */
     public function checkSsoEnforcementWithHttpInfo(
         ?string $email = null,
@@ -180,51 +184,28 @@ class APIApi
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
+                    $e,
                 );
             } catch (ConnectException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
                     null,
-                    null
+                    null,
+                    $e,
                 );
             }
 
             $statusCode = $response->getStatusCode();
 
-            switch($statusCode) {
-                case 200:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\CheckSsoEnforcementResponse',
-                        $request,
-                        $response,
-                    );
-                case 400:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-                case 401:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\SsoEnforcementErrorResponse',
-                        $request,
-                        $response,
-                    );
-                case 500:
-                    return $this->handleResponseWithDataType(
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $request,
-                        $response,
-                    );
-            }
-            
-
+            // Non-2xx responses are thrown as ApiException by Guzzle (http_errors=true),
+            // so execution reaches here only for 2xx. The guard below is a safety net for
+            // edge cases such as 1xx/3xx responses that bypass Guzzle's RequestException.
             if ($statusCode < 200 || $statusCode > 299) {
                 throw new ApiException(
                     sprintf(
-                        '[%d] Error connecting to the API (%s)',
+                        '[%d] Unexpected non-2xx response status received from API (%s)',
                         $statusCode,
                         (string) $request->getUri()
                     ),
@@ -240,42 +221,27 @@ class APIApi
                 $response,
             );
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\CheckSsoEnforcementResponse',
+            // Attempt to decode the error body as a ProblemDetails document (RFC 9457).
+            // Non-JSON bodies or schemas that don't match ProblemDetails leave $problem null,
+            // which is the caller's signal that the upstream did not return a structured error.
+            $problem = null;
+            $body = $e->getResponseBody();
+            if ($body !== null && $body !== '') {
+                try {
+                    $decoded = ObjectSerializer::deserialize(
+                        $body,
+                        ProblemDetails::class,
                         $e->getResponseHeaders()
                     );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 400:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 401:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\SsoEnforcementErrorResponse',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
-                case 500:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Studio\Auth\Model\ProblemDetails',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    throw $e;
+                    if ($decoded instanceof ProblemDetails) {
+                        $problem = $decoded;
+                    }
+                } catch (Throwable) {
+                    // Best-effort: keep $problem null and let the caller inspect the raw body.
+                }
             }
-        
-            throw $e;
+
+            throw ApiException::specialize($e, $problem);
         }
     }
 
@@ -348,16 +314,38 @@ class APIApi
                 function ($exception) {
                     $response = $exception->getResponse();
                     $statusCode = $response->getStatusCode();
-                    throw new ApiException(
+                    $body = (string) $response->getBody();
+                    $headers = $response->getHeaders();
+
+                    $base = new ApiException(
                         sprintf(
                             '[%d] Error connecting to the API (%s)',
                             $statusCode,
                             $exception->getRequest()->getUri()
                         ),
                         $statusCode,
-                        $response->getHeaders(),
-                        (string) $response->getBody()
+                        $headers,
+                        $body,
+                        $exception,
                     );
+
+                    $problem = null;
+                    if ($body !== '') {
+                        try {
+                            $decoded = ObjectSerializer::deserialize(
+                                $body,
+                                ProblemDetails::class,
+                                $headers
+                            );
+                            if ($decoded instanceof ProblemDetails) {
+                                $problem = $decoded;
+                            }
+                        } catch (Throwable) {
+                            // Best-effort: leave $problem null.
+                        }
+                    }
+
+                    throw ApiException::specialize($base, $problem);
                 }
             );
     }
@@ -499,7 +487,7 @@ class APIApi
             if ($dataType !== 'string') {
                 try {
                     $content = json_decode($content, false, 512, JSON_THROW_ON_ERROR);
-                } catch (\JsonException $exception) {
+                } catch (JsonException $exception) {
                     throw new ApiException(
                         sprintf(
                             'Error JSON decoding server response (%s)',
@@ -507,7 +495,8 @@ class APIApi
                         ),
                         $response->getStatusCode(),
                         $response->getHeaders(),
-                        $content
+                        $content,
+                        $exception,
                     );
                 }
             }
