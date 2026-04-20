@@ -108,6 +108,7 @@ Class | Method | HTTP request | Description
 *OrganizationApi* | **getMemberMe** | **GET** /organizations/{organization_id}/members/me | 自分自身の組織メンバー情報取得（組織メンバー向け）
 *OrganizationApi* | **listMembers** | **GET** /organizations/{organization_id}/members | 組織メンバー一覧取得（組織メンバー向け）
 *OrganizationApi* | **sendInvitation** | **POST** /organizations/{organization_id}/invitations | 組織Adminによるメンバー招待
+*OrganizationApi* | **updateMemberRole** | **PATCH** /organizations/{organization_id}/members/{member_id} | メンバーロール変更（組織メンバー向け）
 *SystemApi* | **getHealthStatus** | **GET** /health | ヘルスチェック
 *SystemApi* | **getJwks** | **GET** /jwks | JSON Web Key Set の取得
 *SystemApi* | **getOpenIDConfiguration** | **GET** /.well-known/openid-configuration | OpenID Connect Discovery
@@ -153,6 +154,7 @@ Class | Method | HTTP request | Description
 - OrganizationMember
 - OrganizationMemberDomainType
 - OrganizationMemberListResponse
+- OrganizationMemberUpdateRequest
 - OrganizationMemberUser
 - OrganizationRole
 - PaginationMeta
