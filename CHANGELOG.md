@@ -1,5 +1,13 @@
 # studio-design/studio-auth-php
 
+## [0.2.23](https://github.com/studio-design/studio-auth/compare/sdk-v0.2.22...sdk-v0.2.23) (2026-04-21)
+
+
+### Features
+
+* **sdk:** add user-scope POST /organizations/{organization_id}/admin-portal-sessions ([130b13c](https://github.com/studio-design/studio-auth/commit/130b13c1d0dfd203dd085c3adc2d6032ae366adf))
+* **sdk:** document 404 response on user-scope admin-portal-sessions and tighten auth description ([6f26a9d](https://github.com/studio-design/studio-auth/commit/6f26a9dd78f0c3546609ad1d1820a917ef78e38a))
+
 ## [0.2.22](https://github.com/studio-design/studio-auth/compare/sdk-v0.2.21...sdk-v0.2.22) (2026-04-21)
 
 
