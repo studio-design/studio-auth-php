@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * OrganizationMemberUser
+ * OrganizationUpdateRequest
  *
  * PHP version 8.1
  *
@@ -36,15 +36,15 @@ use ReturnTypeWillChange;
 use Studio\Auth\ObjectSerializer;
 
 /**
- * OrganizationMemberUser Class Doc Comment
+ * OrganizationUpdateRequest Class Doc Comment
  *
- * @description 組織メンバーのユーザー情報。
+ * @description 組織情報更新リクエスト（組織メンバー向け）。 指定されたフィールドのみが更新されます。  user-facing 版は &#x60;display_name&#x60; のみ更新可能です。 &#x60;name&#x60; (slug) / &#x60;is_active&#x60; / &#x60;is_sso_enforced&#x60; は管理者専用エンドポイント (&#x60;PATCH /admin/organizations/{organization_id}&#x60;) からのみ更新できます。
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  * @implements ArrayAccess<string, mixed>
  */
-class OrganizationMemberUser implements ModelInterface, ArrayAccess, JsonSerializable
+class OrganizationUpdateRequest implements ModelInterface, ArrayAccess, JsonSerializable
 {
     public const DISCRIMINATOR = null;
 
@@ -53,7 +53,7 @@ class OrganizationMemberUser implements ModelInterface, ArrayAccess, JsonSeriali
       *
       * @var string
       */
-    protected static string $openAPIModelName = 'OrganizationMemberUser';
+    protected static string $openAPIModelName = 'OrganizationUpdateRequest';
 
     /**
       * Array of property to type mappings. Used for (de)serialization
@@ -61,9 +61,7 @@ class OrganizationMemberUser implements ModelInterface, ArrayAccess, JsonSeriali
       * @var array<string, string>
       */
     protected static array $openAPITypes = [
-        'id' => 'string',
-        'email' => 'string',
-        'name' => 'string'
+        'displayName' => 'string'
     ];
 
     /**
@@ -72,9 +70,7 @@ class OrganizationMemberUser implements ModelInterface, ArrayAccess, JsonSeriali
       * @var array<string, string|null>
       */
     protected static array $openAPIFormats = [
-        'id' => 'uuid',
-        'email' => 'email',
-        'name' => null
+        'displayName' => null
     ];
 
     /**
@@ -83,9 +79,7 @@ class OrganizationMemberUser implements ModelInterface, ArrayAccess, JsonSeriali
       * @var array<string, bool>
       */
     protected static array $openAPINullables = [
-        'id' => false,
-        'email' => false,
-        'name' => true
+        'displayName' => false
     ];
 
     /**
@@ -174,9 +168,7 @@ class OrganizationMemberUser implements ModelInterface, ArrayAccess, JsonSeriali
      * @var array<string, string>
      */
     protected static array $attributeMap = [
-        'id' => 'id',
-        'email' => 'email',
-        'name' => 'name'
+        'displayName' => 'display_name'
     ];
 
     /**
@@ -185,9 +177,7 @@ class OrganizationMemberUser implements ModelInterface, ArrayAccess, JsonSeriali
      * @var array<string, string>
      */
     protected static array $setters = [
-        'id' => 'setId',
-        'email' => 'setEmail',
-        'name' => 'setName'
+        'displayName' => 'setDisplayName'
     ];
 
     /**
@@ -196,9 +186,7 @@ class OrganizationMemberUser implements ModelInterface, ArrayAccess, JsonSeriali
      * @var array<string, string>
      */
     protected static array $getters = [
-        'id' => 'getId',
-        'email' => 'getEmail',
-        'name' => 'getName'
+        'displayName' => 'getDisplayName'
     ];
 
     /**
@@ -258,9 +246,7 @@ class OrganizationMemberUser implements ModelInterface, ArrayAccess, JsonSeriali
      */
     public function __construct(?array $data = null)
     {
-        $this->setIfExists('id', $data ?? [], null);
-        $this->setIfExists('email', $data ?? [], null);
-        $this->setIfExists('name', $data ?? [], null);
+        $this->setIfExists('displayName', $data ?? [], null);
     }
 
     /**
@@ -290,12 +276,14 @@ class OrganizationMemberUser implements ModelInterface, ArrayAccess, JsonSeriali
     {
         $invalidProperties = [];
 
-        if ($this->container['id'] === null) {
-            $invalidProperties[] = "'id' can't be null";
+        if (!is_null($this->container['displayName']) && (mb_strlen($this->container['displayName']) > 255)) {
+            $invalidProperties[] = "invalid value for 'displayName', the character length must be smaller than or equal to 255.";
         }
-        if ($this->container['email'] === null) {
-            $invalidProperties[] = "'email' can't be null";
+
+        if (!is_null($this->container['displayName']) && (mb_strlen($this->container['displayName']) < 1)) {
+            $invalidProperties[] = "invalid value for 'displayName', the character length must be bigger than or equal to 1.";
         }
+
         return $invalidProperties;
     }
 
@@ -312,89 +300,35 @@ class OrganizationMemberUser implements ModelInterface, ArrayAccess, JsonSeriali
 
 
     /**
-     * Gets id
-     *
-     * @return string
-     */
-    public function getId(): string
-    {
-        return $this->container['id'];
-    }
-
-    /**
-     * Sets id
-     *
-     * @param string $id ユーザー識別子（UUID形式）。
-     *
-     * @return $this
-     */
-    public function setId(string $id): static
-    {
-        if (is_null($id)) {
-            throw new InvalidArgumentException('non-nullable id cannot be null');
-        }
-        $this->container['id'] = $id;
-
-        return $this;
-    }
-
-    /**
-     * Gets email
-     *
-     * @return string
-     */
-    public function getEmail(): string
-    {
-        return $this->container['email'];
-    }
-
-    /**
-     * Sets email
-     *
-     * @param string $email ユーザーのメールアドレス。
-     *
-     * @return $this
-     */
-    public function setEmail(string $email): static
-    {
-        if (is_null($email)) {
-            throw new InvalidArgumentException('non-nullable email cannot be null');
-        }
-        $this->container['email'] = $email;
-
-        return $this;
-    }
-
-    /**
-     * Gets name
+     * Gets displayName
      *
      * @return string|null
      */
-    public function getName(): ?string
+    public function getDisplayName(): ?string
     {
-        return $this->container['name'];
+        return $this->container['displayName'];
     }
 
     /**
-     * Sets name
+     * Sets displayName
      *
-     * @param string|null $name ユーザーの表示名。
+     * @param string|null $displayName 組織のヘッダー表示用の人間向け名称。
      *
      * @return $this
      */
-    public function setName(?string $name): static
+    public function setDisplayName(?string $displayName): static
     {
-        if (is_null($name)) {
-            array_push($this->openAPINullablesSetToNull, 'name');
-        } else {
-            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
-            $index = array_search('name', $nullablesSetToNull);
-            if ($index !== FALSE) {
-                unset($nullablesSetToNull[$index]);
-                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
-            }
+        if (is_null($displayName)) {
+            throw new InvalidArgumentException('non-nullable displayName cannot be null');
         }
-        $this->container['name'] = $name;
+        if ((mb_strlen($displayName) > 255)) {
+            throw new InvalidArgumentException('invalid length for $displayName when calling OrganizationUpdateRequest., must be smaller than or equal to 255.');
+        }
+        if ((mb_strlen($displayName) < 1)) {
+            throw new InvalidArgumentException('invalid length for $displayName when calling OrganizationUpdateRequest., must be bigger than or equal to 1.');
+        }
+
+        $this->container['displayName'] = $displayName;
 
         return $this;
     }

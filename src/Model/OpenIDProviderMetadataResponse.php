@@ -49,17 +49,17 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     public const DISCRIMINATOR = null;
 
     /**
-     * The original name of the model.
-     *
-     * @var string
-     */
+      * The original name of the model.
+      *
+      * @var string
+      */
     protected static string $openAPIModelName = 'OpenIDProviderMetadataResponse';
 
     /**
-     * Array of property to type mappings. Used for (de)serialization
-     *
-     * @var array<string, string>
-     */
+      * Array of property to type mappings. Used for (de)serialization
+      *
+      * @var array<string, string>
+      */
     protected static array $openAPITypes = [
         'issuer' => 'string',
         'authorizationEndpoint' => 'string',
@@ -82,10 +82,10 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     ];
 
     /**
-     * Array of property to format mappings. Used for (de)serialization
-     *
-     * @var array<string, string|null>
-     */
+      * Array of property to format mappings. Used for (de)serialization
+      *
+      * @var array<string, string|null>
+      */
     protected static array $openAPIFormats = [
         'issuer' => 'uri',
         'authorizationEndpoint' => 'uri',
@@ -108,10 +108,10 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     ];
 
     /**
-     * Array of nullable properties. Used for (de)serialization
-     *
-     * @var array<string, bool>
-     */
+      * Array of nullable properties. Used for (de)serialization
+      *
+      * @var array<string, bool>
+      */
     protected static array $openAPINullables = [
         'issuer' => false,
         'authorizationEndpoint' => false,
@@ -134,14 +134,16 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     ];
 
     /**
-     * If a nullable field gets set to null, insert it here
-     *
-     * @var array<string, bool>
-     */
+      * If a nullable field gets set to null, insert it here
+      *
+      * @var array<string, bool>
+      */
     protected array $openAPINullablesSetToNull = [];
 
     /**
-     * {@inheritdoc}
+     * Array of property to type mappings. Used for (de)serialization
+     *
+     * @return array<string, string>
      */
     public static function openAPITypes(): array
     {
@@ -149,7 +151,9 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     }
 
     /**
-     * {@inheritdoc}
+     * Array of property to format mappings. Used for (de)serialization
+     *
+     * @return array<string, string>
      */
     public static function openAPIFormats(): array
     {
@@ -187,7 +191,10 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     }
 
     /**
-     * {@inheritdoc}
+     * Checks if a property is nullable
+     *
+     * @param string $property
+     * @return bool
      */
     public static function isNullable(string $property): bool
     {
@@ -195,7 +202,10 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     }
 
     /**
-     * {@inheritdoc}
+     * Checks if a nullable property is set to null.
+     *
+     * @param string $property
+     * @return bool
      */
     public function isNullableSetToNull(string $property): bool
     {
@@ -282,7 +292,10 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     ];
 
     /**
-     * {@inheritdoc}
+     * Array of attributes where the key is the local name,
+     * and the value is the original name
+     *
+     * @return array<string, string>
      */
     public static function attributeMap(): array
     {
@@ -290,7 +303,9 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     }
 
     /**
-     * {@inheritdoc}
+     * Array of attributes to setter functions (for deserialization of responses)
+     *
+     * @return array<string, string>
      */
     public static function setters(): array
     {
@@ -298,7 +313,9 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     }
 
     /**
-     * {@inheritdoc}
+     * Array of attributes to getter functions (for serialization of requests)
+     *
+     * @return array<string, string>
      */
     public static function getters(): array
     {
@@ -306,13 +323,16 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     }
 
     /**
-     * {@inheritdoc}
+     * The original name of the model.
+     *
+     * @return string
      */
     public function getModelName(): string
     {
         return self::$openAPIModelName;
     }
 
+    public const DISCRIMINATOR_MAP = [];
     public const SUBJECT_TYPES_SUPPORTED__PUBLIC = 'public';
     public const PROMPT_VALUES_SUPPORTED_NONE = 'none';
     public const PROMPT_VALUES_SUPPORTED_LOGIN = 'login';
@@ -377,14 +397,14 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     }
 
     /**
-     * Sets $this->container[$variableName] to the given data or to the given default Value; if $variableName
-     * is nullable and its value is set to null in the $fields array, then mark it as "set to null" in the
-     * $this->openAPINullablesSetToNull array
-     *
-     * @param string $variableName
-     * @param array  $fields
-     * @param mixed  $defaultValue
-     */
+    * Sets $this->container[$variableName] to the given data or to the given default Value; if $variableName
+    * is nullable and its value is set to null in the $fields array, then mark it as "set to null" in the
+    * $this->openAPINullablesSetToNull array
+    *
+    * @param string $variableName
+    * @param array  $fields
+    * @param mixed  $defaultValue
+    */
     private function setIfExists(string $variableName, array $fields, mixed $defaultValue): void
     {
         if (self::isNullable($variableName) && array_key_exists($variableName, $fields) && is_null($fields[$variableName])) {
@@ -395,7 +415,9 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     }
 
     /**
-     * {@inheritdoc}
+     * Show all the invalid properties with reasons.
+     *
+     * @return string[] invalid properties with reasons
      */
     public function listInvalidProperties(): array
     {
@@ -426,7 +448,10 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     }
 
     /**
-     * {@inheritdoc}
+     * Validate all the properties in the model
+     * return true if all passed
+     *
+     * @return bool True if all properties are valid
      */
     public function valid(): bool
     {

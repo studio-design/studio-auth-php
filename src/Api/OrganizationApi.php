@@ -97,6 +97,9 @@ class OrganizationApi
         'updateMemberRole' => [
             'application/json',
         ],
+        'updateMyOrganization' => [
+            'application/json',
+        ],
     ];
 
     /**
@@ -2199,6 +2202,341 @@ class OrganizationApi
                 $httpBody = \GuzzleHttp\Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($organizationMemberUpdateRequest));
             } else {
                 $httpBody = $organizationMemberUpdateRequest;
+            }
+        } elseif (count($formParams) > 0) {
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the form parameters
+                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
+            } else {
+                // for HTTP post (form)
+                $httpBody = ObjectSerializer::buildQuery($formParams);
+            }
+        }
+
+        // this endpoint requires Bearer (JWT) authentication (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $operationHost = $this->config->getHost();
+        $query = ObjectSerializer::buildQuery($queryParams);
+        return new Request(
+            'PATCH',
+            $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation updateMyOrganization
+     *
+     * 自分が所属する組織情報更新（組織メンバー向け）
+     *
+     * @param  string $organizationId 組織識別子（UUID形式）。 (required)
+     * @param  \Studio\Auth\Model\OrganizationUpdateRequest $organizationUpdateRequest organizationUpdateRequest (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['updateMyOrganization'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return \Studio\Auth\Model\Organization
+     */
+    public function updateMyOrganization(
+        string $organizationId,
+        \Studio\Auth\Model\OrganizationUpdateRequest $organizationUpdateRequest,
+        string $contentType = self::contentTypes['updateMyOrganization'][0]
+    ): \Studio\Auth\Model\Organization
+    {
+        [$response] = $this->updateMyOrganizationWithHttpInfo($organizationId, $organizationUpdateRequest, $contentType);
+
+        return $response;
+    }
+
+    /**
+     * Operation updateMyOrganizationWithHttpInfo
+     *
+     * 自分が所属する組織情報更新（組織メンバー向け）
+     *
+     * @param  string $organizationId 組織識別子（UUID形式）。 (required)
+     * @param  \Studio\Auth\Model\OrganizationUpdateRequest $organizationUpdateRequest (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['updateMyOrganization'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return array{0: \Studio\Auth\Model\Organization, 1: int, 2: array<string, string[]>}
+     */
+    public function updateMyOrganizationWithHttpInfo(
+        string $organizationId,
+        \Studio\Auth\Model\OrganizationUpdateRequest $organizationUpdateRequest,
+        string $contentType = self::contentTypes['updateMyOrganization'][0]
+    ): array
+    {
+        $request = $this->updateMyOrganizationRequest($organizationId, $organizationUpdateRequest, $contentType);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
+                    $e,
+                );
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null,
+                    $e,
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+            // Non-2xx responses are thrown as ApiException by Guzzle (http_errors=true),
+            // so execution reaches here only for 2xx. The guard below is a safety net for
+            // edge cases such as 1xx/3xx responses that bypass Guzzle's RequestException.
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Unexpected non-2xx response status received from API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            return $this->handleResponseWithDataType(
+                '\Studio\Auth\Model\Organization',
+                $request,
+                $response,
+            );
+        } catch (ApiException $e) {
+            // Attempt to decode the error body as a ProblemDetails document (RFC 9457).
+            // Non-JSON bodies or schemas that don't match ProblemDetails leave $problem null,
+            // which is the caller's signal that the upstream did not return a structured error.
+            $problem = null;
+            $body = $e->getResponseBody();
+            if ($body !== null && $body !== '') {
+                try {
+                    $decoded = ObjectSerializer::deserialize(
+                        $body,
+                        ProblemDetails::class,
+                        $e->getResponseHeaders()
+                    );
+                    if ($decoded instanceof ProblemDetails) {
+                        $problem = $decoded;
+                    }
+                } catch (Throwable) {
+                    // Best-effort: keep $problem null and let the caller inspect the raw body.
+                }
+            }
+
+            throw ApiException::specialize($e, $problem);
+        }
+    }
+
+    /**
+     * Operation updateMyOrganizationAsync
+     *
+     * 自分が所属する組織情報更新（組織メンバー向け）
+     *
+     * @param  string $organizationId 組織識別子（UUID形式）。 (required)
+     * @param  \Studio\Auth\Model\OrganizationUpdateRequest $organizationUpdateRequest (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['updateMyOrganization'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function updateMyOrganizationAsync(
+        string $organizationId,
+        \Studio\Auth\Model\OrganizationUpdateRequest $organizationUpdateRequest,
+        string $contentType = self::contentTypes['updateMyOrganization'][0]
+    ): PromiseInterface
+    {
+        return $this->updateMyOrganizationAsyncWithHttpInfo($organizationId, $organizationUpdateRequest, $contentType)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation updateMyOrganizationAsyncWithHttpInfo
+     *
+     * 自分が所属する組織情報更新（組織メンバー向け）
+     *
+     * @param  string $organizationId 組織識別子（UUID形式）。 (required)
+     * @param  \Studio\Auth\Model\OrganizationUpdateRequest $organizationUpdateRequest (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['updateMyOrganization'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function updateMyOrganizationAsyncWithHttpInfo(
+        string $organizationId,
+        \Studio\Auth\Model\OrganizationUpdateRequest $organizationUpdateRequest,
+        string $contentType = self::contentTypes['updateMyOrganization'][0]
+    ): PromiseInterface
+    {
+        $returnType = '\Studio\Auth\Model\Organization';
+        $request = $this->updateMyOrganizationRequest($organizationId, $organizationUpdateRequest, $contentType);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                        if ($returnType !== 'string') {
+                            $content = json_decode($content);
+                        }
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    $body = (string) $response->getBody();
+                    $headers = $response->getHeaders();
+
+                    $base = new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $headers,
+                        $body,
+                        $exception,
+                    );
+
+                    $problem = null;
+                    if ($body !== '') {
+                        try {
+                            $decoded = ObjectSerializer::deserialize(
+                                $body,
+                                ProblemDetails::class,
+                                $headers
+                            );
+                            if ($decoded instanceof ProblemDetails) {
+                                $problem = $decoded;
+                            }
+                        } catch (Throwable) {
+                            // Best-effort: leave $problem null.
+                        }
+                    }
+
+                    throw ApiException::specialize($base, $problem);
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'updateMyOrganization'
+     *
+     * @param  string $organizationId 組織識別子（UUID形式）。 (required)
+     * @param  \Studio\Auth\Model\OrganizationUpdateRequest $organizationUpdateRequest (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['updateMyOrganization'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function updateMyOrganizationRequest(
+        string $organizationId,
+        \Studio\Auth\Model\OrganizationUpdateRequest $organizationUpdateRequest,
+        string $contentType = self::contentTypes['updateMyOrganization'][0]
+    ): Request
+    {
+
+        // verify the required parameter 'organizationId' is set
+        if ($organizationId === null || (is_array($organizationId) && count($organizationId) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $organizationId when calling updateMyOrganization'
+            );
+        }
+
+        // verify the required parameter 'organizationUpdateRequest' is set
+        if ($organizationUpdateRequest === null || (is_array($organizationUpdateRequest) && count($organizationUpdateRequest) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $organizationUpdateRequest when calling updateMyOrganization'
+            );
+        }
+
+
+        $resourcePath = '/organizations/{organization_id}';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+        // path params
+        if ($organizationId !== null) {
+            $resourcePath = str_replace(
+                '{' . 'organization_id' . '}',
+                ObjectSerializer::toPathValue($organizationId),
+                $resourcePath
+            );
+        }
+
+
+        $headers = $this->headerSelector->selectHeaders(
+            ['application/json', 'application/problem+json', ],
+            $contentType,
+            $multipart
+        );
+
+        // for model (json/xml)
+        if (isset($organizationUpdateRequest)) {
+            if (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the body
+                $httpBody = \GuzzleHttp\Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($organizationUpdateRequest));
+            } else {
+                $httpBody = $organizationUpdateRequest;
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {

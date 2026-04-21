@@ -504,13 +504,31 @@ class ObjectSerializer
                 $data = (object)$data;
             }
 
-            // If a discriminator is defined and points to a valid subclass, use it.
+            // Prefer the explicit OpenAPI `discriminator.mapping` (`DISCRIMINATOR_MAP`).
+            // For `oneOf` unions the generated sub-schemas don't extend the base class,
+            // so `is_subclass_of($subclass, $class)` rejects valid mappings — check
+            // `ModelInterface` membership instead. Fall back to a name-based lookup
+            // (`Model\<discriminatorValue>`) when no explicit mapping is defined.
             $discriminator = $class::DISCRIMINATOR;
             if (!empty($discriminator) && isset($data->{$discriminator}) && is_string($data->{$discriminator})) {
-                $subclass = '\Studio\Auth\Model\\' . $data->{$discriminator};
-                if (is_subclass_of($subclass, $class)) {
+                $discriminatorValue = $data->{$discriminator};
+                $map = $class::DISCRIMINATOR_MAP ?? [];
+                $subclass = $map[$discriminatorValue] ?? ('\Studio\Auth\Model\\' . $discriminatorValue);
+                if (is_string($subclass) && class_exists($subclass) && is_a($subclass, ModelInterface::class, true)) {
                     $class = $subclass;
+                } elseif ($map !== []) {
+                    // Explicit mapping present but value not in it — surface a spec/data
+                    // mismatch immediately instead of limping along on the base class
+                    // (where enum validation emits a less-actionable message).
+                    throw new \InvalidArgumentException(sprintf(
+                        "Unknown discriminator value '%s' for '%s'. Expected one of: '%s'.",
+                        $discriminatorValue,
+                        $discriminator,
+                        implode("', '", array_keys($map)),
+                    ));
                 }
+                // else: schema has no `discriminator.mapping` — fall through to the
+                // base class and rely on its own enum validation, preserving prior behavior.
             }
 
             /** @var ModelInterface $instance */

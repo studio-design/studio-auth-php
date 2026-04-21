@@ -49,17 +49,17 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
     public const DISCRIMINATOR = null;
 
     /**
-     * The original name of the model.
-     *
-     * @var string
-     */
+      * The original name of the model.
+      *
+      * @var string
+      */
     protected static string $openAPIModelName = 'OrganizationMember';
 
     /**
-     * Array of property to type mappings. Used for (de)serialization
-     *
-     * @var array<string, string>
-     */
+      * Array of property to type mappings. Used for (de)serialization
+      *
+      * @var array<string, string>
+      */
     protected static array $openAPITypes = [
         'id' => 'string',
         'user' => '\Studio\Auth\Model\OrganizationMemberUser',
@@ -71,10 +71,10 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
     ];
 
     /**
-     * Array of property to format mappings. Used for (de)serialization
-     *
-     * @var array<string, string|null>
-     */
+      * Array of property to format mappings. Used for (de)serialization
+      *
+      * @var array<string, string|null>
+      */
     protected static array $openAPIFormats = [
         'id' => 'uuid',
         'user' => null,
@@ -86,10 +86,10 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
     ];
 
     /**
-     * Array of nullable properties. Used for (de)serialization
-     *
-     * @var array<string, bool>
-     */
+      * Array of nullable properties. Used for (de)serialization
+      *
+      * @var array<string, bool>
+      */
     protected static array $openAPINullables = [
         'id' => false,
         'user' => false,
@@ -101,14 +101,16 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
     ];
 
     /**
-     * If a nullable field gets set to null, insert it here
-     *
-     * @var array<string, bool>
-     */
+      * If a nullable field gets set to null, insert it here
+      *
+      * @var array<string, bool>
+      */
     protected array $openAPINullablesSetToNull = [];
 
     /**
-     * {@inheritdoc}
+     * Array of property to type mappings. Used for (de)serialization
+     *
+     * @return array<string, string>
      */
     public static function openAPITypes(): array
     {
@@ -116,7 +118,9 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
     }
 
     /**
-     * {@inheritdoc}
+     * Array of property to format mappings. Used for (de)serialization
+     *
+     * @return array<string, string>
      */
     public static function openAPIFormats(): array
     {
@@ -154,7 +158,10 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
     }
 
     /**
-     * {@inheritdoc}
+     * Checks if a property is nullable
+     *
+     * @param string $property
+     * @return bool
      */
     public static function isNullable(string $property): bool
     {
@@ -162,7 +169,10 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
     }
 
     /**
-     * {@inheritdoc}
+     * Checks if a nullable property is set to null.
+     *
+     * @param string $property
+     * @return bool
      */
     public function isNullableSetToNull(string $property): bool
     {
@@ -216,7 +226,10 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
     ];
 
     /**
-     * {@inheritdoc}
+     * Array of attributes where the key is the local name,
+     * and the value is the original name
+     *
+     * @return array<string, string>
      */
     public static function attributeMap(): array
     {
@@ -224,7 +237,9 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
     }
 
     /**
-     * {@inheritdoc}
+     * Array of attributes to setter functions (for deserialization of responses)
+     *
+     * @return array<string, string>
      */
     public static function setters(): array
     {
@@ -232,7 +247,9 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
     }
 
     /**
-     * {@inheritdoc}
+     * Array of attributes to getter functions (for serialization of requests)
+     *
+     * @return array<string, string>
      */
     public static function getters(): array
     {
@@ -240,13 +257,16 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
     }
 
     /**
-     * {@inheritdoc}
+     * The original name of the model.
+     *
+     * @return string
      */
     public function getModelName(): string
     {
         return self::$openAPIModelName;
     }
 
+    public const DISCRIMINATOR_MAP = [];
 
     /**
      * Associative array for storing property values
@@ -272,14 +292,14 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
     }
 
     /**
-     * Sets $this->container[$variableName] to the given data or to the given default Value; if $variableName
-     * is nullable and its value is set to null in the $fields array, then mark it as "set to null" in the
-     * $this->openAPINullablesSetToNull array
-     *
-     * @param string $variableName
-     * @param array  $fields
-     * @param mixed  $defaultValue
-     */
+    * Sets $this->container[$variableName] to the given data or to the given default Value; if $variableName
+    * is nullable and its value is set to null in the $fields array, then mark it as "set to null" in the
+    * $this->openAPINullablesSetToNull array
+    *
+    * @param string $variableName
+    * @param array  $fields
+    * @param mixed  $defaultValue
+    */
     private function setIfExists(string $variableName, array $fields, mixed $defaultValue): void
     {
         if (self::isNullable($variableName) && array_key_exists($variableName, $fields) && is_null($fields[$variableName])) {
@@ -290,7 +310,9 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
     }
 
     /**
-     * {@inheritdoc}
+     * Show all the invalid properties with reasons.
+     *
+     * @return string[] invalid properties with reasons
      */
     public function listInvalidProperties(): array
     {
@@ -312,7 +334,10 @@ class OrganizationMember implements ModelInterface, ArrayAccess, JsonSerializabl
     }
 
     /**
-     * {@inheritdoc}
+     * Validate all the properties in the model
+     * return true if all passed
+     *
+     * @return bool True if all properties are valid
      */
     public function valid(): bool
     {

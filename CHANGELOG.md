@@ -1,5 +1,18 @@
 # studio-design/studio-auth-php
 
+## [0.2.22](https://github.com/studio-design/studio-auth/compare/sdk-v0.2.21...sdk-v0.2.22) (2026-04-21)
+
+
+### Features
+
+* **sdk:** add user-scope PATCH /organizations/{organization_id} spec ([4075aa5](https://github.com/studio-design/studio-auth/commit/4075aa501970cf36e406515f733f26555c3a619a))
+
+
+### Bug Fixes
+
+* **sdk:** resolve oneOf discriminator correctly in PHP SDK templates ([574e808](https://github.com/studio-design/studio-auth/commit/574e8082d7a56cb808b9b4b525064906abb3e5da))
+* **sdk:** throw on unknown discriminator value instead of silently falling back ([10a8440](https://github.com/studio-design/studio-auth/commit/10a8440ffd7f4e0ac028be393675b016b4ddddba))
+
 ## [0.2.21](https://github.com/studio-design/studio-auth/compare/sdk-v0.2.20...sdk-v0.2.21) (2026-04-20)
 
 

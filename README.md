@@ -111,6 +111,7 @@ Class | Method | HTTP request | Description
 *OrganizationApi* | **removeMember** | **DELETE** /organizations/{organization_id}/members/{member_id} | メンバー削除（組織メンバー向け）
 *OrganizationApi* | **sendInvitation** | **POST** /organizations/{organization_id}/invitations | 組織Adminによるメンバー招待
 *OrganizationApi* | **updateMemberRole** | **PATCH** /organizations/{organization_id}/members/{member_id} | メンバーロール変更（組織メンバー向け）
+*OrganizationApi* | **updateMyOrganization** | **PATCH** /organizations/{organization_id} | 自分が所属する組織情報更新（組織メンバー向け）
 *SystemApi* | **getHealthStatus** | **GET** /health | ヘルスチェック
 *SystemApi* | **getJwks** | **GET** /jwks | JSON Web Key Set の取得
 *SystemApi* | **getOpenIDConfiguration** | **GET** /.well-known/openid-configuration | OpenID Connect Discovery
@@ -159,6 +160,7 @@ Class | Method | HTTP request | Description
 - OrganizationMemberUpdateRequest
 - OrganizationMemberUser
 - OrganizationRole
+- OrganizationUpdateRequest
 - PaginationMeta
 - ProblemDetails
 - RevokeErrorResponse

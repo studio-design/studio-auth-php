@@ -49,17 +49,17 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     public const DISCRIMINATOR = null;
 
     /**
-     * The original name of the model.
-     *
-     * @var string
-     */
+      * The original name of the model.
+      *
+      * @var string
+      */
     protected static string $openAPIModelName = 'ProblemDetails';
 
     /**
-     * Array of property to type mappings. Used for (de)serialization
-     *
-     * @var array<string, string>
-     */
+      * Array of property to type mappings. Used for (de)serialization
+      *
+      * @var array<string, string>
+      */
     protected static array $openAPITypes = [
         'type' => 'string',
         'title' => 'string',
@@ -69,10 +69,10 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     ];
 
     /**
-     * Array of property to format mappings. Used for (de)serialization
-     *
-     * @var array<string, string|null>
-     */
+      * Array of property to format mappings. Used for (de)serialization
+      *
+      * @var array<string, string|null>
+      */
     protected static array $openAPIFormats = [
         'type' => 'uri-reference',
         'title' => null,
@@ -82,10 +82,10 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     ];
 
     /**
-     * Array of nullable properties. Used for (de)serialization
-     *
-     * @var array<string, bool>
-     */
+      * Array of nullable properties. Used for (de)serialization
+      *
+      * @var array<string, bool>
+      */
     protected static array $openAPINullables = [
         'type' => false,
         'title' => false,
@@ -95,14 +95,16 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     ];
 
     /**
-     * If a nullable field gets set to null, insert it here
-     *
-     * @var array<string, bool>
-     */
+      * If a nullable field gets set to null, insert it here
+      *
+      * @var array<string, bool>
+      */
     protected array $openAPINullablesSetToNull = [];
 
     /**
-     * {@inheritdoc}
+     * Array of property to type mappings. Used for (de)serialization
+     *
+     * @return array<string, string>
      */
     public static function openAPITypes(): array
     {
@@ -110,7 +112,9 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
-     * {@inheritdoc}
+     * Array of property to format mappings. Used for (de)serialization
+     *
+     * @return array<string, string>
      */
     public static function openAPIFormats(): array
     {
@@ -148,7 +152,10 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
-     * {@inheritdoc}
+     * Checks if a property is nullable
+     *
+     * @param string $property
+     * @return bool
      */
     public static function isNullable(string $property): bool
     {
@@ -156,7 +163,10 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
-     * {@inheritdoc}
+     * Checks if a nullable property is set to null.
+     *
+     * @param string $property
+     * @return bool
      */
     public function isNullableSetToNull(string $property): bool
     {
@@ -204,7 +214,10 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     ];
 
     /**
-     * {@inheritdoc}
+     * Array of attributes where the key is the local name,
+     * and the value is the original name
+     *
+     * @return array<string, string>
      */
     public static function attributeMap(): array
     {
@@ -212,7 +225,9 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
-     * {@inheritdoc}
+     * Array of attributes to setter functions (for deserialization of responses)
+     *
+     * @return array<string, string>
      */
     public static function setters(): array
     {
@@ -220,7 +235,9 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
-     * {@inheritdoc}
+     * Array of attributes to getter functions (for serialization of requests)
+     *
+     * @return array<string, string>
      */
     public static function getters(): array
     {
@@ -228,13 +245,16 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
-     * {@inheritdoc}
+     * The original name of the model.
+     *
+     * @return string
      */
     public function getModelName(): string
     {
         return self::$openAPIModelName;
     }
 
+    public const DISCRIMINATOR_MAP = [];
 
     /**
      * Associative array for storing property values
@@ -258,14 +278,14 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
-     * Sets $this->container[$variableName] to the given data or to the given default Value; if $variableName
-     * is nullable and its value is set to null in the $fields array, then mark it as "set to null" in the
-     * $this->openAPINullablesSetToNull array
-     *
-     * @param string $variableName
-     * @param array  $fields
-     * @param mixed  $defaultValue
-     */
+    * Sets $this->container[$variableName] to the given data or to the given default Value; if $variableName
+    * is nullable and its value is set to null in the $fields array, then mark it as "set to null" in the
+    * $this->openAPINullablesSetToNull array
+    *
+    * @param string $variableName
+    * @param array  $fields
+    * @param mixed  $defaultValue
+    */
     private function setIfExists(string $variableName, array $fields, mixed $defaultValue): void
     {
         if (self::isNullable($variableName) && array_key_exists($variableName, $fields) && is_null($fields[$variableName])) {
@@ -276,7 +296,9 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
-     * {@inheritdoc}
+     * Show all the invalid properties with reasons.
+     *
+     * @return string[] invalid properties with reasons
      */
     public function listInvalidProperties(): array
     {
@@ -294,7 +316,10 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
-     * {@inheritdoc}
+     * Validate all the properties in the model
+     * return true if all passed
+     *
+     * @return bool True if all properties are valid
      */
     public function valid(): bool
     {
