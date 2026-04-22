@@ -30,10 +30,10 @@ declare(strict_types=1);
 namespace Studio\Auth\Model;
 
 use ArrayAccess;
-use JsonSerializable;
 use InvalidArgumentException;
 use ReturnTypeWillChange;
 use Studio\Auth\ObjectSerializer;
+use JsonSerializable;
 
 /**
  * OrganizationInvitationCreatedResponse Class Doc Comment

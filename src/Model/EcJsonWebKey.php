@@ -30,7 +30,6 @@ declare(strict_types=1);
 namespace Studio\Auth\Model;
 
 use ArrayAccess;
-use JsonSerializable;
 use InvalidArgumentException;
 use ReturnTypeWillChange;
 use Studio\Auth\ObjectSerializer;
@@ -44,7 +43,7 @@ use Studio\Auth\ObjectSerializer;
  * @link     https://openapi-generator.tech
  * @implements ArrayAccess<string, mixed>
  */
-class EcJsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
+class EcJsonWebKey extends JsonWebKey
 {
     public const DISCRIMINATOR = null;
 
@@ -61,10 +60,6 @@ class EcJsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
       * @var array<string, string>
       */
     protected static array $openAPITypes = [
-        'kty' => 'string',
-        'use' => 'string',
-        'kid' => 'string',
-        'alg' => 'string',
         'crv' => 'string',
         'x' => 'string',
         'y' => 'string'
@@ -76,10 +71,6 @@ class EcJsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
       * @var array<string, string|null>
       */
     protected static array $openAPIFormats = [
-        'kty' => null,
-        'use' => null,
-        'kid' => null,
-        'alg' => null,
         'crv' => null,
         'x' => null,
         'y' => null
@@ -91,10 +82,6 @@ class EcJsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
       * @var array<string, bool>
       */
     protected static array $openAPINullables = [
-        'kty' => false,
-        'use' => false,
-        'kid' => false,
-        'alg' => false,
         'crv' => false,
         'x' => false,
         'y' => false
@@ -114,7 +101,7 @@ class EcJsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
      */
     public static function openAPITypes(): array
     {
-        return self::$openAPITypes;
+        return self::$openAPITypes + parent::openAPITypes();
     }
 
     /**
@@ -124,7 +111,7 @@ class EcJsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
      */
     public static function openAPIFormats(): array
     {
-        return self::$openAPIFormats;
+        return self::$openAPIFormats + parent::openAPIFormats();
     }
 
     /**
@@ -134,7 +121,7 @@ class EcJsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
      */
     protected static function openAPINullables(): array
     {
-        return self::$openAPINullables;
+        return self::$openAPINullables + parent::openAPINullables();
     }
 
     /**
@@ -186,10 +173,6 @@ class EcJsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
      * @var array<string, string>
      */
     protected static array $attributeMap = [
-        'kty' => 'kty',
-        'use' => 'use',
-        'kid' => 'kid',
-        'alg' => 'alg',
         'crv' => 'crv',
         'x' => 'x',
         'y' => 'y'
@@ -201,10 +184,6 @@ class EcJsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
      * @var array<string, string>
      */
     protected static array $setters = [
-        'kty' => 'setKty',
-        'use' => 'setUse',
-        'kid' => 'setKid',
-        'alg' => 'setAlg',
         'crv' => 'setCrv',
         'x' => 'setX',
         'y' => 'setY'
@@ -216,10 +195,6 @@ class EcJsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
      * @var array<string, string>
      */
     protected static array $getters = [
-        'kty' => 'getKty',
-        'use' => 'getUse',
-        'kid' => 'getKid',
-        'alg' => 'getAlg',
         'crv' => 'getCrv',
         'x' => 'getX',
         'y' => 'getY'
@@ -233,7 +208,7 @@ class EcJsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
      */
     public static function attributeMap(): array
     {
-        return self::$attributeMap;
+        return parent::attributeMap() + self::$attributeMap;
     }
 
     /**
@@ -243,7 +218,7 @@ class EcJsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
      */
     public static function setters(): array
     {
-        return self::$setters;
+        return parent::setters() + self::$setters;
     }
 
     /**
@@ -253,7 +228,7 @@ class EcJsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
      */
     public static function getters(): array
     {
-        return self::$getters;
+        return parent::getters() + self::$getters;
     }
 
     /**
@@ -267,46 +242,7 @@ class EcJsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     public const DISCRIMINATOR_MAP = [];
-    public const KTY_EC = 'EC';
-    public const MODEL_USE_SIG = 'sig';
-    public const ALG_ES256 = 'ES256';
     public const CRV_P_256 = 'P-256';
-
-    /**
-     * Gets allowable values of the enum
-     *
-     * @return string[]
-     */
-    public static function getKtyAllowableValues()
-    {
-        return [
-            self::KTY_EC,
-        ];
-    }
-
-    /**
-     * Gets allowable values of the enum
-     *
-     * @return string[]
-     */
-    public static function getUseAllowableValues()
-    {
-        return [
-            self::MODEL_USE_SIG,
-        ];
-    }
-
-    /**
-     * Gets allowable values of the enum
-     *
-     * @return string[]
-     */
-    public static function getAlgAllowableValues()
-    {
-        return [
-            self::ALG_ES256,
-        ];
-    }
 
     /**
      * Gets allowable values of the enum
@@ -320,12 +256,6 @@ class EcJsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
         ];
     }
 
-    /**
-     * Associative array for storing property values
-     *
-     * @var array
-     */
-    protected array $container = [];
 
     /**
      * Constructor
@@ -334,10 +264,8 @@ class EcJsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
      */
     public function __construct(?array $data = null)
     {
-        $this->setIfExists('kty', $data ?? [], null);
-        $this->setIfExists('use', $data ?? [], null);
-        $this->setIfExists('kid', $data ?? [], null);
-        $this->setIfExists('alg', $data ?? [], null);
+        parent::__construct($data);
+
         $this->setIfExists('crv', $data ?? [], null);
         $this->setIfExists('x', $data ?? [], null);
         $this->setIfExists('y', $data ?? [], null);
@@ -368,46 +296,7 @@ class EcJsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
      */
     public function listInvalidProperties(): array
     {
-        $invalidProperties = [];
-
-        if ($this->container['kty'] === null) {
-            $invalidProperties[] = "'kty' can't be null";
-        }
-        $allowedValues = self::getKtyAllowableValues();
-        if (!is_null($this->container['kty']) && !in_array($this->container['kty'], $allowedValues, true)) {
-            $invalidProperties[] = sprintf(
-                "invalid value '%s' for 'kty', must be one of '%s'",
-                $this->container['kty'],
-                implode("', '", $allowedValues)
-            );
-        }
-
-        if ($this->container['use'] === null) {
-            $invalidProperties[] = "'use' can't be null";
-        }
-        $allowedValues = self::getUseAllowableValues();
-        if (!is_null($this->container['use']) && !in_array($this->container['use'], $allowedValues, true)) {
-            $invalidProperties[] = sprintf(
-                "invalid value '%s' for 'use', must be one of '%s'",
-                $this->container['use'],
-                implode("', '", $allowedValues)
-            );
-        }
-
-        if ($this->container['kid'] === null) {
-            $invalidProperties[] = "'kid' can't be null";
-        }
-        if ($this->container['alg'] === null) {
-            $invalidProperties[] = "'alg' can't be null";
-        }
-        $allowedValues = self::getAlgAllowableValues();
-        if (!is_null($this->container['alg']) && !in_array($this->container['alg'], $allowedValues, true)) {
-            $invalidProperties[] = sprintf(
-                "invalid value '%s' for 'alg', must be one of '%s'",
-                $this->container['alg'],
-                implode("', '", $allowedValues)
-            );
-        }
+        $invalidProperties = parent::listInvalidProperties();
 
         if ($this->container['crv'] === null) {
             $invalidProperties[] = "'crv' can't be null";
@@ -441,144 +330,6 @@ class EcJsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
         return count($this->listInvalidProperties()) === 0;
     }
 
-
-    /**
-     * Gets kty
-     *
-     * @return string
-     */
-    public function getKty(): string
-    {
-        return $this->container['kty'];
-    }
-
-    /**
-     * Sets kty
-     *
-     * @param string $kty 鍵タイプ (Key Type)。 EC 鍵の場合は \"EC\"。
-     *
-     * @return $this
-     */
-    public function setKty(string $kty): static
-    {
-        if (is_null($kty)) {
-            throw new InvalidArgumentException('non-nullable kty cannot be null');
-        }
-        $allowedValues = self::getKtyAllowableValues();
-        if (!in_array($kty, $allowedValues, true)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'kty', must be one of '%s'",
-                    $kty,
-                    implode("', '", $allowedValues)
-                )
-            );
-        }
-        $this->container['kty'] = $kty;
-
-        return $this;
-    }
-
-    /**
-     * Gets use
-     *
-     * @return string
-     */
-    public function getUse(): string
-    {
-        return $this->container['use'];
-    }
-
-    /**
-     * Sets use
-     *
-     * @param string $use 公開鍵の用途 (Public Key Use)。 署名検証用の場合は \"sig\"。
-     *
-     * @return $this
-     */
-    public function setUse(string $use): static
-    {
-        if (is_null($use)) {
-            throw new InvalidArgumentException('non-nullable use cannot be null');
-        }
-        $allowedValues = self::getUseAllowableValues();
-        if (!in_array($use, $allowedValues, true)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'use', must be one of '%s'",
-                    $use,
-                    implode("', '", $allowedValues)
-                )
-            );
-        }
-        $this->container['use'] = $use;
-
-        return $this;
-    }
-
-    /**
-     * Gets kid
-     *
-     * @return string
-     */
-    public function getKid(): string
-    {
-        return $this->container['kid'];
-    }
-
-    /**
-     * Sets kid
-     *
-     * @param string $kid 鍵 ID (Key ID)。 JWT ヘッダーの kid と照合して使用する鍵を特定します。
-     *
-     * @return $this
-     */
-    public function setKid(string $kid): static
-    {
-        if (is_null($kid)) {
-            throw new InvalidArgumentException('non-nullable kid cannot be null');
-        }
-        $this->container['kid'] = $kid;
-
-        return $this;
-    }
-
-    /**
-     * Gets alg
-     *
-     * @return string
-     */
-    public function getAlg(): string
-    {
-        return $this->container['alg'];
-    }
-
-    /**
-     * Sets alg
-     *
-     * @param string $alg アルゴリズム (Algorithm)。 この鍵で使用するアルゴリズムを示します。
-     *
-     * @return $this
-     */
-    public function setAlg(string $alg): static
-    {
-        if (is_null($alg)) {
-            throw new InvalidArgumentException('non-nullable alg cannot be null');
-        }
-        $allowedValues = self::getAlgAllowableValues();
-        if (!in_array($alg, $allowedValues, true)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'alg', must be one of '%s'",
-                    $alg,
-                    implode("', '", $allowedValues)
-                )
-            );
-        }
-        $this->container['alg'] = $alg;
-
-        return $this;
-    }
 
     /**
      * Gets crv

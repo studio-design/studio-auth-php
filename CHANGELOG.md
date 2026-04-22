@@ -1,5 +1,19 @@
 # studio-design/studio-auth-php
 
+## [0.2.24](https://github.com/studio-design/studio-auth/compare/sdk-v0.2.23...sdk-v0.2.24) (2026-04-22)
+
+
+### Features
+
+* **sdk:** document user-scope 404 type URI for admin-portal-sessions ([4ec1a31](https://github.com/studio-design/studio-auth/commit/4ec1a31f67bc52c2f858ee354fcdaefe6a17d67c))
+* **sdk:** document user-scope 404 type URI on invitations endpoint ([4f5b5b0](https://github.com/studio-design/studio-auth/commit/4f5b5b0e6bb9c6868b3f4934f3f1ed3f830cb3c2))
+
+
+### Bug Fixes
+
+* **openapi:** keep client authentication required for the token endpoint ([ae15201](https://github.com/studio-design/studio-auth/commit/ae152013e6a57e526053068c6dabae5d10959c56))
+* **sdk:** restore JWK inheritance in generated PHP SDK ([bbebd87](https://github.com/studio-design/studio-auth/commit/bbebd87941aacc6c43542293d2ff5c0f260b6508))
+
 ## [0.2.23](https://github.com/studio-design/studio-auth/compare/sdk-v0.2.22...sdk-v0.2.23) (2026-04-21)
 
 

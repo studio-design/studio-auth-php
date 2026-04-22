@@ -30,15 +30,15 @@ declare(strict_types=1);
 namespace Studio\Auth\Model;
 
 use ArrayAccess;
-use JsonSerializable;
 use InvalidArgumentException;
 use ReturnTypeWillChange;
 use Studio\Auth\ObjectSerializer;
+use JsonSerializable;
 
 /**
  * JsonWebKey Class Doc Comment
  *
- * @description JSON Web Key (JWK)。 公開鍵を JSON 形式で表現します (RFC 7517)。 鍵タイプ (kty) に応じて RSA または EC の形式を返します。
+ * @description JSON Web Key (JWK) の基底スキーマ (RFC 7517)。 &#x60;kty&#x60; discriminator で具象サブクラス (RsaJsonWebKey / EcJsonWebKey) にルーティングされます。
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
@@ -64,12 +64,7 @@ class JsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
         'kty' => 'string',
         'use' => 'string',
         'kid' => 'string',
-        'alg' => 'string',
-        'n' => 'string',
-        'e' => 'string',
-        'crv' => 'string',
-        'x' => 'string',
-        'y' => 'string'
+        'alg' => 'string'
     ];
 
     /**
@@ -81,12 +76,7 @@ class JsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
         'kty' => null,
         'use' => null,
         'kid' => null,
-        'alg' => null,
-        'n' => null,
-        'e' => null,
-        'crv' => null,
-        'x' => null,
-        'y' => null
+        'alg' => null
     ];
 
     /**
@@ -98,12 +88,7 @@ class JsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
         'kty' => false,
         'use' => false,
         'kid' => false,
-        'alg' => false,
-        'n' => false,
-        'e' => false,
-        'crv' => false,
-        'x' => false,
-        'y' => false
+        'alg' => false
     ];
 
     /**
@@ -195,12 +180,7 @@ class JsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
         'kty' => 'kty',
         'use' => 'use',
         'kid' => 'kid',
-        'alg' => 'alg',
-        'n' => 'n',
-        'e' => 'e',
-        'crv' => 'crv',
-        'x' => 'x',
-        'y' => 'y'
+        'alg' => 'alg'
     ];
 
     /**
@@ -212,12 +192,7 @@ class JsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
         'kty' => 'setKty',
         'use' => 'setUse',
         'kid' => 'setKid',
-        'alg' => 'setAlg',
-        'n' => 'setN',
-        'e' => 'setE',
-        'crv' => 'setCrv',
-        'x' => 'setX',
-        'y' => 'setY'
+        'alg' => 'setAlg'
     ];
 
     /**
@@ -229,12 +204,7 @@ class JsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
         'kty' => 'getKty',
         'use' => 'getUse',
         'kid' => 'getKid',
-        'alg' => 'getAlg',
-        'n' => 'getN',
-        'e' => 'getE',
-        'crv' => 'getCrv',
-        'x' => 'getX',
-        'y' => 'getY'
+        'alg' => 'getAlg'
     ];
 
     /**
@@ -291,8 +261,9 @@ class JsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
         'RSA' => \Studio\Auth\Model\RsaJsonWebKey::class,
     ];
     public const MODEL_USE_SIG = 'sig';
+    public const ALG_RS256 = 'RS256';
+    public const ALG_PS256 = 'PS256';
     public const ALG_ES256 = 'ES256';
-    public const CRV_P_256 = 'P-256';
 
     /**
      * Gets allowable values of the enum
@@ -327,19 +298,9 @@ class JsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
     public static function getAlgAllowableValues()
     {
         return [
+            self::ALG_RS256,
+            self::ALG_PS256,
             self::ALG_ES256,
-        ];
-    }
-
-    /**
-     * Gets allowable values of the enum
-     *
-     * @return string[]
-     */
-    public static function getCrvAllowableValues()
-    {
-        return [
-            self::CRV_P_256,
         ];
     }
 
@@ -364,11 +325,6 @@ class JsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
         $this->setIfExists('use', $data ?? [], null);
         $this->setIfExists('kid', $data ?? [], null);
         $this->setIfExists('alg', $data ?? [], null);
-        $this->setIfExists('n', $data ?? [], null);
-        $this->setIfExists('e', $data ?? [], null);
-        $this->setIfExists('crv', $data ?? [], null);
-        $this->setIfExists('x', $data ?? [], null);
-        $this->setIfExists('y', $data ?? [], null);
     }
 
     /**
@@ -437,30 +393,6 @@ class JsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
             );
         }
 
-        if ($this->container['n'] === null) {
-            $invalidProperties[] = "'n' can't be null";
-        }
-        if ($this->container['e'] === null) {
-            $invalidProperties[] = "'e' can't be null";
-        }
-        if ($this->container['crv'] === null) {
-            $invalidProperties[] = "'crv' can't be null";
-        }
-        $allowedValues = self::getCrvAllowableValues();
-        if (!is_null($this->container['crv']) && !in_array($this->container['crv'], $allowedValues, true)) {
-            $invalidProperties[] = sprintf(
-                "invalid value '%s' for 'crv', must be one of '%s'",
-                $this->container['crv'],
-                implode("', '", $allowedValues)
-            );
-        }
-
-        if ($this->container['x'] === null) {
-            $invalidProperties[] = "'x' can't be null";
-        }
-        if ($this->container['y'] === null) {
-            $invalidProperties[] = "'y' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -489,7 +421,7 @@ class JsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets kty
      *
-     * @param string $kty 鍵タイプ (Key Type)。 EC 鍵の場合は \"EC\"。
+     * @param string $kty 鍵タイプ (Key Type)。 \"RSA\" または \"EC\" のいずれか。discriminator として使用されます。
      *
      * @return $this
      */
@@ -610,151 +542,6 @@ class JsonWebKey implements ModelInterface, ArrayAccess, JsonSerializable
             );
         }
         $this->container['alg'] = $alg;
-
-        return $this;
-    }
-
-    /**
-     * Gets n
-     *
-     * @return string
-     */
-    public function getN(): string
-    {
-        return $this->container['n'];
-    }
-
-    /**
-     * Sets n
-     *
-     * @param string $n RSA 公開鍵のモジュラス (Modulus)。 Base64url エンコードされた値。
-     *
-     * @return $this
-     */
-    public function setN(string $n): static
-    {
-        if (is_null($n)) {
-            throw new InvalidArgumentException('non-nullable n cannot be null');
-        }
-        $this->container['n'] = $n;
-
-        return $this;
-    }
-
-    /**
-     * Gets e
-     *
-     * @return string
-     */
-    public function getE(): string
-    {
-        return $this->container['e'];
-    }
-
-    /**
-     * Sets e
-     *
-     * @param string $e RSA 公開鍵の指数 (Exponent)。 Base64url エンコードされた値。
-     *
-     * @return $this
-     */
-    public function setE(string $e): static
-    {
-        if (is_null($e)) {
-            throw new InvalidArgumentException('non-nullable e cannot be null');
-        }
-        $this->container['e'] = $e;
-
-        return $this;
-    }
-
-    /**
-     * Gets crv
-     *
-     * @return string
-     */
-    public function getCrv(): string
-    {
-        return $this->container['crv'];
-    }
-
-    /**
-     * Sets crv
-     *
-     * @param string $crv 楕円曲線名 (Curve)。 ES256 の場合は \"P-256\"。
-     *
-     * @return $this
-     */
-    public function setCrv(string $crv): static
-    {
-        if (is_null($crv)) {
-            throw new InvalidArgumentException('non-nullable crv cannot be null');
-        }
-        $allowedValues = self::getCrvAllowableValues();
-        if (!in_array($crv, $allowedValues, true)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'crv', must be one of '%s'",
-                    $crv,
-                    implode("', '", $allowedValues)
-                )
-            );
-        }
-        $this->container['crv'] = $crv;
-
-        return $this;
-    }
-
-    /**
-     * Gets x
-     *
-     * @return string
-     */
-    public function getX(): string
-    {
-        return $this->container['x'];
-    }
-
-    /**
-     * Sets x
-     *
-     * @param string $x 楕円曲線の x 座標 (X Coordinate)。 Base64url エンコードされた値。
-     *
-     * @return $this
-     */
-    public function setX(string $x): static
-    {
-        if (is_null($x)) {
-            throw new InvalidArgumentException('non-nullable x cannot be null');
-        }
-        $this->container['x'] = $x;
-
-        return $this;
-    }
-
-    /**
-     * Gets y
-     *
-     * @return string
-     */
-    public function getY(): string
-    {
-        return $this->container['y'];
-    }
-
-    /**
-     * Sets y
-     *
-     * @param string $y 楕円曲線の y 座標 (Y Coordinate)。 Base64url エンコードされた値。
-     *
-     * @return $this
-     */
-    public function setY(string $y): static
-    {
-        if (is_null($y)) {
-            throw new InvalidArgumentException('non-nullable y cannot be null');
-        }
-        $this->container['y'] = $y;
 
         return $this;
     }
