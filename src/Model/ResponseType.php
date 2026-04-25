@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * OrganizationRole
+ * ResponseType
  *
  * PHP version 8.1
  *
@@ -30,22 +30,16 @@ declare(strict_types=1);
 namespace Studio\Auth\Model;
 
 /**
- * OrganizationRole Class Doc Comment
+ * ResponseType Class Doc Comment
  *
- * @description 組織内でのロール。 - &#x60;owner&#x60;: 組織のオーナー。すべての権限を持つ。 - &#x60;admin&#x60;: 管理者。メンバーの招待・削除および請求管理が可能。ロール変更やセキュリティ管理は不可。 - &#x60;security_admin&#x60;: セキュリティ管理者。セキュリティ設定の管理が可能。メンバー管理や請求管理は不可。 - &#x60;member&#x60;: 一般メンバー。管理権限なし。
+ * @description OAuth 2.0 認可リクエストのレスポンスタイプ (RFC 6749 Section 3.1.1)。本実装は Authorization Code フロー のみをサポートします。  - &#x60;code&#x60;: Authorization Code フロー。認可サーバーは &#x60;redirect_uri&#x60; に認可コードを付与してリダイレクトします。
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  */
-enum OrganizationRole: string
+enum ResponseType: string
 {
-    case OWNER = 'owner';
-
-    case ADMIN = 'admin';
-
-    case SECURITY_ADMIN = 'security_admin';
-
-    case MEMBER = 'member';
+    case CODE = 'code';
 }
 
 

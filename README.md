@@ -140,9 +140,12 @@ Class | Method | HTTP request | Description
 - Client
 - CodeChallengeMethod
 - EcJsonWebKey
+- GrantType
 - HealthStatus
+- IdpAuthorizeErrorCode
 - InlineObject
 - InlineObject1
+- IntrospectErrorCode
 - IntrospectErrorResponse
 - IntrospectResponse
 - IntrospectResponseAud
@@ -150,6 +153,8 @@ Class | Method | HTTP request | Description
 - JwksResponse
 - MemberDomainTypeCounts
 - MemberRoleCounts
+- OauthAuthorizeErrorCode
+- OidcAuthorizeErrorCode
 - OpenIDProviderMetadataResponse
 - Organization
 - OrganizationInvitation
@@ -164,12 +169,18 @@ Class | Method | HTTP request | Description
 - OrganizationUpdateRequest
 - PaginationMeta
 - ProblemDetails
+- Prompt
+- ResponseType
+- RevokeErrorCode
 - RevokeErrorResponse
 - RsaJsonWebKey
 - ServiceInfoResponse
 - SsoEnforcementErrorResponse
+- TokenErrorCode
 - TokenErrorResponse
 - TokenResponse
+- TokenType
+- TokenTypeHint
 - UserinfoResponse
 
 
