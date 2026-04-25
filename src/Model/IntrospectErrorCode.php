@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * OrganizationRole
+ * IntrospectErrorCode
  *
  * PHP version 8.1
  *
@@ -30,22 +30,18 @@ declare(strict_types=1);
 namespace Studio\Auth\Model;
 
 /**
- * OrganizationRole Class Doc Comment
+ * IntrospectErrorCode Class Doc Comment
  *
- * @description 組織内でのロール。 - &#x60;owner&#x60;: 組織のオーナー。すべての権限を持つ。 - &#x60;admin&#x60;: 管理者。メンバーの招待・削除および請求管理が可能。ロール変更やセキュリティ管理は不可。 - &#x60;security_admin&#x60;: セキュリティ管理者。セキュリティ設定の管理が可能。メンバー管理や請求管理は不可。 - &#x60;member&#x60;: 一般メンバー。管理権限なし。
+ * @description RFC 7662 Section 2.3 および RFC 6749 Section 5.2 で定義される &#x60;/oauth/introspect&#x60; エンドポイントのエラーコード。  - &#x60;invalid_request&#x60;: リクエストに必須パラメータが不足、無効なパラメータ値、重複パラメータ、または不正な形式 - &#x60;invalid_client&#x60;: クライアント認証失敗（未知のクライアント、認証情報なし、サポートされていない認証方式）
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  */
-enum OrganizationRole: string
+enum IntrospectErrorCode: string
 {
-    case OWNER = 'owner';
+    case INVALID_REQUEST = 'invalid_request';
 
-    case ADMIN = 'admin';
-
-    case SECURITY_ADMIN = 'security_admin';
-
-    case MEMBER = 'member';
+    case INVALID_CLIENT = 'invalid_client';
 }
 
 
