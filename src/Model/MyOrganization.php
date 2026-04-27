@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * AdminOrganizationCreatedResponse
+ * MyOrganization
  *
  * PHP version 8.1
  *
@@ -36,15 +36,15 @@ use Studio\Auth\ObjectSerializer;
 use JsonSerializable;
 
 /**
- * AdminOrganizationCreatedResponse Class Doc Comment
+ * MyOrganization Class Doc Comment
  *
- * @description 組織登録成功レスポンス。
+ * @description 組織メンバー向けエンドポイントが返す組織情報。 共通の &#x60;Organization&#x60; フィールドに加え、ドメイン認証 / SSO connection の派生ステータスを含みます。
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  * @implements ArrayAccess<string, mixed>
  */
-class AdminOrganizationCreatedResponse implements ModelInterface, ArrayAccess, JsonSerializable
+class MyOrganization implements ModelInterface, ArrayAccess, JsonSerializable
 {
     public const DISCRIMINATOR = null;
 
@@ -53,7 +53,7 @@ class AdminOrganizationCreatedResponse implements ModelInterface, ArrayAccess, J
       *
       * @var string
       */
-    protected static string $openAPIModelName = 'AdminOrganizationCreatedResponse';
+    protected static string $openAPIModelName = 'MyOrganization';
 
     /**
       * Array of property to type mappings. Used for (de)serialization
@@ -65,8 +65,11 @@ class AdminOrganizationCreatedResponse implements ModelInterface, ArrayAccess, J
         'name' => 'string',
         'displayName' => 'string',
         'isActive' => 'bool',
+        'isSsoEnforced' => 'bool',
         'createdAt' => '\DateTime',
-        'updatedAt' => '\DateTime'
+        'updatedAt' => '\DateTime',
+        'domainVerificationStatus' => 'string',
+        'ssoConnectionStatus' => 'string'
     ];
 
     /**
@@ -79,8 +82,11 @@ class AdminOrganizationCreatedResponse implements ModelInterface, ArrayAccess, J
         'name' => null,
         'displayName' => null,
         'isActive' => null,
+        'isSsoEnforced' => null,
         'createdAt' => 'date-time',
-        'updatedAt' => 'date-time'
+        'updatedAt' => 'date-time',
+        'domainVerificationStatus' => null,
+        'ssoConnectionStatus' => null
     ];
 
     /**
@@ -91,10 +97,13 @@ class AdminOrganizationCreatedResponse implements ModelInterface, ArrayAccess, J
     protected static array $openAPINullables = [
         'organizationId' => false,
         'name' => false,
-        'displayName' => true,
+        'displayName' => false,
         'isActive' => false,
+        'isSsoEnforced' => false,
         'createdAt' => false,
-        'updatedAt' => false
+        'updatedAt' => false,
+        'domainVerificationStatus' => false,
+        'ssoConnectionStatus' => false
     ];
 
     /**
@@ -187,8 +196,11 @@ class AdminOrganizationCreatedResponse implements ModelInterface, ArrayAccess, J
         'name' => 'name',
         'displayName' => 'display_name',
         'isActive' => 'is_active',
+        'isSsoEnforced' => 'is_sso_enforced',
         'createdAt' => 'created_at',
-        'updatedAt' => 'updated_at'
+        'updatedAt' => 'updated_at',
+        'domainVerificationStatus' => 'domain_verification_status',
+        'ssoConnectionStatus' => 'sso_connection_status'
     ];
 
     /**
@@ -201,8 +213,11 @@ class AdminOrganizationCreatedResponse implements ModelInterface, ArrayAccess, J
         'name' => 'setName',
         'displayName' => 'setDisplayName',
         'isActive' => 'setIsActive',
+        'isSsoEnforced' => 'setIsSsoEnforced',
         'createdAt' => 'setCreatedAt',
-        'updatedAt' => 'setUpdatedAt'
+        'updatedAt' => 'setUpdatedAt',
+        'domainVerificationStatus' => 'setDomainVerificationStatus',
+        'ssoConnectionStatus' => 'setSsoConnectionStatus'
     ];
 
     /**
@@ -215,8 +230,11 @@ class AdminOrganizationCreatedResponse implements ModelInterface, ArrayAccess, J
         'name' => 'getName',
         'displayName' => 'getDisplayName',
         'isActive' => 'getIsActive',
+        'isSsoEnforced' => 'getIsSsoEnforced',
         'createdAt' => 'getCreatedAt',
-        'updatedAt' => 'getUpdatedAt'
+        'updatedAt' => 'getUpdatedAt',
+        'domainVerificationStatus' => 'getDomainVerificationStatus',
+        'ssoConnectionStatus' => 'getSsoConnectionStatus'
     ];
 
     /**
@@ -261,6 +279,42 @@ class AdminOrganizationCreatedResponse implements ModelInterface, ArrayAccess, J
     }
 
     public const DISCRIMINATOR_MAP = [];
+    public const DOMAIN_VERIFICATION_STATUS_VERIFIED = 'verified';
+    public const DOMAIN_VERIFICATION_STATUS_PENDING = 'pending';
+    public const DOMAIN_VERIFICATION_STATUS_NONE = 'none';
+    public const SSO_CONNECTION_STATUS_ACTIVE = 'active';
+    public const SSO_CONNECTION_STATUS_VALIDATING = 'validating';
+    public const SSO_CONNECTION_STATUS_INACTIVE = 'inactive';
+    public const SSO_CONNECTION_STATUS_NONE = 'none';
+
+    /**
+     * Gets allowable values of the enum
+     *
+     * @return string[]
+     */
+    public static function getDomainVerificationStatusAllowableValues()
+    {
+        return [
+            self::DOMAIN_VERIFICATION_STATUS_VERIFIED,
+            self::DOMAIN_VERIFICATION_STATUS_PENDING,
+            self::DOMAIN_VERIFICATION_STATUS_NONE,
+        ];
+    }
+
+    /**
+     * Gets allowable values of the enum
+     *
+     * @return string[]
+     */
+    public static function getSsoConnectionStatusAllowableValues()
+    {
+        return [
+            self::SSO_CONNECTION_STATUS_ACTIVE,
+            self::SSO_CONNECTION_STATUS_VALIDATING,
+            self::SSO_CONNECTION_STATUS_INACTIVE,
+            self::SSO_CONNECTION_STATUS_NONE,
+        ];
+    }
 
     /**
      * Associative array for storing property values
@@ -279,9 +333,12 @@ class AdminOrganizationCreatedResponse implements ModelInterface, ArrayAccess, J
         $this->setIfExists('organizationId', $data ?? [], null);
         $this->setIfExists('name', $data ?? [], null);
         $this->setIfExists('displayName', $data ?? [], null);
-        $this->setIfExists('isActive', $data ?? [], null);
+        $this->setIfExists('isActive', $data ?? [], true);
+        $this->setIfExists('isSsoEnforced', $data ?? [], false);
         $this->setIfExists('createdAt', $data ?? [], null);
         $this->setIfExists('updatedAt', $data ?? [], null);
+        $this->setIfExists('domainVerificationStatus', $data ?? [], null);
+        $this->setIfExists('ssoConnectionStatus', $data ?? [], null);
     }
 
     /**
@@ -317,8 +374,30 @@ class AdminOrganizationCreatedResponse implements ModelInterface, ArrayAccess, J
         if ($this->container['name'] === null) {
             $invalidProperties[] = "'name' can't be null";
         }
+        if ((mb_strlen($this->container['name']) > 255)) {
+            $invalidProperties[] = "invalid value for 'name', the character length must be smaller than or equal to 255.";
+        }
+
+        if ((mb_strlen($this->container['name']) < 1)) {
+            $invalidProperties[] = "invalid value for 'name', the character length must be bigger than or equal to 1.";
+        }
+
+        if (!preg_match("/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/", $this->container['name'])) {
+            $invalidProperties[] = "invalid value for 'name', must be conform to the pattern /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.";
+        }
+
+        if ($this->container['displayName'] === null) {
+            $invalidProperties[] = "'displayName' can't be null";
+        }
+        if ((mb_strlen($this->container['displayName']) > 255)) {
+            $invalidProperties[] = "invalid value for 'displayName', the character length must be smaller than or equal to 255.";
+        }
+
         if ($this->container['isActive'] === null) {
             $invalidProperties[] = "'isActive' can't be null";
+        }
+        if ($this->container['isSsoEnforced'] === null) {
+            $invalidProperties[] = "'isSsoEnforced' can't be null";
         }
         if ($this->container['createdAt'] === null) {
             $invalidProperties[] = "'createdAt' can't be null";
@@ -326,6 +405,30 @@ class AdminOrganizationCreatedResponse implements ModelInterface, ArrayAccess, J
         if ($this->container['updatedAt'] === null) {
             $invalidProperties[] = "'updatedAt' can't be null";
         }
+        if ($this->container['domainVerificationStatus'] === null) {
+            $invalidProperties[] = "'domainVerificationStatus' can't be null";
+        }
+        $allowedValues = self::getDomainVerificationStatusAllowableValues();
+        if (!is_null($this->container['domainVerificationStatus']) && !in_array($this->container['domainVerificationStatus'], $allowedValues, true)) {
+            $invalidProperties[] = sprintf(
+                "invalid value '%s' for 'domainVerificationStatus', must be one of '%s'",
+                $this->container['domainVerificationStatus'],
+                implode("', '", $allowedValues)
+            );
+        }
+
+        if ($this->container['ssoConnectionStatus'] === null) {
+            $invalidProperties[] = "'ssoConnectionStatus' can't be null";
+        }
+        $allowedValues = self::getSsoConnectionStatusAllowableValues();
+        if (!is_null($this->container['ssoConnectionStatus']) && !in_array($this->container['ssoConnectionStatus'], $allowedValues, true)) {
+            $invalidProperties[] = sprintf(
+                "invalid value '%s' for 'ssoConnectionStatus', must be one of '%s'",
+                $this->container['ssoConnectionStatus'],
+                implode("', '", $allowedValues)
+            );
+        }
+
         return $invalidProperties;
     }
 
@@ -354,7 +457,7 @@ class AdminOrganizationCreatedResponse implements ModelInterface, ArrayAccess, J
     /**
      * Sets organizationId
      *
-     * @param string $organizationId 発行された組織識別子（UUID形式）。
+     * @param string $organizationId 組織識別子（UUID形式、一意）。
      *
      * @return $this
      */
@@ -381,7 +484,7 @@ class AdminOrganizationCreatedResponse implements ModelInterface, ArrayAccess, J
     /**
      * Sets name
      *
-     * @param string $name 組織の識別名。
+     * @param string $name 組織の識別名（一意）。システム内部での識別に使用されます。  - 小文字英数字とハイフンのみ使用可能 - 先頭・末尾にハイフンは使用不可
      *
      * @return $this
      */
@@ -390,6 +493,16 @@ class AdminOrganizationCreatedResponse implements ModelInterface, ArrayAccess, J
         if (is_null($name)) {
             throw new InvalidArgumentException('non-nullable name cannot be null');
         }
+        if ((mb_strlen($name) > 255)) {
+            throw new InvalidArgumentException('invalid length for $name when calling MyOrganization., must be smaller than or equal to 255.');
+        }
+        if ((mb_strlen($name) < 1)) {
+            throw new InvalidArgumentException('invalid length for $name when calling MyOrganization., must be bigger than or equal to 1.');
+        }
+        if ((!preg_match("/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/", ObjectSerializer::toString($name)))) {
+            throw new InvalidArgumentException("invalid value for \$name when calling MyOrganization., must conform to the pattern /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.");
+        }
+
         $this->container['name'] = $name;
 
         return $this;
@@ -398,9 +511,9 @@ class AdminOrganizationCreatedResponse implements ModelInterface, ArrayAccess, J
     /**
      * Gets displayName
      *
-     * @return string|null
+     * @return string
      */
-    public function getDisplayName(): ?string
+    public function getDisplayName(): string
     {
         return $this->container['displayName'];
     }
@@ -408,22 +521,19 @@ class AdminOrganizationCreatedResponse implements ModelInterface, ArrayAccess, J
     /**
      * Sets displayName
      *
-     * @param string|null $displayName 組織の表示名。
+     * @param string $displayName 組織の表示名。UI上での表示に使用されます。
      *
      * @return $this
      */
-    public function setDisplayName(?string $displayName): static
+    public function setDisplayName(string $displayName): static
     {
         if (is_null($displayName)) {
-            array_push($this->openAPINullablesSetToNull, 'displayName');
-        } else {
-            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
-            $index = array_search('displayName', $nullablesSetToNull);
-            if ($index !== FALSE) {
-                unset($nullablesSetToNull[$index]);
-                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
-            }
+            throw new InvalidArgumentException('non-nullable displayName cannot be null');
         }
+        if ((mb_strlen($displayName) > 255)) {
+            throw new InvalidArgumentException('invalid length for $displayName when calling MyOrganization., must be smaller than or equal to 255.');
+        }
+
         $this->container['displayName'] = $displayName;
 
         return $this;
@@ -442,7 +552,7 @@ class AdminOrganizationCreatedResponse implements ModelInterface, ArrayAccess, J
     /**
      * Sets isActive
      *
-     * @param bool $isActive 組織が有効かどうか。
+     * @param bool $isActive 組織が有効かどうか。無効な組織は操作を受け付けません。
      *
      * @return $this
      */
@@ -452,6 +562,33 @@ class AdminOrganizationCreatedResponse implements ModelInterface, ArrayAccess, J
             throw new InvalidArgumentException('non-nullable isActive cannot be null');
         }
         $this->container['isActive'] = $isActive;
+
+        return $this;
+    }
+
+    /**
+     * Gets isSsoEnforced
+     *
+     * @return bool
+     */
+    public function getIsSsoEnforced(): bool
+    {
+        return $this->container['isSsoEnforced'];
+    }
+
+    /**
+     * Sets isSsoEnforced
+     *
+     * @param bool $isSsoEnforced SSOログインを強制するかどうか。 `true` の場合、この組織のドメインに属するユーザーはSSO認証のみが許可されます。
+     *
+     * @return $this
+     */
+    public function setIsSsoEnforced(bool $isSsoEnforced): static
+    {
+        if (is_null($isSsoEnforced)) {
+            throw new InvalidArgumentException('non-nullable isSsoEnforced cannot be null');
+        }
+        $this->container['isSsoEnforced'] = $isSsoEnforced;
 
         return $this;
     }
@@ -506,6 +643,80 @@ class AdminOrganizationCreatedResponse implements ModelInterface, ArrayAccess, J
             throw new InvalidArgumentException('non-nullable updatedAt cannot be null');
         }
         $this->container['updatedAt'] = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * Gets domainVerificationStatus
+     *
+     * @return string
+     */
+    public function getDomainVerificationStatus(): string
+    {
+        return $this->container['domainVerificationStatus'];
+    }
+
+    /**
+     * Sets domainVerificationStatus
+     *
+     * @param string $domainVerificationStatus 組織のドメイン認証の集約ステータス。 - `verified`: 認証済みドメインが 1 つ以上存在する - `pending`: 申請中ドメインのみ存在する - `none`: 申請されたドメインが存在しない、または外部プロバイダ未連携  外部プロバイダ (WorkOS) API 呼び出しに失敗した場合は `none` を返却します。
+     *
+     * @return $this
+     */
+    public function setDomainVerificationStatus(string $domainVerificationStatus): static
+    {
+        if (is_null($domainVerificationStatus)) {
+            throw new InvalidArgumentException('non-nullable domainVerificationStatus cannot be null');
+        }
+        $allowedValues = self::getDomainVerificationStatusAllowableValues();
+        if (!in_array($domainVerificationStatus, $allowedValues, true)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    "Invalid value '%s' for 'domainVerificationStatus', must be one of '%s'",
+                    $domainVerificationStatus,
+                    implode("', '", $allowedValues)
+                )
+            );
+        }
+        $this->container['domainVerificationStatus'] = $domainVerificationStatus;
+
+        return $this;
+    }
+
+    /**
+     * Gets ssoConnectionStatus
+     *
+     * @return string
+     */
+    public function getSsoConnectionStatus(): string
+    {
+        return $this->container['ssoConnectionStatus'];
+    }
+
+    /**
+     * Sets ssoConnectionStatus
+     *
+     * @param string $ssoConnectionStatus 組織の SSO connection の集約ステータス。 - `active`: 有効化された connection が 1 つ以上存在する - `validating`: 検証中の connection のみ存在する - `inactive`: 登録済みだが無効化された connection のみ存在する - `none`: connection が登録されていない、または外部プロバイダ未連携  `is_sso_enforced` が SSO 強制 (ON/OFF) を表すのに対し、本フィールドは 設定済み connection の有無を表す独立した派生ステータスです。 外部プロバイダ (WorkOS) API 呼び出しに失敗した場合は `none` を返却します。
+     *
+     * @return $this
+     */
+    public function setSsoConnectionStatus(string $ssoConnectionStatus): static
+    {
+        if (is_null($ssoConnectionStatus)) {
+            throw new InvalidArgumentException('non-nullable ssoConnectionStatus cannot be null');
+        }
+        $allowedValues = self::getSsoConnectionStatusAllowableValues();
+        if (!in_array($ssoConnectionStatus, $allowedValues, true)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    "Invalid value '%s' for 'ssoConnectionStatus', must be one of '%s'",
+                    $ssoConnectionStatus,
+                    implode("', '", $allowedValues)
+                )
+            );
+        }
+        $this->container['ssoConnectionStatus'] = $ssoConnectionStatus;
 
         return $this;
     }
