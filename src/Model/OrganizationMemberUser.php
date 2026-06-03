@@ -63,7 +63,9 @@ class OrganizationMemberUser implements ModelInterface, ArrayAccess, JsonSeriali
     protected static array $openAPITypes = [
         'id' => 'string',
         'email' => 'string',
-        'name' => 'string'
+        'name' => 'string',
+        'givenName' => 'string',
+        'familyName' => 'string'
     ];
 
     /**
@@ -74,7 +76,9 @@ class OrganizationMemberUser implements ModelInterface, ArrayAccess, JsonSeriali
     protected static array $openAPIFormats = [
         'id' => 'uuid',
         'email' => 'email',
-        'name' => null
+        'name' => null,
+        'givenName' => null,
+        'familyName' => null
     ];
 
     /**
@@ -85,7 +89,9 @@ class OrganizationMemberUser implements ModelInterface, ArrayAccess, JsonSeriali
     protected static array $openAPINullables = [
         'id' => false,
         'email' => false,
-        'name' => true
+        'name' => true,
+        'givenName' => true,
+        'familyName' => true
     ];
 
     /**
@@ -176,7 +182,9 @@ class OrganizationMemberUser implements ModelInterface, ArrayAccess, JsonSeriali
     protected static array $attributeMap = [
         'id' => 'id',
         'email' => 'email',
-        'name' => 'name'
+        'name' => 'name',
+        'givenName' => 'given_name',
+        'familyName' => 'family_name'
     ];
 
     /**
@@ -187,7 +195,9 @@ class OrganizationMemberUser implements ModelInterface, ArrayAccess, JsonSeriali
     protected static array $setters = [
         'id' => 'setId',
         'email' => 'setEmail',
-        'name' => 'setName'
+        'name' => 'setName',
+        'givenName' => 'setGivenName',
+        'familyName' => 'setFamilyName'
     ];
 
     /**
@@ -198,7 +208,9 @@ class OrganizationMemberUser implements ModelInterface, ArrayAccess, JsonSeriali
     protected static array $getters = [
         'id' => 'getId',
         'email' => 'getEmail',
-        'name' => 'getName'
+        'name' => 'getName',
+        'givenName' => 'getGivenName',
+        'familyName' => 'getFamilyName'
     ];
 
     /**
@@ -261,6 +273,8 @@ class OrganizationMemberUser implements ModelInterface, ArrayAccess, JsonSeriali
         $this->setIfExists('id', $data ?? [], null);
         $this->setIfExists('email', $data ?? [], null);
         $this->setIfExists('name', $data ?? [], null);
+        $this->setIfExists('givenName', $data ?? [], null);
+        $this->setIfExists('familyName', $data ?? [], null);
     }
 
     /**
@@ -378,7 +392,7 @@ class OrganizationMemberUser implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets name
      *
-     * @param string|null $name ユーザーの表示名。
+     * @param string|null $name ユーザーの表示名（姓名を結合したロケール依存の形式）。未設定時は `null`。
      *
      * @return $this
      */
@@ -395,6 +409,74 @@ class OrganizationMemberUser implements ModelInterface, ArrayAccess, JsonSeriali
             }
         }
         $this->container['name'] = $name;
+
+        return $this;
+    }
+
+    /**
+     * Gets givenName
+     *
+     * @return string|null
+     */
+    public function getGivenName(): ?string
+    {
+        return $this->container['givenName'];
+    }
+
+    /**
+     * Sets givenName
+     *
+     * @param string|null $givenName ユーザーの名（given name）。姓名を分けて表示するクライアント向け。未設定時は `null`。
+     *
+     * @return $this
+     */
+    public function setGivenName(?string $givenName): static
+    {
+        if (is_null($givenName)) {
+            array_push($this->openAPINullablesSetToNull, 'givenName');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('givenName', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['givenName'] = $givenName;
+
+        return $this;
+    }
+
+    /**
+     * Gets familyName
+     *
+     * @return string|null
+     */
+    public function getFamilyName(): ?string
+    {
+        return $this->container['familyName'];
+    }
+
+    /**
+     * Sets familyName
+     *
+     * @param string|null $familyName ユーザーの姓（family name）。姓名を分けて表示するクライアント向け。未設定時は `null`。
+     *
+     * @return $this
+     */
+    public function setFamilyName(?string $familyName): static
+    {
+        if (is_null($familyName)) {
+            array_push($this->openAPINullablesSetToNull, 'familyName');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('familyName', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['familyName'] = $familyName;
 
         return $this;
     }
