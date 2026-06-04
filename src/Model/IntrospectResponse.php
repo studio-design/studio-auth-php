@@ -75,7 +75,8 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
         'jti' => 'string',
         'email' => 'string',
         'emailVerified' => 'bool',
-        'orgId' => 'string'
+        'orgId' => 'string',
+        'ssoEnforced' => 'bool'
     ];
 
     /**
@@ -98,7 +99,8 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
         'jti' => null,
         'email' => 'email',
         'emailVerified' => null,
-        'orgId' => 'uuid'
+        'orgId' => 'uuid',
+        'ssoEnforced' => null
     ];
 
     /**
@@ -121,7 +123,8 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
         'jti' => false,
         'email' => false,
         'emailVerified' => false,
-        'orgId' => true
+        'orgId' => true,
+        'ssoEnforced' => false
     ];
 
     /**
@@ -224,7 +227,8 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
         'jti' => 'jti',
         'email' => 'email',
         'emailVerified' => 'email_verified',
-        'orgId' => 'org_id'
+        'orgId' => 'org_id',
+        'ssoEnforced' => 'sso_enforced'
     ];
 
     /**
@@ -247,7 +251,8 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
         'jti' => 'setJti',
         'email' => 'setEmail',
         'emailVerified' => 'setEmailVerified',
-        'orgId' => 'setOrgId'
+        'orgId' => 'setOrgId',
+        'ssoEnforced' => 'setSsoEnforced'
     ];
 
     /**
@@ -270,7 +275,8 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
         'jti' => 'getJti',
         'email' => 'getEmail',
         'emailVerified' => 'getEmailVerified',
-        'orgId' => 'getOrgId'
+        'orgId' => 'getOrgId',
+        'ssoEnforced' => 'getSsoEnforced'
     ];
 
     /**
@@ -345,6 +351,7 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
         $this->setIfExists('email', $data ?? [], null);
         $this->setIfExists('emailVerified', $data ?? [], null);
         $this->setIfExists('orgId', $data ?? [], null);
+        $this->setIfExists('ssoEnforced', $data ?? [], null);
     }
 
     /**
@@ -800,6 +807,33 @@ class IntrospectResponse implements ModelInterface, ArrayAccess, JsonSerializabl
             }
         }
         $this->container['orgId'] = $orgId;
+
+        return $this;
+    }
+
+    /**
+     * Gets ssoEnforced
+     *
+     * @return bool|null
+     */
+    public function getSsoEnforced(): ?bool
+    {
+        return $this->container['ssoEnforced'];
+    }
+
+    /**
+     * Sets ssoEnforced
+     *
+     * @param bool|null $ssoEnforced トークンに紐づく組織が SSO ログインを強制しているかどうかを示すブール値。 アクセストークンに `org_id` クレームが含まれ、その組織が解決できた場合のみ返却されます。 値は introspection 時点の組織設定を反映します（トークン発行時点ではありません）。 `org_id` を持たないトークンや組織が解決できない場合は不在となります。
+     *
+     * @return $this
+     */
+    public function setSsoEnforced(?bool $ssoEnforced): static
+    {
+        if (is_null($ssoEnforced)) {
+            throw new InvalidArgumentException('non-nullable ssoEnforced cannot be null');
+        }
+        $this->container['ssoEnforced'] = $ssoEnforced;
 
         return $this;
     }
