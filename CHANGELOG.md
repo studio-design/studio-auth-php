@@ -1,5 +1,16 @@
 # studio-design/studio-auth-php
 
+## [0.3.1](https://github.com/studio-design/studio-auth/compare/sdk-v0.3.0...sdk-v0.3.1) (2026-06-15)
+
+
+### Features
+
+* **sdk:** document sso_enforced claim in IntrospectResponse ([4db12d8](https://github.com/studio-design/studio-auth/commit/4db12d8c0e48f43e10324a7f6c7ba606945a4ab1)), closes [#1312](https://github.com/studio-design/studio-auth/issues/1312)
+* **sdk:** document the 403 user_disabled callback response ([50920f0](https://github.com/studio-design/studio-auth/commit/50920f043022d90e6b0a032257aa5aa6131b6fe8))
+* **sdk:** expose 422 self-role-change-must-be-downgrade on member role PATCH ([d4ee967](https://github.com/studio-design/studio-auth/commit/d4ee9670789613b9f26ab57a61017e9b9effb299))
+* **sdk:** expose given_name/family_name on OrganizationMemberUser ([8b445e2](https://github.com/studio-design/studio-auth/commit/8b445e2ec9654bb72aaae4f9d1b08e33823d67c0))
+* user offboarding & SSO enforcement (epic [#1309](https://github.com/studio-design/studio-auth/issues/1309)) ([c8dd30a](https://github.com/studio-design/studio-auth/commit/c8dd30a85848c56966bd7a121146007f6331bd1d))
+
 ## [0.3.0](https://github.com/studio-design/studio-auth/compare/sdk-v0.2.26...sdk-v0.3.0) (2026-05-20)
 
 
