@@ -2,6 +2,10 @@
 
 Auth Service の PHP SDK です。OpenAPI 仕様から自動生成されています。
 
+## ドキュメント
+
+全エンドポイント・スキーマ・エラーレスポンスを網羅した API リファレンスは、社内開発者ポータル（Google IAP 保護・社内メンバー限定）で公開されています。ポータルのトップページから「Auth Service API」を開いてください。
+
 ## 要件
 
 - PHP 8.2 以上
@@ -23,7 +27,7 @@ composer require studio-design/studio-auth-php
 composer require "studio-design/studio-auth-php:^X.Y.Z@rc"
 ```
 
-`X.Y.Z` は次回リリース予定のバージョン（直近 stable パッチ + 1）です。最新の snapshot タグは [studio-auth-php の Releases](https://github.com/studio-design/studio-auth-php/releases) を参照してください。
+`X.Y.Z` は次回リリース予定のバージョン（直近 stable パッチ + 1）です。最新の snapshot タグは [studio-auth-php の Tags](https://github.com/studio-design/studio-auth-php/tags) を参照してください。
 
 ⚠️ snapshot 版は staging / CI 検証用です。本番デプロイには安定版（`composer require studio-design/studio-auth-php` または `:^X.Y.Z`）を使用してください。
 
@@ -86,6 +90,42 @@ try {
     print_r($result);
 } catch (Studio\Auth\ApiException $e) {
     echo 'Exception: ', $e->getMessage(), PHP_EOL;
+}
+```
+
+### アクセストークンの取得
+
+Bearer 認証で使うアクセストークンは、Authorization Code + PKCE フロー（`/oauth/authorize` → `/oauth/token`）で発行されます。有効期限切れ時は `refresh_token` グラントで再発行します。フローの詳細は社内ポータルの API リファレンスを参照してください。`client_id` / `client_secret` は Auth Service 管理者がアプリケーションごとに発行します。
+
+### エラーハンドリング
+
+API エラーは HTTP ステータスに応じた `Studio\Auth\ApiException` のサブクラスとして送出されます（同期・非同期メソッドで共通。未マップのステータスや接続エラーは基底の `ApiException` のまま）。非同期メソッドの場合は、返り値の promise がこれらの例外で reject されます:
+
+| HTTP ステータス | 例外クラス |
+| --- | --- |
+| 400 | `Studio\Auth\Exception\BadRequestException` |
+| 401 | `Studio\Auth\Exception\UnauthorizedException` |
+| 403 | `Studio\Auth\Exception\ForbiddenException` |
+| 404 | `Studio\Auth\Exception\NotFoundException` |
+| 409 | `Studio\Auth\Exception\ConflictException` |
+| 422 | `Studio\Auth\Exception\UnprocessableEntityException` |
+| 429 | `Studio\Auth\Exception\RateLimitException` |
+| 5xx | `Studio\Auth\Exception\ServerException` |
+
+`ApiException::getProblem()` は、`Content-Type: application/problem+json` のエラーボディが正しくデシリアライズできたときだけ RFC 9457 Problem Details（`getType()` / `getTitle()` / `getStatus()` / `getDetail()`）を返します。ボディが空のとき、`application/problem+json` でないとき（OAuth の `{"error": ...}` 形式や userinfo の RFC 6750 エラーを含む）、またはデシリアライズに失敗したときは `null` を返します。**エラー種別の判定には、従来どおり例外のサブクラス（`NotFoundException` 等）または `getCode()`（HTTP ステータスコード）を使ってください**。
+
+```php
+use Studio\Auth\ApiException;
+use Studio\Auth\Exception\NotFoundException;
+
+try {
+    $organization = $adminApi->getOrganization('org_xxxxx');
+} catch (NotFoundException $e) {
+    // 404: 指定した組織が存在しない
+    echo $e->getProblem()?->getTitle(), PHP_EOL;
+} catch (ApiException $e) {
+    // その他の API エラー（未マップのステータス・接続エラー含む）
+    echo $e->getCode(), ': ', $e->getMessage(), PHP_EOL;
 }
 ```
 
@@ -213,10 +253,14 @@ Class | Method | HTTP request | Description
 - **対象**: AuthApi の token / introspect / revoke エンドポイント
 - **設定**: `$config->setUsername('CLIENT_ID')->setPassword('CLIENT_SECRET')`
 
+## コントリビュート
+
+このリポジトリは OpenAPI 仕様から自動生成される**読み取り専用のリリースミラー**です。ファイルはリリースごとに上書きされるため、Pull Request は受け付けられません。バグ報告・機能要望は [GitHub Issues](https://github.com/studio-design/studio-auth-php/issues) へお願いします。
+
 ## ライセンス
 
 MIT License - [LICENSE](LICENSE) を参照してください。
 
 ---
 
-このパッケージは [Studio Auth Service の OpenAPI 仕様](https://github.com/studio-design/studio-auth) から自動生成されています（SDK バージョン: `0.3.1`）。
+このパッケージは [Studio Auth Service の OpenAPI 仕様](https://github.com/studio-design/studio-auth) から自動生成されています（SDK バージョン: `0.3.2-rc.23`）。
