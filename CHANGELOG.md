@@ -1,5 +1,32 @@
 # studio-design/studio-auth-php
 
+## [0.3.2](https://github.com/studio-design/studio-auth/compare/sdk-v0.3.1...sdk-v0.3.2) (2026-07-22)
+
+
+### Features
+
+* **ci:** publish the auth API reference to studio-internal on stable SDK releases ([ca3e45c](https://github.com/studio-design/studio-auth/commit/ca3e45c720468a4f14036bebaaaeca35dff76fa3))
+* **openapi:** add build:docs script for the static API reference bundle ([285c78d](https://github.com/studio-design/studio-auth/commit/285c78d8459d23d72179f01a9da9e52782d78d2d))
+
+
+### Bug Fixes
+
+* **sdk:** accept stdClass body and exact-match the problem+json media type ([862da81](https://github.com/studio-design/studio-auth/commit/862da81a90d6d5e93489d9c137f9845c8d453cb4))
+* **sdk:** classify authorize/callback error formats per status ([5d561e5](https://github.com/studio-design/studio-auth/commit/5d561e55742ccfbf6b82469265458b581c75df95))
+* **sdk:** correct auth examples and expand the SDK READMEs ([657f947](https://github.com/studio-design/studio-auth/commit/657f947c21c54298e1f69d69e6ec1796779fbcfc))
+* **sdk:** correct auth examples and expand the SDK READMEs ([a1e9997](https://github.com/studio-design/studio-auth/commit/a1e9997b36f08d72d4354541317a894f51349fad))
+* **sdk:** correct Node runtime guidance and error-shape docs ([4ebbc0f](https://github.com/studio-design/studio-auth/commit/4ebbc0fe25f3d5145ea2b5843876d018a6d676bd))
+* **sdk:** gate getProblem() on the problem+json content type ([#1459](https://github.com/studio-design/studio-auth/issues/1459)) ([039e7d0](https://github.com/studio-design/studio-auth/commit/039e7d042267d7242556b9d1f27d84369518d0f0))
+* **sdk:** gate getProblem() on the problem+json content type ([#1459](https://github.com/studio-design/studio-auth/issues/1459)) ([f2e467e](https://github.com/studio-design/studio-auth/commit/f2e467ee2fa980bbd6f6ffb151122ea29d4085bb))
+* **sdk:** handle undefined response and deserialize-failure in error docs ([64a119b](https://github.com/studio-design/studio-auth/commit/64a119b55ed42c427dded20a583d5a922adc83d9))
+* **sdk:** limit async ApiException conversion to transport exceptions ([8fcf53a](https://github.com/studio-design/studio-auth/commit/8fcf53a8a927186bc596a962c372ae4dc02ec558))
+* **sdk:** make error-handling docs match actual SDK behavior ([a3e7bbc](https://github.com/studio-design/studio-auth/commit/a3e7bbce26ac5aef2770fc103807b3ae14646ff9))
+* **sdk:** refer to the internal portal without exposing its hostname ([b7cd0d6](https://github.com/studio-design/studio-auth/commit/b7cd0d654a9ec31320049ca6a6eebd3ac1bfe576))
+* **sdk:** reject async ConnectException as the base ApiException ([20192db](https://github.com/studio-design/studio-auth/commit/20192dba0d4b14dd196ce390137413618098e792))
+* **sdk:** reject async ConnectException as the base ApiException ([3c25b51](https://github.com/studio-design/studio-auth/commit/3c25b51c94019b851391a04618b4030c5dbbe0dc))
+* **sdk:** require a JSON object body before resolving Problem Details ([3bc478c](https://github.com/studio-design/studio-auth/commit/3bc478c7270407c2281dd136c19935388c58f8b2))
+* **sdk:** scope OAuth error format to 400/401 in Node docs ([a4c596a](https://github.com/studio-design/studio-auth/commit/a4c596a1280a27fffaf574314a2c53b7d410103d))
+
 ## [0.3.1](https://github.com/studio-design/studio-auth/compare/sdk-v0.3.0...sdk-v0.3.1) (2026-06-15)
 
 
