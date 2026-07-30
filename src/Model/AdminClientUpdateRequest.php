@@ -64,6 +64,7 @@ class AdminClientUpdateRequest implements ModelInterface, ArrayAccess, JsonSeria
         'clientName' => 'string',
         'description' => 'string',
         'redirectUris' => 'string[]',
+        'postLogoutRedirectUris' => 'string[]',
         'allowedScopes' => 'string[]',
         'grantTypesSupported' => 'string[]',
         'tokenEndpointAuthMethod' => 'string',
@@ -79,6 +80,7 @@ class AdminClientUpdateRequest implements ModelInterface, ArrayAccess, JsonSeria
         'clientName' => null,
         'description' => null,
         'redirectUris' => 'uri',
+        'postLogoutRedirectUris' => 'uri',
         'allowedScopes' => null,
         'grantTypesSupported' => null,
         'tokenEndpointAuthMethod' => null,
@@ -94,6 +96,7 @@ class AdminClientUpdateRequest implements ModelInterface, ArrayAccess, JsonSeria
         'clientName' => false,
         'description' => true,
         'redirectUris' => false,
+        'postLogoutRedirectUris' => false,
         'allowedScopes' => false,
         'grantTypesSupported' => false,
         'tokenEndpointAuthMethod' => false,
@@ -189,6 +192,7 @@ class AdminClientUpdateRequest implements ModelInterface, ArrayAccess, JsonSeria
         'clientName' => 'client_name',
         'description' => 'description',
         'redirectUris' => 'redirect_uris',
+        'postLogoutRedirectUris' => 'post_logout_redirect_uris',
         'allowedScopes' => 'allowed_scopes',
         'grantTypesSupported' => 'grant_types_supported',
         'tokenEndpointAuthMethod' => 'token_endpoint_auth_method',
@@ -204,6 +208,7 @@ class AdminClientUpdateRequest implements ModelInterface, ArrayAccess, JsonSeria
         'clientName' => 'setClientName',
         'description' => 'setDescription',
         'redirectUris' => 'setRedirectUris',
+        'postLogoutRedirectUris' => 'setPostLogoutRedirectUris',
         'allowedScopes' => 'setAllowedScopes',
         'grantTypesSupported' => 'setGrantTypesSupported',
         'tokenEndpointAuthMethod' => 'setTokenEndpointAuthMethod',
@@ -219,6 +224,7 @@ class AdminClientUpdateRequest implements ModelInterface, ArrayAccess, JsonSeria
         'clientName' => 'getClientName',
         'description' => 'getDescription',
         'redirectUris' => 'getRedirectUris',
+        'postLogoutRedirectUris' => 'getPostLogoutRedirectUris',
         'allowedScopes' => 'getAllowedScopes',
         'grantTypesSupported' => 'getGrantTypesSupported',
         'tokenEndpointAuthMethod' => 'getTokenEndpointAuthMethod',
@@ -336,6 +342,7 @@ class AdminClientUpdateRequest implements ModelInterface, ArrayAccess, JsonSeria
         $this->setIfExists('clientName', $data ?? [], null);
         $this->setIfExists('description', $data ?? [], null);
         $this->setIfExists('redirectUris', $data ?? [], null);
+        $this->setIfExists('postLogoutRedirectUris', $data ?? [], null);
         $this->setIfExists('allowedScopes', $data ?? [], null);
         $this->setIfExists('grantTypesSupported', $data ?? [], null);
         $this->setIfExists('tokenEndpointAuthMethod', $data ?? [], null);
@@ -517,6 +524,33 @@ class AdminClientUpdateRequest implements ModelInterface, ArrayAccess, JsonSeria
             throw new InvalidArgumentException('invalid length for $redirectUris when calling AdminClientUpdateRequest., number of items must be greater than or equal to 1.');
         }
         $this->container['redirectUris'] = $redirectUris;
+
+        return $this;
+    }
+
+    /**
+     * Gets postLogoutRedirectUris
+     *
+     * @return string[]|null
+     */
+    public function getPostLogoutRedirectUris(): ?array
+    {
+        return $this->container['postLogoutRedirectUris'];
+    }
+
+    /**
+     * Sets postLogoutRedirectUris
+     *
+     * @param string[]|null $postLogoutRedirectUris RP-initiated logout（OIDC）でログアウト後に戻す URI のリスト。 指定した場合は既存の登録をこの内容で置き換えます。空配列を指定するとすべて削除します。
+     *
+     * @return $this
+     */
+    public function setPostLogoutRedirectUris(?array $postLogoutRedirectUris): static
+    {
+        if (is_null($postLogoutRedirectUris)) {
+            throw new InvalidArgumentException('non-nullable postLogoutRedirectUris cannot be null');
+        }
+        $this->container['postLogoutRedirectUris'] = $postLogoutRedirectUris;
 
         return $this;
     }

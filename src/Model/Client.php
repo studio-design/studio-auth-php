@@ -66,6 +66,7 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         'description' => 'string',
         'clientType' => 'string',
         'redirectUris' => 'string[]',
+        'postLogoutRedirectUris' => 'string[]',
         'allowedScopes' => 'string[]',
         'grantTypesSupported' => 'string[]',
         'tokenEndpointAuthMethod' => 'string',
@@ -85,6 +86,7 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         'description' => null,
         'clientType' => null,
         'redirectUris' => 'uri',
+        'postLogoutRedirectUris' => 'uri',
         'allowedScopes' => null,
         'grantTypesSupported' => null,
         'tokenEndpointAuthMethod' => null,
@@ -104,6 +106,7 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         'description' => true,
         'clientType' => false,
         'redirectUris' => false,
+        'postLogoutRedirectUris' => false,
         'allowedScopes' => false,
         'grantTypesSupported' => false,
         'tokenEndpointAuthMethod' => false,
@@ -203,6 +206,7 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         'description' => 'description',
         'clientType' => 'client_type',
         'redirectUris' => 'redirect_uris',
+        'postLogoutRedirectUris' => 'post_logout_redirect_uris',
         'allowedScopes' => 'allowed_scopes',
         'grantTypesSupported' => 'grant_types_supported',
         'tokenEndpointAuthMethod' => 'token_endpoint_auth_method',
@@ -222,6 +226,7 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         'description' => 'setDescription',
         'clientType' => 'setClientType',
         'redirectUris' => 'setRedirectUris',
+        'postLogoutRedirectUris' => 'setPostLogoutRedirectUris',
         'allowedScopes' => 'setAllowedScopes',
         'grantTypesSupported' => 'setGrantTypesSupported',
         'tokenEndpointAuthMethod' => 'setTokenEndpointAuthMethod',
@@ -241,6 +246,7 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         'description' => 'getDescription',
         'clientType' => 'getClientType',
         'redirectUris' => 'getRedirectUris',
+        'postLogoutRedirectUris' => 'getPostLogoutRedirectUris',
         'allowedScopes' => 'getAllowedScopes',
         'grantTypesSupported' => 'getGrantTypesSupported',
         'tokenEndpointAuthMethod' => 'getTokenEndpointAuthMethod',
@@ -375,6 +381,7 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         $this->setIfExists('description', $data ?? [], null);
         $this->setIfExists('clientType', $data ?? [], null);
         $this->setIfExists('redirectUris', $data ?? [], null);
+        $this->setIfExists('postLogoutRedirectUris', $data ?? [], null);
         $this->setIfExists('allowedScopes', $data ?? [], null);
         $this->setIfExists('grantTypesSupported', $data ?? [], null);
         $this->setIfExists('tokenEndpointAuthMethod', $data ?? [], null);
@@ -459,6 +466,9 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
             $invalidProperties[] = "invalid value for 'redirectUris', number of items must be greater than or equal to 1.";
         }
 
+        if ($this->container['postLogoutRedirectUris'] === null) {
+            $invalidProperties[] = "'postLogoutRedirectUris' can't be null";
+        }
         if ($this->container['allowedScopes'] === null) {
             $invalidProperties[] = "'allowedScopes' can't be null";
         }
@@ -683,6 +693,33 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
             throw new InvalidArgumentException('invalid length for $redirectUris when calling Client., number of items must be greater than or equal to 1.');
         }
         $this->container['redirectUris'] = $redirectUris;
+
+        return $this;
+    }
+
+    /**
+     * Gets postLogoutRedirectUris
+     *
+     * @return string[]
+     */
+    public function getPostLogoutRedirectUris(): array
+    {
+        return $this->container['postLogoutRedirectUris'];
+    }
+
+    /**
+     * Sets postLogoutRedirectUris
+     *
+     * @param string[] $postLogoutRedirectUris RP-initiated logout（OIDC）でログアウト後に戻す先として登録された URI のリスト。 登録が無い場合は空配列を返します。
+     *
+     * @return $this
+     */
+    public function setPostLogoutRedirectUris(array $postLogoutRedirectUris): static
+    {
+        if (is_null($postLogoutRedirectUris)) {
+            throw new InvalidArgumentException('non-nullable postLogoutRedirectUris cannot be null');
+        }
+        $this->container['postLogoutRedirectUris'] = $postLogoutRedirectUris;
 
         return $this;
     }
