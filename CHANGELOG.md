@@ -1,5 +1,19 @@
 # studio-design/studio-auth-php
 
+## [0.3.3](https://github.com/studio-design/studio-auth/compare/sdk-v0.3.2...sdk-v0.3.3) (2026-07-31)
+
+
+### Features
+
+* register post_logout_redirect_uris via the admin client API ([5d0c6b8](https://github.com/studio-design/studio-auth/commit/5d0c6b8dc6878754a2e7f9f627867841f34867d5))
+* **sdk:** add post_logout_redirect_uris to admin client schemas ([0ce4ac7](https://github.com/studio-design/studio-auth/commit/0ce4ac7866d9da708ab4b11357a97518b5dedba2)), closes [#1464](https://github.com/studio-design/studio-auth/issues/1464)
+
+
+### Bug Fixes
+
+* **sdk:** pass primitive-only oneOf raw values through deserialization ([75a65ca](https://github.com/studio-design/studio-auth/commit/75a65ca54679dd9a78a4c61152699096a3aadbe2)), closes [#1520](https://github.com/studio-design/studio-auth/issues/1520)
+* **sdk:** pass primitive-only oneOf raw values through SDK deserialization ([e62d29e](https://github.com/studio-design/studio-auth/commit/e62d29e818b9d6adce7683de4f924340567b256e))
+
 ## [0.3.2](https://github.com/studio-design/studio-auth/compare/sdk-v0.3.1...sdk-v0.3.2) (2026-07-22)
 
 
