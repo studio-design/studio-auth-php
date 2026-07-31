@@ -498,6 +498,15 @@ class ObjectSerializer
             }
             return $data;
         } else {
+            // php-nextgen renders a primitive-only `oneOf` (e.g. `aud: string | string[]`)
+            // as a property-less wrapper model while typing the referencing setter with
+            // the union of the primitives. Instantiating the wrapper both loses the value
+            // and blows up the setter with a TypeError, so pass the raw value through and
+            // let the setter's native union type validate it (issue #1520).
+            if (is_a($class, ModelInterface::class, true) && $class::openAPITypes() === []) {
+                return $data;
+            }
+
             $data = is_string($data) ? json_decode($data) : $data;
 
             if (is_array($data)) {
