@@ -3342,7 +3342,7 @@ class AuthApi
         $multipart = $formDataProcessor->has_file;
 
         $headers = $this->headerSelector->selectHeaders(
-            ['application/json', 'application/problem+json', ],
+            ['application/problem+json', 'application/json', ],
             $contentType,
             $multipart
         );
