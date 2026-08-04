@@ -38,7 +38,7 @@ use JsonSerializable;
 /**
  * ProblemDetails Class Doc Comment
  *
- * @description RFC 9457 Problem Details for HTTP APIs を表現する共通レスポンススキーマ。 すべてのフィールドはオプショナルです。 拡張メンバー（Extension members）を自由に追加できます。
+ * @description RFC 9457 Problem Details for HTTP APIs を表現する共通レスポンススキーマ。  RFC 上はすべてのメンバーが任意ですが、本サービスはコアメンバー (&#x60;type&#x60; / &#x60;title&#x60; / &#x60;status&#x60; / &#x60;detail&#x60; / &#x60;instance&#x60;) と共通の拡張メンバー (&#x60;trace_id&#x60; / &#x60;correlation_id&#x60; / &#x60;service_tag&#x60; / &#x60;occurred_at&#x60; / &#x60;log_reference&#x60;) を **常に** 返却するため、いずれも &#x60;required&#x60; として宣言しています。 &#x60;correlation_id&#x60; と &#x60;log_reference&#x60; は値が &#x60;null&#x60; になることはありますが、キーは常に存在します。  &#x60;errors&#x60; / &#x60;invalid_params&#x60; はバリデーション失敗時のみ付与されるため任意です。 エンドポイント固有の拡張メンバー（&#x60;organization_id&#x60; など）は &#x60;additionalProperties: true&#x60; により追加で返却されることがあります。
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
@@ -65,7 +65,14 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
         'title' => 'string',
         'status' => 'int',
         'detail' => 'string',
-        'instance' => 'string'
+        'instance' => 'string',
+        'traceId' => 'string',
+        'correlationId' => 'string',
+        'serviceTag' => 'string',
+        'occurredAt' => '\DateTime',
+        'logReference' => 'string',
+        'errors' => 'array<string,string[]>',
+        'invalidParams' => '\Studio\Auth\Model\InvalidParam[]'
     ];
 
     /**
@@ -78,7 +85,14 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
         'title' => null,
         'status' => 'int32',
         'detail' => null,
-        'instance' => 'uri-reference'
+        'instance' => 'uri-reference',
+        'traceId' => null,
+        'correlationId' => null,
+        'serviceTag' => null,
+        'occurredAt' => 'date-time',
+        'logReference' => null,
+        'errors' => null,
+        'invalidParams' => null
     ];
 
     /**
@@ -91,7 +105,14 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
         'title' => false,
         'status' => false,
         'detail' => false,
-        'instance' => false
+        'instance' => false,
+        'traceId' => false,
+        'correlationId' => true,
+        'serviceTag' => false,
+        'occurredAt' => false,
+        'logReference' => true,
+        'errors' => false,
+        'invalidParams' => false
     ];
 
     /**
@@ -184,7 +205,14 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
         'title' => 'title',
         'status' => 'status',
         'detail' => 'detail',
-        'instance' => 'instance'
+        'instance' => 'instance',
+        'traceId' => 'trace_id',
+        'correlationId' => 'correlation_id',
+        'serviceTag' => 'service_tag',
+        'occurredAt' => 'occurred_at',
+        'logReference' => 'log_reference',
+        'errors' => 'errors',
+        'invalidParams' => 'invalid_params'
     ];
 
     /**
@@ -197,7 +225,14 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
         'title' => 'setTitle',
         'status' => 'setStatus',
         'detail' => 'setDetail',
-        'instance' => 'setInstance'
+        'instance' => 'setInstance',
+        'traceId' => 'setTraceId',
+        'correlationId' => 'setCorrelationId',
+        'serviceTag' => 'setServiceTag',
+        'occurredAt' => 'setOccurredAt',
+        'logReference' => 'setLogReference',
+        'errors' => 'setErrors',
+        'invalidParams' => 'setInvalidParams'
     ];
 
     /**
@@ -210,7 +245,14 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
         'title' => 'getTitle',
         'status' => 'getStatus',
         'detail' => 'getDetail',
-        'instance' => 'getInstance'
+        'instance' => 'getInstance',
+        'traceId' => 'getTraceId',
+        'correlationId' => 'getCorrelationId',
+        'serviceTag' => 'getServiceTag',
+        'occurredAt' => 'getOccurredAt',
+        'logReference' => 'getLogReference',
+        'errors' => 'getErrors',
+        'invalidParams' => 'getInvalidParams'
     ];
 
     /**
@@ -275,6 +317,13 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
         $this->setIfExists('status', $data ?? [], null);
         $this->setIfExists('detail', $data ?? [], null);
         $this->setIfExists('instance', $data ?? [], null);
+        $this->setIfExists('traceId', $data ?? [], null);
+        $this->setIfExists('correlationId', $data ?? [], null);
+        $this->setIfExists('serviceTag', $data ?? [], null);
+        $this->setIfExists('occurredAt', $data ?? [], null);
+        $this->setIfExists('logReference', $data ?? [], null);
+        $this->setIfExists('errors', $data ?? [], null);
+        $this->setIfExists('invalidParams', $data ?? [], null);
     }
 
     /**
@@ -304,14 +353,48 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     {
         $invalidProperties = [];
 
-        if (!is_null($this->container['status']) && ($this->container['status'] > 599)) {
+        if ($this->container['type'] === null) {
+            $invalidProperties[] = "'type' can't be null";
+        }
+        if ($this->container['title'] === null) {
+            $invalidProperties[] = "'title' can't be null";
+        }
+        if ($this->container['status'] === null) {
+            $invalidProperties[] = "'status' can't be null";
+        }
+        if (($this->container['status'] > 599)) {
             $invalidProperties[] = "invalid value for 'status', must be smaller than or equal to 599.";
         }
 
-        if (!is_null($this->container['status']) && ($this->container['status'] < 100)) {
+        if (($this->container['status'] < 100)) {
             $invalidProperties[] = "invalid value for 'status', must be bigger than or equal to 100.";
         }
 
+        if ($this->container['detail'] === null) {
+            $invalidProperties[] = "'detail' can't be null";
+        }
+        if ($this->container['instance'] === null) {
+            $invalidProperties[] = "'instance' can't be null";
+        }
+        if ($this->container['traceId'] === null) {
+            $invalidProperties[] = "'traceId' can't be null";
+        }
+        if (!preg_match("/^[0-9a-f]{32}$/", $this->container['traceId'])) {
+            $invalidProperties[] = "invalid value for 'traceId', must be conform to the pattern /^[0-9a-f]{32}$/.";
+        }
+
+        if ($this->container['correlationId'] === null && !$this->isNullableSetToNull('correlationId')) {
+            $invalidProperties[] = "'correlationId' is required";
+        }
+        if ($this->container['serviceTag'] === null) {
+            $invalidProperties[] = "'serviceTag' can't be null";
+        }
+        if ($this->container['occurredAt'] === null) {
+            $invalidProperties[] = "'occurredAt' can't be null";
+        }
+        if ($this->container['logReference'] === null && !$this->isNullableSetToNull('logReference')) {
+            $invalidProperties[] = "'logReference' is required";
+        }
         return $invalidProperties;
     }
 
@@ -330,9 +413,9 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets type
      *
-     * @return string|null
+     * @return string
      */
-    public function getType(): ?string
+    public function getType(): string
     {
         return $this->container['type'];
     }
@@ -340,11 +423,11 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets type
      *
-     * @param string|null $type 問題タイプを識別する URI 参照 (RFC 3986)。 この URI は問題タイプを識別するもので、人間が読める説明へのリンクであることが推奨されます。 省略時のデフォルト値は \"about:blank\" です。
+     * @param string $type 問題タイプを識別する URI 参照 (RFC 3986)。 この URI は問題タイプを識別するもので、人間が読める説明へのリンクであることが推奨されます。
      *
      * @return $this
      */
-    public function setType(?string $type): static
+    public function setType(string $type): static
     {
         if (is_null($type)) {
             throw new InvalidArgumentException('non-nullable type cannot be null');
@@ -357,9 +440,9 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets title
      *
-     * @return string|null
+     * @return string
      */
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return $this->container['title'];
     }
@@ -367,11 +450,11 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets title
      *
-     * @param string|null $title 問題タイプの短い、人間が読める要約。 ローカライズを除き、同じ問題タイプでは常に同じ値であるべきです。
+     * @param string $title 問題タイプの短い、人間が読める要約。 ローカライズを除き、同じ問題タイプでは常に同じ値であるべきです。
      *
      * @return $this
      */
-    public function setTitle(?string $title): static
+    public function setTitle(string $title): static
     {
         if (is_null($title)) {
             throw new InvalidArgumentException('non-nullable title cannot be null');
@@ -384,9 +467,9 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets status
      *
-     * @return int|null
+     * @return int
      */
-    public function getStatus(): ?int
+    public function getStatus(): int
     {
         return $this->container['status'];
     }
@@ -394,11 +477,11 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets status
      *
-     * @param int|null $status この問題の HTTP ステータスコード。 情報提供的な性質を持ち、実際の HTTP レスポンスのステータスコードと一致する必要があります。
+     * @param int $status この問題の HTTP ステータスコード。 情報提供的な性質を持ち、実際の HTTP レスポンスのステータスコードと一致する必要があります。
      *
      * @return $this
      */
-    public function setStatus(?int $status): static
+    public function setStatus(int $status): static
     {
         if (is_null($status)) {
             throw new InvalidArgumentException('non-nullable status cannot be null');
@@ -419,9 +502,9 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets detail
      *
-     * @return string|null
+     * @return string
      */
-    public function getDetail(): ?string
+    public function getDetail(): string
     {
         return $this->container['detail'];
     }
@@ -429,11 +512,11 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets detail
      *
-     * @param string|null $detail この問題の特定の発生に関する、人間が読める説明。 問題の詳細を提供し、クライアントが問題を理解・解決するのを助けることに焦点を当てます。
+     * @param string $detail この問題の特定の発生に関する、人間が読める説明。 問題の詳細を提供し、クライアントが問題を理解・解決するのを助けることに焦点を当てます。
      *
      * @return $this
      */
-    public function setDetail(?string $detail): static
+    public function setDetail(string $detail): static
     {
         if (is_null($detail)) {
             throw new InvalidArgumentException('non-nullable detail cannot be null');
@@ -446,9 +529,9 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets instance
      *
-     * @return string|null
+     * @return string
      */
-    public function getInstance(): ?string
+    public function getInstance(): string
     {
         return $this->container['instance'];
     }
@@ -456,16 +539,224 @@ class ProblemDetails implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets instance
      *
-     * @param string|null $instance この問題の特定の発生を識別する URI 参照。 逆参照可能な URI、またはサーバー側で不透明な識別子として機能します。
+     * @param string $instance この問題の特定の発生を識別する URI 参照。 本サービスは `urn:trace:<trace_id>` 形式で返却します。
      *
      * @return $this
      */
-    public function setInstance(?string $instance): static
+    public function setInstance(string $instance): static
     {
         if (is_null($instance)) {
             throw new InvalidArgumentException('non-nullable instance cannot be null');
         }
         $this->container['instance'] = $instance;
+
+        return $this;
+    }
+
+    /**
+     * Gets traceId
+     *
+     * @return string
+     */
+    public function getTraceId(): string
+    {
+        return $this->container['traceId'];
+    }
+
+    /**
+     * Sets traceId
+     *
+     * @param string $traceId W3C Trace Context に準拠した OpenTelemetry の trace ID（32 桁の小文字 16 進数）。 サポートへの問い合わせ時にこの値を伝えると、該当リクエストのトレースを特定できます。
+     *
+     * @return $this
+     */
+    public function setTraceId(string $traceId): static
+    {
+        if (is_null($traceId)) {
+            throw new InvalidArgumentException('non-nullable traceId cannot be null');
+        }
+
+        if ((!preg_match("/^[0-9a-f]{32}$/", ObjectSerializer::toString($traceId)))) {
+            throw new InvalidArgumentException("invalid value for \$traceId when calling ProblemDetails., must conform to the pattern /^[0-9a-f]{32}$/.");
+        }
+
+        $this->container['traceId'] = $traceId;
+
+        return $this;
+    }
+
+    /**
+     * Gets correlationId
+     *
+     * @return string|null
+     */
+    public function getCorrelationId(): ?string
+    {
+        return $this->container['correlationId'];
+    }
+
+    /**
+     * Sets correlationId
+     *
+     * @param string|null $correlationId クライアントがリクエストヘッダーで指定した相関 ID。 指定がなかった場合は `null` になります（キー自体は常に存在します）。
+     *
+     * @return $this
+     */
+    public function setCorrelationId(?string $correlationId): static
+    {
+        if (is_null($correlationId)) {
+            array_push($this->openAPINullablesSetToNull, 'correlationId');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('correlationId', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['correlationId'] = $correlationId;
+
+        return $this;
+    }
+
+    /**
+     * Gets serviceTag
+     *
+     * @return string
+     */
+    public function getServiceTag(): string
+    {
+        return $this->container['serviceTag'];
+    }
+
+    /**
+     * Sets serviceTag
+     *
+     * @param string $serviceTag エラーが発生したサービス／エンドポイントの識別子。
+     *
+     * @return $this
+     */
+    public function setServiceTag(string $serviceTag): static
+    {
+        if (is_null($serviceTag)) {
+            throw new InvalidArgumentException('non-nullable serviceTag cannot be null');
+        }
+        $this->container['serviceTag'] = $serviceTag;
+
+        return $this;
+    }
+
+    /**
+     * Gets occurredAt
+     *
+     * @return \DateTime
+     */
+    public function getOccurredAt(): \DateTime
+    {
+        return $this->container['occurredAt'];
+    }
+
+    /**
+     * Sets occurredAt
+     *
+     * @param \DateTime $occurredAt エラーが発生した時刻 (RFC 3339 / ISO 8601)。
+     *
+     * @return $this
+     */
+    public function setOccurredAt(\DateTime $occurredAt): static
+    {
+        if (is_null($occurredAt)) {
+            throw new InvalidArgumentException('non-nullable occurredAt cannot be null');
+        }
+        $this->container['occurredAt'] = $occurredAt;
+
+        return $this;
+    }
+
+    /**
+     * Gets logReference
+     *
+     * @return string|null
+     */
+    public function getLogReference(): ?string
+    {
+        return $this->container['logReference'];
+    }
+
+    /**
+     * Sets logReference
+     *
+     * @param string|null $logReference ログ検索用の参照 ID。付与されない場合は `null` になります（キー自体は常に存在します）。
+     *
+     * @return $this
+     */
+    public function setLogReference(?string $logReference): static
+    {
+        if (is_null($logReference)) {
+            array_push($this->openAPINullablesSetToNull, 'logReference');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('logReference', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['logReference'] = $logReference;
+
+        return $this;
+    }
+
+    /**
+     * Gets errors
+     *
+     * @return array<string,string[]>|null
+     */
+    public function getErrors(): ?array
+    {
+        return $this->container['errors'];
+    }
+
+    /**
+     * Sets errors
+     *
+     * @param array<string,string[]>|null $errors バリデーション失敗時のみ付与される、フィールド名をキーとしたエラーメッセージ配列のマップ。 機械可読な用途には `invalid_params` を使用してください。
+     *
+     * @return $this
+     */
+    public function setErrors(?array $errors): static
+    {
+        if (is_null($errors)) {
+            throw new InvalidArgumentException('non-nullable errors cannot be null');
+        }
+        $this->container['errors'] = $errors;
+
+        return $this;
+    }
+
+    /**
+     * Gets invalidParams
+     *
+     * @return \Studio\Auth\Model\InvalidParam[]|null
+     */
+    public function getInvalidParams(): ?array
+    {
+        return $this->container['invalidParams'];
+    }
+
+    /**
+     * Sets invalidParams
+     *
+     * @param \Studio\Auth\Model\InvalidParam[]|null $invalidParams バリデーション失敗時のみ付与される、失敗したパラメータの一覧。
+     *
+     * @return $this
+     */
+    public function setInvalidParams(?array $invalidParams): static
+    {
+        if (is_null($invalidParams)) {
+            throw new InvalidArgumentException('non-nullable invalidParams cannot be null');
+        }
+        $this->container['invalidParams'] = $invalidParams;
 
         return $this;
     }

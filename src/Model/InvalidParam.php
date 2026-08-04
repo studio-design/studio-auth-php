@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * CheckSsoEnforcementResponse
+ * InvalidParam
  *
  * PHP version 8.1
  *
@@ -36,15 +36,15 @@ use Studio\Auth\ObjectSerializer;
 use JsonSerializable;
 
 /**
- * CheckSsoEnforcementResponse Class Doc Comment
+ * InvalidParam Class Doc Comment
  *
- * @description SSO 強制判定レスポンス
+ * @description バリデーションに失敗したパラメータ 1 件分の情報。 RFC 9457 の拡張メンバー &#x60;invalid_params&#x60; の要素として返却されます。
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  * @implements ArrayAccess<string, mixed>
  */
-class CheckSsoEnforcementResponse implements ModelInterface, ArrayAccess, JsonSerializable
+class InvalidParam implements ModelInterface, ArrayAccess, JsonSerializable
 {
     public const DISCRIMINATOR = null;
 
@@ -53,7 +53,7 @@ class CheckSsoEnforcementResponse implements ModelInterface, ArrayAccess, JsonSe
       *
       * @var string
       */
-    protected static string $openAPIModelName = 'CheckSsoEnforcementResponse';
+    protected static string $openAPIModelName = 'InvalidParam';
 
     /**
       * Array of property to type mappings. Used for (de)serialization
@@ -61,8 +61,8 @@ class CheckSsoEnforcementResponse implements ModelInterface, ArrayAccess, JsonSe
       * @var array<string, string>
       */
     protected static array $openAPITypes = [
-        'enforced' => 'bool',
-        'orgId' => 'string'
+        'name' => 'string',
+        'reason' => 'string'
     ];
 
     /**
@@ -71,8 +71,8 @@ class CheckSsoEnforcementResponse implements ModelInterface, ArrayAccess, JsonSe
       * @var array<string, string|null>
       */
     protected static array $openAPIFormats = [
-        'enforced' => null,
-        'orgId' => 'uuid'
+        'name' => null,
+        'reason' => null
     ];
 
     /**
@@ -81,8 +81,8 @@ class CheckSsoEnforcementResponse implements ModelInterface, ArrayAccess, JsonSe
       * @var array<string, bool>
       */
     protected static array $openAPINullables = [
-        'enforced' => false,
-        'orgId' => true
+        'name' => false,
+        'reason' => false
     ];
 
     /**
@@ -171,8 +171,8 @@ class CheckSsoEnforcementResponse implements ModelInterface, ArrayAccess, JsonSe
      * @var array<string, string>
      */
     protected static array $attributeMap = [
-        'enforced' => 'enforced',
-        'orgId' => 'org_id'
+        'name' => 'name',
+        'reason' => 'reason'
     ];
 
     /**
@@ -181,8 +181,8 @@ class CheckSsoEnforcementResponse implements ModelInterface, ArrayAccess, JsonSe
      * @var array<string, string>
      */
     protected static array $setters = [
-        'enforced' => 'setEnforced',
-        'orgId' => 'setOrgId'
+        'name' => 'setName',
+        'reason' => 'setReason'
     ];
 
     /**
@@ -191,8 +191,8 @@ class CheckSsoEnforcementResponse implements ModelInterface, ArrayAccess, JsonSe
      * @var array<string, string>
      */
     protected static array $getters = [
-        'enforced' => 'getEnforced',
-        'orgId' => 'getOrgId'
+        'name' => 'getName',
+        'reason' => 'getReason'
     ];
 
     /**
@@ -252,8 +252,8 @@ class CheckSsoEnforcementResponse implements ModelInterface, ArrayAccess, JsonSe
      */
     public function __construct(?array $data = null)
     {
-        $this->setIfExists('enforced', $data ?? [], null);
-        $this->setIfExists('orgId', $data ?? [], null);
+        $this->setIfExists('name', $data ?? [], null);
+        $this->setIfExists('reason', $data ?? [], null);
     }
 
     /**
@@ -283,11 +283,11 @@ class CheckSsoEnforcementResponse implements ModelInterface, ArrayAccess, JsonSe
     {
         $invalidProperties = [];
 
-        if ($this->container['enforced'] === null) {
-            $invalidProperties[] = "'enforced' can't be null";
+        if ($this->container['name'] === null) {
+            $invalidProperties[] = "'name' can't be null";
         }
-        if ($this->container['orgId'] === null && !$this->isNullableSetToNull('orgId')) {
-            $invalidProperties[] = "'orgId' is required";
+        if ($this->container['reason'] === null) {
+            $invalidProperties[] = "'reason' can't be null";
         }
         return $invalidProperties;
     }
@@ -305,62 +305,55 @@ class CheckSsoEnforcementResponse implements ModelInterface, ArrayAccess, JsonSe
 
 
     /**
-     * Gets enforced
+     * Gets name
      *
-     * @return bool
+     * @return string
      */
-    public function getEnforced(): bool
+    public function getName(): string
     {
-        return $this->container['enforced'];
+        return $this->container['name'];
     }
 
     /**
-     * Sets enforced
+     * Sets name
      *
-     * @param bool $enforced SSO 強制が適用されているかどうか
+     * @param string $name 失敗したパラメータ名。リクエストボディのフィールド名、クエリパラメータ名、パスパラメータ名のいずれか。
      *
      * @return $this
      */
-    public function setEnforced(bool $enforced): static
+    public function setName(string $name): static
     {
-        if (is_null($enforced)) {
-            throw new InvalidArgumentException('non-nullable enforced cannot be null');
+        if (is_null($name)) {
+            throw new InvalidArgumentException('non-nullable name cannot be null');
         }
-        $this->container['enforced'] = $enforced;
+        $this->container['name'] = $name;
 
         return $this;
     }
 
     /**
-     * Gets orgId
+     * Gets reason
      *
-     * @return string|null
+     * @return string
      */
-    public function getOrgId(): ?string
+    public function getReason(): string
     {
-        return $this->container['orgId'];
+        return $this->container['reason'];
     }
 
     /**
-     * Sets orgId
+     * Sets reason
      *
-     * @param string|null $orgId SSO 強制を適用している組織の ID。強制されていない場合は null
+     * @param string $reason 失敗理由の人間可読な説明。
      *
      * @return $this
      */
-    public function setOrgId(?string $orgId): static
+    public function setReason(string $reason): static
     {
-        if (is_null($orgId)) {
-            array_push($this->openAPINullablesSetToNull, 'orgId');
-        } else {
-            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
-            $index = array_search('orgId', $nullablesSetToNull);
-            if ($index !== FALSE) {
-                unset($nullablesSetToNull[$index]);
-                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
-            }
+        if (is_null($reason)) {
+            throw new InvalidArgumentException('non-nullable reason cannot be null');
         }
-        $this->container['orgId'] = $orgId;
+        $this->container['reason'] = $reason;
 
         return $this;
     }
