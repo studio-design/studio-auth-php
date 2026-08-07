@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * AdminPortalSessionCreatedResponse
+ * InvalidParam
  *
  * PHP version 8.1
  *
@@ -36,15 +36,15 @@ use Studio\Auth\ObjectSerializer;
 use JsonSerializable;
 
 /**
- * AdminPortalSessionCreatedResponse Class Doc Comment
+ * InvalidParam Class Doc Comment
  *
- * @description WorkOS Admin Portal セッション作成成功レスポンス。 生成されたポータル URL は5分間有効です。
+ * @description バリデーションに失敗したパラメータ 1 件分の情報。 RFC 9457 の拡張メンバー &#x60;invalid_params&#x60; の要素として返却されます。
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  * @implements ArrayAccess<string, mixed>
  */
-class AdminPortalSessionCreatedResponse implements ModelInterface, ArrayAccess, JsonSerializable
+class InvalidParam implements ModelInterface, ArrayAccess, JsonSerializable
 {
     public const DISCRIMINATOR = null;
 
@@ -53,7 +53,7 @@ class AdminPortalSessionCreatedResponse implements ModelInterface, ArrayAccess, 
       *
       * @var string
       */
-    protected static string $openAPIModelName = 'AdminPortalSessionCreatedResponse';
+    protected static string $openAPIModelName = 'InvalidParam';
 
     /**
       * Array of property to type mappings. Used for (de)serialization
@@ -61,7 +61,8 @@ class AdminPortalSessionCreatedResponse implements ModelInterface, ArrayAccess, 
       * @var array<string, string>
       */
     protected static array $openAPITypes = [
-        'adminPortalUrl' => 'string'
+        'name' => 'string',
+        'reason' => 'string'
     ];
 
     /**
@@ -70,7 +71,8 @@ class AdminPortalSessionCreatedResponse implements ModelInterface, ArrayAccess, 
       * @var array<string, string|null>
       */
     protected static array $openAPIFormats = [
-        'adminPortalUrl' => 'uri'
+        'name' => null,
+        'reason' => null
     ];
 
     /**
@@ -79,7 +81,8 @@ class AdminPortalSessionCreatedResponse implements ModelInterface, ArrayAccess, 
       * @var array<string, bool>
       */
     protected static array $openAPINullables = [
-        'adminPortalUrl' => false
+        'name' => false,
+        'reason' => false
     ];
 
     /**
@@ -168,7 +171,8 @@ class AdminPortalSessionCreatedResponse implements ModelInterface, ArrayAccess, 
      * @var array<string, string>
      */
     protected static array $attributeMap = [
-        'adminPortalUrl' => 'admin_portal_url'
+        'name' => 'name',
+        'reason' => 'reason'
     ];
 
     /**
@@ -177,7 +181,8 @@ class AdminPortalSessionCreatedResponse implements ModelInterface, ArrayAccess, 
      * @var array<string, string>
      */
     protected static array $setters = [
-        'adminPortalUrl' => 'setAdminPortalUrl'
+        'name' => 'setName',
+        'reason' => 'setReason'
     ];
 
     /**
@@ -186,7 +191,8 @@ class AdminPortalSessionCreatedResponse implements ModelInterface, ArrayAccess, 
      * @var array<string, string>
      */
     protected static array $getters = [
-        'adminPortalUrl' => 'getAdminPortalUrl'
+        'name' => 'getName',
+        'reason' => 'getReason'
     ];
 
     /**
@@ -246,7 +252,8 @@ class AdminPortalSessionCreatedResponse implements ModelInterface, ArrayAccess, 
      */
     public function __construct(?array $data = null)
     {
-        $this->setIfExists('adminPortalUrl', $data ?? [], null);
+        $this->setIfExists('name', $data ?? [], null);
+        $this->setIfExists('reason', $data ?? [], null);
     }
 
     /**
@@ -276,8 +283,11 @@ class AdminPortalSessionCreatedResponse implements ModelInterface, ArrayAccess, 
     {
         $invalidProperties = [];
 
-        if ($this->container['adminPortalUrl'] === null) {
-            $invalidProperties[] = "'adminPortalUrl' can't be null";
+        if ($this->container['name'] === null) {
+            $invalidProperties[] = "'name' can't be null";
+        }
+        if ($this->container['reason'] === null) {
+            $invalidProperties[] = "'reason' can't be null";
         }
         return $invalidProperties;
     }
@@ -295,28 +305,55 @@ class AdminPortalSessionCreatedResponse implements ModelInterface, ArrayAccess, 
 
 
     /**
-     * Gets adminPortalUrl
+     * Gets name
      *
      * @return string
      */
-    public function getAdminPortalUrl(): string
+    public function getName(): string
     {
-        return $this->container['adminPortalUrl'];
+        return $this->container['name'];
     }
 
     /**
-     * Sets adminPortalUrl
+     * Sets name
      *
-     * @param string $adminPortalUrl WorkOS Admin Portal の URL。 IT管理者がこの URL にアクセスすることで、SSO接続の設定を行えます。 この URL は発行から5分間有効です。
+     * @param string $name 失敗したパラメータ名。リクエストボディのフィールド名、クエリパラメータ名、パスパラメータ名のいずれか。
      *
      * @return $this
      */
-    public function setAdminPortalUrl(string $adminPortalUrl): static
+    public function setName(string $name): static
     {
-        if (is_null($adminPortalUrl)) {
-            throw new InvalidArgumentException('non-nullable adminPortalUrl cannot be null');
+        if (is_null($name)) {
+            throw new InvalidArgumentException('non-nullable name cannot be null');
         }
-        $this->container['adminPortalUrl'] = $adminPortalUrl;
+        $this->container['name'] = $name;
+
+        return $this;
+    }
+
+    /**
+     * Gets reason
+     *
+     * @return string
+     */
+    public function getReason(): string
+    {
+        return $this->container['reason'];
+    }
+
+    /**
+     * Sets reason
+     *
+     * @param string $reason 失敗理由の人間可読な説明。
+     *
+     * @return $this
+     */
+    public function setReason(string $reason): static
+    {
+        if (is_null($reason)) {
+            throw new InvalidArgumentException('non-nullable reason cannot be null');
+        }
+        $this->container['reason'] = $reason;
 
         return $this;
     }

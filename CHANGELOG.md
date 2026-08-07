@@ -1,5 +1,22 @@
 # studio-design/studio-auth-php
 
+## [0.4.0](https://github.com/studio-design/studio-auth/compare/sdk-v0.3.3...sdk-v0.4.0) (2026-08-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* **sdk:** reading a response gets strictly easier, but constructing one does not. In the TS SDK type / title / status / detail / instance stop being optional and trace_id / correlation_id / service_tag / occurred_at / log_reference appear as required members, so consumer fixtures, mocks and object literals typed as ProblemDetails no longer compile until every member is supplied; the same holds for OrganizationMemberUser's name / given_name / family_name, which go from `string | null | undefined` to `string | null`. In the PHP SDK the accessors for the newly required non-nullable members narrow from `?string` / `?int` to `string` / `int`, so passing null to a setter now raises a TypeError. The SDK is 0.x, so bump-minor-pre-major lands this as a minor bump.
+
+### Bug Fixes
+
+* **sdk:** correct the token example names and pin invalid_params in the 400 tests ([af6ed9d](https://github.com/studio-design/studio-auth/commit/af6ed9d3e984ee446ab366084e914e322dbf5e9d))
+* **sdk:** declare the ProblemDetails members this API always returns ([a5bb57c](https://github.com/studio-design/studio-auth/commit/a5bb57c3f2961539b7321f865b5a822b55976be1))
+* **sdk:** document only the 400 shape revoke and introspect can actually return ([e3fd7d5](https://github.com/studio-design/studio-auth/commit/e3fd7d53bc6d59c5a687476247210b3b5b0394ed))
+* **sdk:** document the 400 responses six admin operations already return ([705caed](https://github.com/studio-design/studio-auth/commit/705caed4fdec6e50689c7a0df53a97dc8861b3b1)), closes [#1501](https://github.com/studio-design/studio-auth/issues/1501)
+* **sdk:** document the problem+json shape the OAuth 400 responses also return ([d0f15bf](https://github.com/studio-design/studio-auth/commit/d0f15bf42612fae430fc3ae4bb34ac2734b9083b)), closes [#1502](https://github.com/studio-design/studio-auth/issues/1502)
+* **sdk:** let the PHP SDK accept an explicitly-null required member ([8d253df](https://github.com/studio-design/studio-auth/commit/8d253df1f3987b58704cbca16ba2d7e202ca0b41)), closes [#1521](https://github.com/studio-design/studio-auth/issues/1521)
+* **sdk:** 実装が返しているのに spec 未記載だった 400 レスポンスを記載する ([8a3cc3a](https://github.com/studio-design/studio-auth/commit/8a3cc3afe85a85b9e22af582e5101ed5f871bab7))
+
 ## [0.3.3](https://github.com/studio-design/studio-auth/compare/sdk-v0.3.2...sdk-v0.3.3) (2026-07-31)
 
 
