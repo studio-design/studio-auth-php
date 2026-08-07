@@ -264,4 +264,4 @@ MIT License - [LICENSE](LICENSE) を参照してください。
 
 ---
 
-このパッケージは [Studio Auth Service の OpenAPI 仕様](https://github.com/studio-design/studio-auth) から自動生成されています（SDK バージョン: `0.4.0`）。
+このパッケージは [Studio Auth Service の OpenAPI 仕様](https://github.com/studio-design/studio-auth) から自動生成されています（SDK バージョン: `0.4.1-rc.34`）。
