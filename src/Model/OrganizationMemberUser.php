@@ -310,6 +310,15 @@ class OrganizationMemberUser implements ModelInterface, ArrayAccess, JsonSeriali
         if ($this->container['email'] === null) {
             $invalidProperties[] = "'email' can't be null";
         }
+        if ($this->container['name'] === null && !$this->isNullableSetToNull('name')) {
+            $invalidProperties[] = "'name' is required";
+        }
+        if ($this->container['givenName'] === null && !$this->isNullableSetToNull('givenName')) {
+            $invalidProperties[] = "'givenName' is required";
+        }
+        if ($this->container['familyName'] === null && !$this->isNullableSetToNull('familyName')) {
+            $invalidProperties[] = "'familyName' is required";
+        }
         return $invalidProperties;
     }
 

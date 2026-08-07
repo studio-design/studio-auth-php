@@ -203,6 +203,7 @@ Class | Method | HTTP request | Description
 - IntrospectErrorResponse
 - IntrospectResponse
 - IntrospectResponseAud
+- InvalidParam
 - JsonWebKey
 - JwksResponse
 - MemberDomainTypeCounts
@@ -263,4 +264,4 @@ MIT License - [LICENSE](LICENSE) を参照してください。
 
 ---
 
-このパッケージは [Studio Auth Service の OpenAPI 仕様](https://github.com/studio-design/studio-auth) から自動生成されています（SDK バージョン: `0.3.3`）。
+このパッケージは [Studio Auth Service の OpenAPI 仕様](https://github.com/studio-design/studio-auth) から自動生成されています（SDK バージョン: `0.3.4-rc.33`）。
