@@ -1,6 +1,6 @@
 <?php
 /**
- * OneOfInterface
+ * AnyOfInterface
  *
  * PHP version 8.1
  *
@@ -28,24 +28,24 @@
 namespace Studio\Auth\Model;
 
 /**
- * Interface implemented by models generated from a `oneOf` schema.
+ * Interface implemented by models generated from an `anyOf` schema.
  *
- * A `oneOf` schema is not represented by a value object; instead a value is one of the
- * composed member types. Classes implementing this interface only carry the metadata that
+ * An `anyOf` schema is not represented by a value object; instead a value is one of the
+ * member types. Classes implementing this interface only carry the metadata that
  * {@see ObjectSerializer::deserialize()} needs to resolve the concrete member type.
  *
  * @package Studio\Auth\Model
  * @author  OpenAPI Generator team
  */
-interface OneOfInterface
+interface AnyOfInterface
 {
     /**
-     * List of the types a value of this `oneOf` schema may be. Each entry uses the same
+     * List of the types a value of this `anyOf` schema may be. Each entry uses the same
      * notation as the values of {@see ModelInterface::openAPITypes()}.
      *
      * @return string[]
      */
-    public static function getOneOfTypes(): array;
+    public static function getAnyOfTypes(): array;
 
     /**
      * Name of the discriminator property used to resolve the concrete member type, or null
@@ -53,7 +53,7 @@ interface OneOfInterface
      *
      * @return string|null
      */
-    public static function getOneOfDiscriminator(): ?string;
+    public static function getAnyOfDiscriminator(): ?string;
 
     /**
      * Mapping of discriminator values to the concrete member type. Empty when the schema has
@@ -61,5 +61,5 @@ interface OneOfInterface
      *
      * @return array<string,string>
      */
-    public static function getOneOfDiscriminatorMappings(): array;
+    public static function getAnyOfDiscriminatorMappings(): array;
 }
