@@ -157,6 +157,7 @@ Class | Method | HTTP request | Description
 *AuthApi* | **initiateAuthorization** | **GET** /oauth/authorize | 認可フローの開始
 *AuthApi* | **introspectToken** | **POST** /oauth/introspect | トークンイントロスペクションエンドポイント
 *AuthApi* | **issueTokens** | **POST** /oauth/token | トークンエンドポイント
+*AuthApi* | **lookupPendingAuthentication** | **POST** /oauth/pending-authentication/lookup | 保留中認証トークンの組織候補ルックアップ
 *AuthApi* | **postUserinfo** | **POST** /oauth/userinfo | ユーザー情報の取得 (POST)
 *AuthApi* | **revokeToken** | **POST** /oauth/revoke | トークン無効化エンドポイント
 *OrganizationApi* | **createMyAdminPortalSession** | **POST** /organizations/{organization_id}/admin-portal-sessions | 自組織のAdmin Portal セッション生成（組織メンバー向け）
@@ -224,6 +225,9 @@ Class | Method | HTTP request | Description
 - OrganizationRole
 - OrganizationUpdateRequest
 - PaginationMeta
+- PendingAuthenticationLookupRequest
+- PendingAuthenticationLookupResponse
+- PendingAuthenticationOrganizationSummary
 - ProblemDetails
 - Prompt
 - ResponseType
@@ -264,4 +268,4 @@ MIT License - [LICENSE](LICENSE) を参照してください。
 
 ---
 
-このパッケージは [Studio Auth Service の OpenAPI 仕様](https://github.com/studio-design/studio-auth) から自動生成されています（SDK バージョン: `0.4.0`）。
+このパッケージは [Studio Auth Service の OpenAPI 仕様](https://github.com/studio-design/studio-auth) から自動生成されています（SDK バージョン: `0.4.1-rc.40`）。

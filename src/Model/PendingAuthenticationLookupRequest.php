@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * PaginationMeta
+ * PendingAuthenticationLookupRequest
  *
  * PHP version 8.1
  *
@@ -36,15 +36,15 @@ use Studio\Auth\ObjectSerializer;
 use JsonSerializable;
 
 /**
- * PaginationMeta Class Doc Comment
+ * PendingAuthenticationLookupRequest Class Doc Comment
  *
- * @description ページネーション情報。
+ * @description &#x60;POST /oauth/pending-authentication/lookup&#x60; のリクエストボディ。 &#x60;application/json&#x60; または &#x60;application/x-www-form-urlencoded&#x60; のいずれかで送信できる。
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  * @implements ArrayAccess<string, mixed>
  */
-class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
+class PendingAuthenticationLookupRequest implements ModelInterface, ArrayAccess, JsonSerializable
 {
     public const DISCRIMINATOR = null;
 
@@ -53,7 +53,7 @@ class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
       *
       * @var string
       */
-    protected static string $openAPIModelName = 'PaginationMeta';
+    protected static string $openAPIModelName = 'PendingAuthenticationLookupRequest';
 
     /**
       * Array of property to type mappings. Used for (de)serialization
@@ -61,10 +61,7 @@ class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
       * @var array<string, string>
       */
     protected static array $openAPITypes = [
-        'currentPage' => 'int',
-        'perPage' => 'int',
-        'total' => 'int',
-        'lastPage' => 'int'
+        'pendingAuthenticationToken' => 'string'
     ];
 
     /**
@@ -73,10 +70,7 @@ class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
       * @var array<string, string|null>
       */
     protected static array $openAPIFormats = [
-        'currentPage' => null,
-        'perPage' => null,
-        'total' => null,
-        'lastPage' => null
+        'pendingAuthenticationToken' => null
     ];
 
     /**
@@ -85,10 +79,7 @@ class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
       * @var array<string, bool>
       */
     protected static array $openAPINullables = [
-        'currentPage' => false,
-        'perPage' => false,
-        'total' => false,
-        'lastPage' => false
+        'pendingAuthenticationToken' => false
     ];
 
     /**
@@ -177,10 +168,7 @@ class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
      * @var array<string, string>
      */
     protected static array $attributeMap = [
-        'currentPage' => 'current_page',
-        'perPage' => 'per_page',
-        'total' => 'total',
-        'lastPage' => 'last_page'
+        'pendingAuthenticationToken' => 'pending_authentication_token'
     ];
 
     /**
@@ -189,10 +177,7 @@ class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
      * @var array<string, string>
      */
     protected static array $setters = [
-        'currentPage' => 'setCurrentPage',
-        'perPage' => 'setPerPage',
-        'total' => 'setTotal',
-        'lastPage' => 'setLastPage'
+        'pendingAuthenticationToken' => 'setPendingAuthenticationToken'
     ];
 
     /**
@@ -201,10 +186,7 @@ class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
      * @var array<string, string>
      */
     protected static array $getters = [
-        'currentPage' => 'getCurrentPage',
-        'perPage' => 'getPerPage',
-        'total' => 'getTotal',
-        'lastPage' => 'getLastPage'
+        'pendingAuthenticationToken' => 'getPendingAuthenticationToken'
     ];
 
     /**
@@ -264,10 +246,7 @@ class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
      */
     public function __construct(?array $data = null)
     {
-        $this->setIfExists('currentPage', $data ?? [], null);
-        $this->setIfExists('perPage', $data ?? [], null);
-        $this->setIfExists('total', $data ?? [], null);
-        $this->setIfExists('lastPage', $data ?? [], null);
+        $this->setIfExists('pendingAuthenticationToken', $data ?? [], null);
     }
 
     /**
@@ -297,36 +276,11 @@ class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
     {
         $invalidProperties = [];
 
-        if ($this->container['currentPage'] === null) {
-            $invalidProperties[] = "'currentPage' can't be null";
+        if ($this->container['pendingAuthenticationToken'] === null) {
+            $invalidProperties[] = "'pendingAuthenticationToken' can't be null";
         }
-        if (($this->container['currentPage'] < 1)) {
-            $invalidProperties[] = "invalid value for 'currentPage', must be bigger than or equal to 1.";
-        }
-
-        if ($this->container['perPage'] === null) {
-            $invalidProperties[] = "'perPage' can't be null";
-        }
-        if (($this->container['perPage'] > 100)) {
-            $invalidProperties[] = "invalid value for 'perPage', must be smaller than or equal to 100.";
-        }
-
-        if (($this->container['perPage'] < 1)) {
-            $invalidProperties[] = "invalid value for 'perPage', must be bigger than or equal to 1.";
-        }
-
-        if ($this->container['total'] === null) {
-            $invalidProperties[] = "'total' can't be null";
-        }
-        if (($this->container['total'] < 0)) {
-            $invalidProperties[] = "invalid value for 'total', must be bigger than or equal to 0.";
-        }
-
-        if ($this->container['lastPage'] === null) {
-            $invalidProperties[] = "'lastPage' can't be null";
-        }
-        if (($this->container['lastPage'] < 1)) {
-            $invalidProperties[] = "invalid value for 'lastPage', must be bigger than or equal to 1.";
+        if (!preg_match("/^[0-9a-f]{64}$/", $this->container['pendingAuthenticationToken'])) {
+            $invalidProperties[] = "invalid value for 'pendingAuthenticationToken', must be conform to the pattern /^[0-9a-f]{64}$/.";
         }
 
         return $invalidProperties;
@@ -345,132 +299,33 @@ class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
 
 
     /**
-     * Gets currentPage
+     * Gets pendingAuthenticationToken
      *
-     * @return int
+     * @return string
      */
-    public function getCurrentPage(): int
+    public function getPendingAuthenticationToken(): string
     {
-        return $this->container['currentPage'];
+        return $this->container['pendingAuthenticationToken'];
     }
 
     /**
-     * Sets currentPage
+     * Sets pendingAuthenticationToken
      *
-     * @param int $currentPage 現在のページ番号（1始まり）。
+     * @param string $pendingAuthenticationToken pending_authentication_token (opaque、64 文字 hex)。短 TTL・単回使用。 `/oauth/authorize` は認可サーバ側の organization 選択画面に置き換えられたため、 このトークンを発行しなくなりました。  credential 相当のため、必ず request body で送信すること (URL に置くと access log / Referer / browser history / CDN cache / OpenTelemetry trace に漏洩する)。
      *
      * @return $this
      */
-    public function setCurrentPage(int $currentPage): static
+    public function setPendingAuthenticationToken(string $pendingAuthenticationToken): static
     {
-        if (is_null($currentPage)) {
-            throw new InvalidArgumentException('non-nullable currentPage cannot be null');
+        if (is_null($pendingAuthenticationToken)) {
+            throw new InvalidArgumentException('non-nullable pendingAuthenticationToken cannot be null');
         }
 
-        if (($currentPage < 1)) {
-            throw new InvalidArgumentException('invalid value for $currentPage when calling PaginationMeta., must be bigger than or equal to 1.');
+        if ((!preg_match("/^[0-9a-f]{64}$/", ObjectSerializer::toString($pendingAuthenticationToken)))) {
+            throw new InvalidArgumentException("invalid value for \$pendingAuthenticationToken when calling PendingAuthenticationLookupRequest., must conform to the pattern /^[0-9a-f]{64}$/.");
         }
 
-        $this->container['currentPage'] = $currentPage;
-
-        return $this;
-    }
-
-    /**
-     * Gets perPage
-     *
-     * @return int
-     */
-    public function getPerPage(): int
-    {
-        return $this->container['perPage'];
-    }
-
-    /**
-     * Sets perPage
-     *
-     * @param int $perPage 1ページあたりの件数。
-     *
-     * @return $this
-     */
-    public function setPerPage(int $perPage): static
-    {
-        if (is_null($perPage)) {
-            throw new InvalidArgumentException('non-nullable perPage cannot be null');
-        }
-
-        if (($perPage > 100)) {
-            throw new InvalidArgumentException('invalid value for $perPage when calling PaginationMeta., must be smaller than or equal to 100.');
-        }
-        if (($perPage < 1)) {
-            throw new InvalidArgumentException('invalid value for $perPage when calling PaginationMeta., must be bigger than or equal to 1.');
-        }
-
-        $this->container['perPage'] = $perPage;
-
-        return $this;
-    }
-
-    /**
-     * Gets total
-     *
-     * @return int
-     */
-    public function getTotal(): int
-    {
-        return $this->container['total'];
-    }
-
-    /**
-     * Sets total
-     *
-     * @param int $total 総件数。
-     *
-     * @return $this
-     */
-    public function setTotal(int $total): static
-    {
-        if (is_null($total)) {
-            throw new InvalidArgumentException('non-nullable total cannot be null');
-        }
-
-        if (($total < 0)) {
-            throw new InvalidArgumentException('invalid value for $total when calling PaginationMeta., must be bigger than or equal to 0.');
-        }
-
-        $this->container['total'] = $total;
-
-        return $this;
-    }
-
-    /**
-     * Gets lastPage
-     *
-     * @return int
-     */
-    public function getLastPage(): int
-    {
-        return $this->container['lastPage'];
-    }
-
-    /**
-     * Sets lastPage
-     *
-     * @param int $lastPage 最終ページ番号。
-     *
-     * @return $this
-     */
-    public function setLastPage(int $lastPage): static
-    {
-        if (is_null($lastPage)) {
-            throw new InvalidArgumentException('non-nullable lastPage cannot be null');
-        }
-
-        if (($lastPage < 1)) {
-            throw new InvalidArgumentException('invalid value for $lastPage when calling PaginationMeta., must be bigger than or equal to 1.');
-        }
-
-        $this->container['lastPage'] = $lastPage;
+        $this->container['pendingAuthenticationToken'] = $pendingAuthenticationToken;
 
         return $this;
     }
