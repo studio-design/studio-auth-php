@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * PaginationMeta
+ * PendingAuthenticationOrganizationSummary
  *
  * PHP version 8.1
  *
@@ -36,15 +36,15 @@ use Studio\Auth\ObjectSerializer;
 use JsonSerializable;
 
 /**
- * PaginationMeta Class Doc Comment
+ * PendingAuthenticationOrganizationSummary Class Doc Comment
  *
- * @description ページネーション情報。
+ * @description pending_authentication_token lookup のレスポンスに含まれる organization 要約情報。
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  * @implements ArrayAccess<string, mixed>
  */
-class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
+class PendingAuthenticationOrganizationSummary implements ModelInterface, ArrayAccess, JsonSerializable
 {
     public const DISCRIMINATOR = null;
 
@@ -53,7 +53,7 @@ class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
       *
       * @var string
       */
-    protected static string $openAPIModelName = 'PaginationMeta';
+    protected static string $openAPIModelName = 'PendingAuthenticationOrganizationSummary';
 
     /**
       * Array of property to type mappings. Used for (de)serialization
@@ -61,10 +61,9 @@ class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
       * @var array<string, string>
       */
     protected static array $openAPITypes = [
-        'currentPage' => 'int',
-        'perPage' => 'int',
-        'total' => 'int',
-        'lastPage' => 'int'
+        'organizationId' => 'string',
+        'name' => 'string',
+        'displayName' => 'string'
     ];
 
     /**
@@ -73,10 +72,9 @@ class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
       * @var array<string, string|null>
       */
     protected static array $openAPIFormats = [
-        'currentPage' => null,
-        'perPage' => null,
-        'total' => null,
-        'lastPage' => null
+        'organizationId' => 'uuid',
+        'name' => null,
+        'displayName' => null
     ];
 
     /**
@@ -85,10 +83,9 @@ class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
       * @var array<string, bool>
       */
     protected static array $openAPINullables = [
-        'currentPage' => false,
-        'perPage' => false,
-        'total' => false,
-        'lastPage' => false
+        'organizationId' => false,
+        'name' => false,
+        'displayName' => true
     ];
 
     /**
@@ -177,10 +174,9 @@ class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
      * @var array<string, string>
      */
     protected static array $attributeMap = [
-        'currentPage' => 'current_page',
-        'perPage' => 'per_page',
-        'total' => 'total',
-        'lastPage' => 'last_page'
+        'organizationId' => 'organization_id',
+        'name' => 'name',
+        'displayName' => 'display_name'
     ];
 
     /**
@@ -189,10 +185,9 @@ class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
      * @var array<string, string>
      */
     protected static array $setters = [
-        'currentPage' => 'setCurrentPage',
-        'perPage' => 'setPerPage',
-        'total' => 'setTotal',
-        'lastPage' => 'setLastPage'
+        'organizationId' => 'setOrganizationId',
+        'name' => 'setName',
+        'displayName' => 'setDisplayName'
     ];
 
     /**
@@ -201,10 +196,9 @@ class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
      * @var array<string, string>
      */
     protected static array $getters = [
-        'currentPage' => 'getCurrentPage',
-        'perPage' => 'getPerPage',
-        'total' => 'getTotal',
-        'lastPage' => 'getLastPage'
+        'organizationId' => 'getOrganizationId',
+        'name' => 'getName',
+        'displayName' => 'getDisplayName'
     ];
 
     /**
@@ -264,10 +258,9 @@ class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
      */
     public function __construct(?array $data = null)
     {
-        $this->setIfExists('currentPage', $data ?? [], null);
-        $this->setIfExists('perPage', $data ?? [], null);
-        $this->setIfExists('total', $data ?? [], null);
-        $this->setIfExists('lastPage', $data ?? [], null);
+        $this->setIfExists('organizationId', $data ?? [], null);
+        $this->setIfExists('name', $data ?? [], null);
+        $this->setIfExists('displayName', $data ?? [], null);
     }
 
     /**
@@ -297,38 +290,15 @@ class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
     {
         $invalidProperties = [];
 
-        if ($this->container['currentPage'] === null) {
-            $invalidProperties[] = "'currentPage' can't be null";
+        if ($this->container['organizationId'] === null) {
+            $invalidProperties[] = "'organizationId' can't be null";
         }
-        if (($this->container['currentPage'] < 1)) {
-            $invalidProperties[] = "invalid value for 'currentPage', must be bigger than or equal to 1.";
+        if ($this->container['name'] === null) {
+            $invalidProperties[] = "'name' can't be null";
         }
-
-        if ($this->container['perPage'] === null) {
-            $invalidProperties[] = "'perPage' can't be null";
+        if ($this->container['displayName'] === null && !$this->isNullableSetToNull('displayName')) {
+            $invalidProperties[] = "'displayName' is required";
         }
-        if (($this->container['perPage'] > 100)) {
-            $invalidProperties[] = "invalid value for 'perPage', must be smaller than or equal to 100.";
-        }
-
-        if (($this->container['perPage'] < 1)) {
-            $invalidProperties[] = "invalid value for 'perPage', must be bigger than or equal to 1.";
-        }
-
-        if ($this->container['total'] === null) {
-            $invalidProperties[] = "'total' can't be null";
-        }
-        if (($this->container['total'] < 0)) {
-            $invalidProperties[] = "invalid value for 'total', must be bigger than or equal to 0.";
-        }
-
-        if ($this->container['lastPage'] === null) {
-            $invalidProperties[] = "'lastPage' can't be null";
-        }
-        if (($this->container['lastPage'] < 1)) {
-            $invalidProperties[] = "invalid value for 'lastPage', must be bigger than or equal to 1.";
-        }
-
         return $invalidProperties;
     }
 
@@ -345,132 +315,89 @@ class PaginationMeta implements ModelInterface, ArrayAccess, JsonSerializable
 
 
     /**
-     * Gets currentPage
+     * Gets organizationId
      *
-     * @return int
+     * @return string
      */
-    public function getCurrentPage(): int
+    public function getOrganizationId(): string
     {
-        return $this->container['currentPage'];
+        return $this->container['organizationId'];
     }
 
     /**
-     * Sets currentPage
+     * Sets organizationId
      *
-     * @param int $currentPage 現在のページ番号（1始まり）。
+     * @param string $organizationId 組織の外部公開 UUID。`POST /oauth/token` の `organization_id` に指定する。
      *
      * @return $this
      */
-    public function setCurrentPage(int $currentPage): static
+    public function setOrganizationId(string $organizationId): static
     {
-        if (is_null($currentPage)) {
-            throw new InvalidArgumentException('non-nullable currentPage cannot be null');
+        if (is_null($organizationId)) {
+            throw new InvalidArgumentException('non-nullable organizationId cannot be null');
         }
-
-        if (($currentPage < 1)) {
-            throw new InvalidArgumentException('invalid value for $currentPage when calling PaginationMeta., must be bigger than or equal to 1.');
-        }
-
-        $this->container['currentPage'] = $currentPage;
+        $this->container['organizationId'] = $organizationId;
 
         return $this;
     }
 
     /**
-     * Gets perPage
+     * Gets name
      *
-     * @return int
+     * @return string
      */
-    public function getPerPage(): int
+    public function getName(): string
     {
-        return $this->container['perPage'];
+        return $this->container['name'];
     }
 
     /**
-     * Sets perPage
+     * Sets name
      *
-     * @param int $perPage 1ページあたりの件数。
+     * @param string $name slug 形式の組織名 (内部用)。
      *
      * @return $this
      */
-    public function setPerPage(int $perPage): static
+    public function setName(string $name): static
     {
-        if (is_null($perPage)) {
-            throw new InvalidArgumentException('non-nullable perPage cannot be null');
+        if (is_null($name)) {
+            throw new InvalidArgumentException('non-nullable name cannot be null');
         }
-
-        if (($perPage > 100)) {
-            throw new InvalidArgumentException('invalid value for $perPage when calling PaginationMeta., must be smaller than or equal to 100.');
-        }
-        if (($perPage < 1)) {
-            throw new InvalidArgumentException('invalid value for $perPage when calling PaginationMeta., must be bigger than or equal to 1.');
-        }
-
-        $this->container['perPage'] = $perPage;
+        $this->container['name'] = $name;
 
         return $this;
     }
 
     /**
-     * Gets total
+     * Gets displayName
      *
-     * @return int
+     * @return string|null
      */
-    public function getTotal(): int
+    public function getDisplayName(): ?string
     {
-        return $this->container['total'];
+        return $this->container['displayName'];
     }
 
     /**
-     * Sets total
+     * Sets displayName
      *
-     * @param int $total 総件数。
+     * @param string|null $displayName 表示名 (UI 表示用、未設定の場合は null)。
      *
      * @return $this
      */
-    public function setTotal(int $total): static
+    public function setDisplayName(?string $displayName): static
     {
-        if (is_null($total)) {
-            throw new InvalidArgumentException('non-nullable total cannot be null');
+        if (is_null($displayName)) {
+            array_push($this->openAPINullablesSetToNull, 'displayName');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('displayName', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
         }
-
-        if (($total < 0)) {
-            throw new InvalidArgumentException('invalid value for $total when calling PaginationMeta., must be bigger than or equal to 0.');
-        }
-
-        $this->container['total'] = $total;
-
-        return $this;
-    }
-
-    /**
-     * Gets lastPage
-     *
-     * @return int
-     */
-    public function getLastPage(): int
-    {
-        return $this->container['lastPage'];
-    }
-
-    /**
-     * Sets lastPage
-     *
-     * @param int $lastPage 最終ページ番号。
-     *
-     * @return $this
-     */
-    public function setLastPage(int $lastPage): static
-    {
-        if (is_null($lastPage)) {
-            throw new InvalidArgumentException('non-nullable lastPage cannot be null');
-        }
-
-        if (($lastPage < 1)) {
-            throw new InvalidArgumentException('invalid value for $lastPage when calling PaginationMeta., must be bigger than or equal to 1.');
-        }
-
-        $this->container['lastPage'] = $lastPage;
+        $this->container['displayName'] = $displayName;
 
         return $this;
     }
