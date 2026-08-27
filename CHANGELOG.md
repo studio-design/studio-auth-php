@@ -1,5 +1,30 @@
 # studio-design/studio-auth-php
 
+## [0.5.0](https://github.com/studio-design/studio-auth/compare/sdk-v0.4.0...sdk-v0.5.0) (2026-08-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* **sdk:** the pending-authentication lookup operation and the PENDING_AUTHENTICATION_TOKEN grant type are gone from the SDK.
+
+### Features
+
+* add the pending-authentication-token grant to /oauth/token ([#1645](https://github.com/studio-design/studio-auth/issues/1645)) ([9cb6583](https://github.com/studio-design/studio-auth/commit/9cb6583b69011d4f3c0abd3a9e575bb9d7f796e4))
+* look up organization candidates for a pending authentication token ([#1646](https://github.com/studio-design/studio-auth/issues/1646)) ([7e062e7](https://github.com/studio-design/studio-auth/commit/7e062e794c07184bd5228f2e1114c358f58035e5))
+* render the organization picker on the authorization server ([#1647](https://github.com/studio-design/studio-auth/issues/1647)) ([cb7be38](https://github.com/studio-design/studio-auth/commit/cb7be3841190190f9ba47fe85c9448e7ea03eba7))
+* **sdk:** add the pending-authentication-token grant to the token spec ([2865361](https://github.com/studio-design/studio-auth/commit/2865361dde9ac5fd6744851e94e714ac41aa0a7d))
+* **sdk:** document organization_selection_required on the authorize redirect ([5f97773](https://github.com/studio-design/studio-auth/commit/5f97773573e9b8f985903bfc1ddbe51f12262398))
+* **sdk:** document the 429 on the WorkOS webhook path ([fa3760b](https://github.com/studio-design/studio-auth/commit/fa3760b5566088814646a61a52c3bfd3b8608117)), closes [#1646](https://github.com/studio-design/studio-auth/issues/1646)
+* **sdk:** document the pending-authentication lookup endpoint ([980ab23](https://github.com/studio-design/studio-auth/commit/980ab2314343aae390619e72854ce5e2d5273364)), closes [#1646](https://github.com/studio-design/studio-auth/issues/1646)
+* **sdk:** document the rate limit on the pending-authentication lookup ([8161b8b](https://github.com/studio-design/studio-auth/commit/8161b8b570feb7f0cc1be6297f59e789351544cd)), closes [#1646](https://github.com/studio-design/studio-auth/issues/1646)
+* **sdk:** remove the pending-authentication lookup endpoint and grant ([84e557e](https://github.com/studio-design/studio-auth/commit/84e557ee1703d2f66bb241bf27de337ee0758744))
+* **sdk:** return the standard interaction_required instead of a custom code ([e9e891d](https://github.com/studio-design/studio-auth/commit/e9e891da8c75163547aaefcad66e051d5a817335))
+
+
+### Bug Fixes
+
+* **sdk:** correct the Referrer-Policy contract and state the BFF obligations ([142b571](https://github.com/studio-design/studio-auth/commit/142b571df4f59a9e9668e8c870ae9ec436b82e30))
+
 ## [0.4.0](https://github.com/studio-design/studio-auth/compare/sdk-v0.3.3...sdk-v0.4.0) (2026-08-07)
 
 
