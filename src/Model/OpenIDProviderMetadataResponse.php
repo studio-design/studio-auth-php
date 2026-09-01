@@ -70,12 +70,12 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         'responseTypesSupported' => 'string[]',
         'responseModesSupported' => 'string[]',
         'grantTypesSupported' => 'string[]',
-        'subjectTypesSupported' => 'string[]',
+        'subjectTypesSupported' => '\Studio\Auth\Model\SubjectType[]',
         'idTokenSigningAlgValuesSupported' => 'string[]',
         'tokenEndpointAuthMethodsSupported' => 'string[]',
         'claimsSupported' => 'string[]',
         'codeChallengeMethodsSupported' => 'string[]',
-        'promptValuesSupported' => 'string[]',
+        'promptValuesSupported' => '\Studio\Auth\Model\Prompt[]',
         'revocationEndpoint' => 'string',
         'introspectionEndpoint' => 'string',
         'endSessionEndpoint' => 'string'
@@ -333,34 +333,6 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     }
 
     public const DISCRIMINATOR_MAP = [];
-    public const SUBJECT_TYPES_SUPPORTED__PUBLIC = 'public';
-    public const PROMPT_VALUES_SUPPORTED_NONE = 'none';
-    public const PROMPT_VALUES_SUPPORTED_LOGIN = 'login';
-
-    /**
-     * Gets allowable values of the enum
-     *
-     * @return string[]
-     */
-    public static function getSubjectTypesSupportedAllowableValues()
-    {
-        return [
-            self::SUBJECT_TYPES_SUPPORTED__PUBLIC,
-        ];
-    }
-
-    /**
-     * Gets allowable values of the enum
-     *
-     * @return string[]
-     */
-    public static function getPromptValuesSupportedAllowableValues()
-    {
-        return [
-            self::PROMPT_VALUES_SUPPORTED_NONE,
-            self::PROMPT_VALUES_SUPPORTED_LOGIN,
-        ];
-    }
 
     /**
      * Associative array for storing property values
@@ -705,7 +677,7 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     /**
      * Gets subjectTypesSupported
      *
-     * @return string[]
+     * @return \Studio\Auth\Model\SubjectType[]
      */
     public function getSubjectTypesSupported(): array
     {
@@ -715,7 +687,7 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     /**
      * Sets subjectTypesSupported
      *
-     * @param string[] $subjectTypesSupported サポートする Subject Identifier タイプのリスト。
+     * @param \Studio\Auth\Model\SubjectType[] $subjectTypesSupported サポートする Subject Identifier タイプのリスト。
      *
      * @return $this
      */
@@ -723,15 +695,6 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     {
         if (is_null($subjectTypesSupported)) {
             throw new InvalidArgumentException('non-nullable subjectTypesSupported cannot be null');
-        }
-        $allowedValues = self::getSubjectTypesSupportedAllowableValues();
-        if (array_diff($subjectTypesSupported, $allowedValues)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    "Invalid value for 'subjectTypesSupported', must be one of '%s'",
-                    implode("', '", $allowedValues)
-                )
-            );
         }
         $this->container['subjectTypesSupported'] = $subjectTypesSupported;
 
@@ -849,7 +812,7 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     /**
      * Gets promptValuesSupported
      *
-     * @return string[]|null
+     * @return \Studio\Auth\Model\Prompt[]|null
      */
     public function getPromptValuesSupported(): ?array
     {
@@ -859,7 +822,7 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     /**
      * Sets promptValuesSupported
      *
-     * @param string[]|null $promptValuesSupported サポートする prompt パラメータ値のリスト (OIDC Discovery 1.0 Section 3)。
+     * @param \Studio\Auth\Model\Prompt[]|null $promptValuesSupported サポートする prompt パラメータ値のリスト (OIDC Discovery 1.0 Section 3)。
      *
      * @return $this
      */
@@ -867,15 +830,6 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
     {
         if (is_null($promptValuesSupported)) {
             throw new InvalidArgumentException('non-nullable promptValuesSupported cannot be null');
-        }
-        $allowedValues = self::getPromptValuesSupportedAllowableValues();
-        if (array_diff($promptValuesSupported, $allowedValues)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    "Invalid value for 'promptValuesSupported', must be one of '%s'",
-                    implode("', '", $allowedValues)
-                )
-            );
         }
         $this->container['promptValuesSupported'] = $promptValuesSupported;
 

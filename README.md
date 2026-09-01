@@ -188,11 +188,14 @@ Class | Method | HTTP request | Description
 - AdminOrganizationMemberListResponse
 - AdminOrganizationMemberUpdateRequest
 - AdminOrganizationUpdateRequest
+- AdminPortalIntent
 - AdminPortalSessionCreateRequest
 - AdminPortalSessionCreatedResponse
 - CheckSsoEnforcementResponse
 - Client
+- ClientType
 - CodeChallengeMethod
+- DomainVerificationStatus
 - EcJsonWebKey
 - GrantType
 - HealthStatus
@@ -205,6 +208,9 @@ Class | Method | HTTP request | Description
 - IntrospectResponseAud
 - InvalidParam
 - JsonWebKey
+- JwkKeyType
+- JwkKeyUse
+- JwkSigningAlg
 - JwksResponse
 - MemberDomainTypeCounts
 - MemberRoleCounts
@@ -219,6 +225,7 @@ Class | Method | HTTP request | Description
 - OrganizationMember
 - OrganizationMemberDomainType
 - OrganizationMemberListResponse
+- OrganizationMemberSortBy
 - OrganizationMemberUpdateRequest
 - OrganizationMemberUser
 - OrganizationRole
@@ -230,8 +237,13 @@ Class | Method | HTTP request | Description
 - RevokeErrorCode
 - RevokeErrorResponse
 - RsaJsonWebKey
+- ScopeValue
 - ServiceInfoResponse
+- SortOrder
+- SsoConnectionStatus
 - SsoEnforcementErrorResponse
+- SubjectType
+- TokenEndpointAuthMethod
 - TokenErrorCode
 - TokenErrorResponse
 - TokenResponse
@@ -264,4 +276,4 @@ MIT License - [LICENSE](LICENSE) を参照してください。
 
 ---
 
-このパッケージは [Studio Auth Service の OpenAPI 仕様](https://github.com/studio-design/studio-auth) から自動生成されています（SDK バージョン: `0.5.0`）。
+このパッケージは [Studio Auth Service の OpenAPI 仕様](https://github.com/studio-design/studio-auth) から自動生成されています（SDK バージョン: `0.5.1-rc.48`）。

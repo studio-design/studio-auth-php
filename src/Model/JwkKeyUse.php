@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * Prompt
+ * JwkKeyUse
  *
  * PHP version 8.1
  *
@@ -30,18 +30,16 @@ declare(strict_types=1);
 namespace Studio\Auth\Model;
 
 /**
- * Prompt Class Doc Comment
+ * JwkKeyUse Class Doc Comment
  *
- * @description OIDC 認証プロンプト制御 (OIDC Core 1.0 Section 3.1.2.1 の subset)。 - &#x60;none&#x60;: ユーザーインタラクションなしで認証を試みる。セッションがない場合は &#x60;login_required&#x60; エラーをリダイレクト - &#x60;login&#x60;: 既存セッションを無視して再認証を強制 - 未指定: セッションがあれば利用、なければ IdP リダイレクト（&#x60;invitation_token&#x60; 指定時は   セッションがあっても IdP へリダイレクト）
+ * @description 公開鍵の用途 (Public Key Use, RFC 7517)。 署名検証用の場合は &#x60;sig&#x60;。
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  */
-enum Prompt: string
+enum JwkKeyUse: string
 {
-    case NONE = 'none';
-
-    case LOGIN = 'login';
+    case SIG = 'sig';
 }
 
 

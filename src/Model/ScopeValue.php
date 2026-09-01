@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * Prompt
+ * ScopeValue
  *
  * PHP version 8.1
  *
@@ -30,18 +30,22 @@ declare(strict_types=1);
 namespace Studio\Auth\Model;
 
 /**
- * Prompt Class Doc Comment
+ * ScopeValue Class Doc Comment
  *
- * @description OIDC 認証プロンプト制御 (OIDC Core 1.0 Section 3.1.2.1 の subset)。 - &#x60;none&#x60;: ユーザーインタラクションなしで認証を試みる。セッションがない場合は &#x60;login_required&#x60; エラーをリダイレクト - &#x60;login&#x60;: 既存セッションを無視して再認証を強制 - 未指定: セッションがあれば利用、なければ IdP リダイレクト（&#x60;invitation_token&#x60; 指定時は   セッションがあっても IdP へリダイレクト）
+ * @description 個別のスコープ値。空白区切りの &#x60;scope&#x60; 文字列 (&#x60;Scope.yaml&#x60;) を構成する 1 要素。  - &#x60;openid&#x60;: OpenID Connect による認証を要求する（必須） - &#x60;profile&#x60;: 氏名等のプロフィールクレームを要求する - &#x60;email&#x60;: メールアドレスのクレームを要求する - &#x60;offline_access&#x60;: リフレッシュトークンの発行を要求する
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  */
-enum Prompt: string
+enum ScopeValue: string
 {
-    case NONE = 'none';
+    case OPENID = 'openid';
 
-    case LOGIN = 'login';
+    case PROFILE = 'profile';
+
+    case EMAIL = 'email';
+
+    case OFFLINE_ACCESS = 'offline_access';
 }
 
 

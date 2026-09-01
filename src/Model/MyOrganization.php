@@ -68,8 +68,8 @@ class MyOrganization implements ModelInterface, ArrayAccess, JsonSerializable
         'isSsoEnforced' => 'bool',
         'createdAt' => '\DateTime',
         'updatedAt' => '\DateTime',
-        'domainVerificationStatus' => 'string',
-        'ssoConnectionStatus' => 'string'
+        'domainVerificationStatus' => '\Studio\Auth\Model\DomainVerificationStatus',
+        'ssoConnectionStatus' => '\Studio\Auth\Model\SsoConnectionStatus'
     ];
 
     /**
@@ -279,42 +279,6 @@ class MyOrganization implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     public const DISCRIMINATOR_MAP = [];
-    public const DOMAIN_VERIFICATION_STATUS_VERIFIED = 'verified';
-    public const DOMAIN_VERIFICATION_STATUS_PENDING = 'pending';
-    public const DOMAIN_VERIFICATION_STATUS_NONE = 'none';
-    public const SSO_CONNECTION_STATUS_ACTIVE = 'active';
-    public const SSO_CONNECTION_STATUS_VALIDATING = 'validating';
-    public const SSO_CONNECTION_STATUS_INACTIVE = 'inactive';
-    public const SSO_CONNECTION_STATUS_NONE = 'none';
-
-    /**
-     * Gets allowable values of the enum
-     *
-     * @return string[]
-     */
-    public static function getDomainVerificationStatusAllowableValues()
-    {
-        return [
-            self::DOMAIN_VERIFICATION_STATUS_VERIFIED,
-            self::DOMAIN_VERIFICATION_STATUS_PENDING,
-            self::DOMAIN_VERIFICATION_STATUS_NONE,
-        ];
-    }
-
-    /**
-     * Gets allowable values of the enum
-     *
-     * @return string[]
-     */
-    public static function getSsoConnectionStatusAllowableValues()
-    {
-        return [
-            self::SSO_CONNECTION_STATUS_ACTIVE,
-            self::SSO_CONNECTION_STATUS_VALIDATING,
-            self::SSO_CONNECTION_STATUS_INACTIVE,
-            self::SSO_CONNECTION_STATUS_NONE,
-        ];
-    }
 
     /**
      * Associative array for storing property values
@@ -408,27 +372,9 @@ class MyOrganization implements ModelInterface, ArrayAccess, JsonSerializable
         if ($this->container['domainVerificationStatus'] === null) {
             $invalidProperties[] = "'domainVerificationStatus' can't be null";
         }
-        $allowedValues = self::getDomainVerificationStatusAllowableValues();
-        if (!is_null($this->container['domainVerificationStatus']) && !in_array($this->container['domainVerificationStatus'], $allowedValues, true)) {
-            $invalidProperties[] = sprintf(
-                "invalid value '%s' for 'domainVerificationStatus', must be one of '%s'",
-                $this->container['domainVerificationStatus'],
-                implode("', '", $allowedValues)
-            );
-        }
-
         if ($this->container['ssoConnectionStatus'] === null) {
             $invalidProperties[] = "'ssoConnectionStatus' can't be null";
         }
-        $allowedValues = self::getSsoConnectionStatusAllowableValues();
-        if (!is_null($this->container['ssoConnectionStatus']) && !in_array($this->container['ssoConnectionStatus'], $allowedValues, true)) {
-            $invalidProperties[] = sprintf(
-                "invalid value '%s' for 'ssoConnectionStatus', must be one of '%s'",
-                $this->container['ssoConnectionStatus'],
-                implode("', '", $allowedValues)
-            );
-        }
-
         return $invalidProperties;
     }
 
@@ -650,9 +596,9 @@ class MyOrganization implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets domainVerificationStatus
      *
-     * @return string
+     * @return \Studio\Auth\Model\DomainVerificationStatus
      */
-    public function getDomainVerificationStatus(): string
+    public function getDomainVerificationStatus(): \Studio\Auth\Model\DomainVerificationStatus
     {
         return $this->container['domainVerificationStatus'];
     }
@@ -660,24 +606,14 @@ class MyOrganization implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets domainVerificationStatus
      *
-     * @param string $domainVerificationStatus 組織のドメイン認証の集約ステータス。 - `verified`: 認証済みドメインが 1 つ以上存在する - `pending`: 申請中ドメインのみ存在する - `none`: 申請されたドメインが存在しない、または外部プロバイダ未連携  外部プロバイダ (WorkOS) API 呼び出しに失敗した場合は `none` を返却します。
+     * @param \Studio\Auth\Model\DomainVerificationStatus $domainVerificationStatus domainVerificationStatus
      *
      * @return $this
      */
-    public function setDomainVerificationStatus(string $domainVerificationStatus): static
+    public function setDomainVerificationStatus(\Studio\Auth\Model\DomainVerificationStatus $domainVerificationStatus): static
     {
         if (is_null($domainVerificationStatus)) {
             throw new InvalidArgumentException('non-nullable domainVerificationStatus cannot be null');
-        }
-        $allowedValues = self::getDomainVerificationStatusAllowableValues();
-        if (!in_array($domainVerificationStatus, $allowedValues, true)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'domainVerificationStatus', must be one of '%s'",
-                    $domainVerificationStatus,
-                    implode("', '", $allowedValues)
-                )
-            );
         }
         $this->container['domainVerificationStatus'] = $domainVerificationStatus;
 
@@ -687,9 +623,9 @@ class MyOrganization implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets ssoConnectionStatus
      *
-     * @return string
+     * @return \Studio\Auth\Model\SsoConnectionStatus
      */
-    public function getSsoConnectionStatus(): string
+    public function getSsoConnectionStatus(): \Studio\Auth\Model\SsoConnectionStatus
     {
         return $this->container['ssoConnectionStatus'];
     }
@@ -697,24 +633,14 @@ class MyOrganization implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets ssoConnectionStatus
      *
-     * @param string $ssoConnectionStatus 組織の SSO connection の集約ステータス。 - `active`: 有効化された connection が 1 つ以上存在する - `validating`: 検証中の connection のみ存在する - `inactive`: 登録済みだが無効化された connection のみ存在する - `none`: connection が登録されていない、または外部プロバイダ未連携  `is_sso_enforced` が SSO 強制 (ON/OFF) を表すのに対し、本フィールドは 設定済み connection の有無を表す独立した派生ステータスです。 外部プロバイダ (WorkOS) API 呼び出しに失敗した場合は `none` を返却します。
+     * @param \Studio\Auth\Model\SsoConnectionStatus $ssoConnectionStatus ssoConnectionStatus
      *
      * @return $this
      */
-    public function setSsoConnectionStatus(string $ssoConnectionStatus): static
+    public function setSsoConnectionStatus(\Studio\Auth\Model\SsoConnectionStatus $ssoConnectionStatus): static
     {
         if (is_null($ssoConnectionStatus)) {
             throw new InvalidArgumentException('non-nullable ssoConnectionStatus cannot be null');
-        }
-        $allowedValues = self::getSsoConnectionStatusAllowableValues();
-        if (!in_array($ssoConnectionStatus, $allowedValues, true)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'ssoConnectionStatus', must be one of '%s'",
-                    $ssoConnectionStatus,
-                    implode("', '", $allowedValues)
-                )
-            );
         }
         $this->container['ssoConnectionStatus'] = $ssoConnectionStatus;
 
