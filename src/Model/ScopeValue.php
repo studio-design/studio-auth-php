@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * CodeChallengeMethod
+ * ScopeValue
  *
  * PHP version 8.1
  *
@@ -30,16 +30,22 @@ declare(strict_types=1);
 namespace Studio\Auth\Model;
 
 /**
- * CodeChallengeMethod Class Doc Comment
+ * ScopeValue Class Doc Comment
  *
- * @description PKCE コードチャレンジメソッド。本実装は S256（SHA-256）のみをサポートします。  **RFC 7636 Section 4.3**: - &#x60;S256&#x60;: code_challenge &#x3D; BASE64URL(SHA256(ASCII(code_verifier))) - &#x60;plain&#x60;: セキュリティ上のリスクがあるため、本実装では非サポート  クライアントは必ず S256 メソッドを使用してください。
+ * @description 個別のスコープ値。空白区切りの &#x60;scope&#x60; 文字列 (&#x60;Scope.yaml&#x60;) を構成する 1 要素。  - &#x60;openid&#x60;: OpenID Connect による認証を要求する（必須） - &#x60;profile&#x60;: 氏名等のプロフィールクレームを要求する - &#x60;email&#x60;: メールアドレスのクレームを要求する - &#x60;offline_access&#x60;: リフレッシュトークンの発行を要求する
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  */
-enum CodeChallengeMethod: string
+enum ScopeValue: string
 {
-    case S256 = 'S256';
+    case OPENID = 'openid';
+
+    case PROFILE = 'profile';
+
+    case EMAIL = 'email';
+
+    case OFFLINE_ACCESS = 'offline_access';
 }
 
 

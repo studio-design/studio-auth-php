@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * CodeChallengeMethod
+ * DomainVerificationStatus
  *
  * PHP version 8.1
  *
@@ -30,16 +30,20 @@ declare(strict_types=1);
 namespace Studio\Auth\Model;
 
 /**
- * CodeChallengeMethod Class Doc Comment
+ * DomainVerificationStatus Class Doc Comment
  *
- * @description PKCE コードチャレンジメソッド。本実装は S256（SHA-256）のみをサポートします。  **RFC 7636 Section 4.3**: - &#x60;S256&#x60;: code_challenge &#x3D; BASE64URL(SHA256(ASCII(code_verifier))) - &#x60;plain&#x60;: セキュリティ上のリスクがあるため、本実装では非サポート  クライアントは必ず S256 メソッドを使用してください。
+ * @description 組織のドメイン認証の集約ステータス。 - &#x60;verified&#x60;: 認証済みドメインが 1 つ以上存在する - &#x60;pending&#x60;: 申請中ドメインのみ存在する - &#x60;none&#x60;: 申請されたドメインが存在しない、または外部プロバイダ未連携  外部プロバイダ (WorkOS) API 呼び出しに失敗した場合は &#x60;none&#x60; を返却します。
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  */
-enum CodeChallengeMethod: string
+enum DomainVerificationStatus: string
 {
-    case S256 = 'S256';
+    case VERIFIED = 'verified';
+
+    case PENDING = 'pending';
+
+    case NONE = 'none';
 }
 
 
