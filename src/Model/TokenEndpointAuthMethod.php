@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * CodeChallengeMethod
+ * TokenEndpointAuthMethod
  *
  * PHP version 8.1
  *
@@ -30,16 +30,20 @@ declare(strict_types=1);
 namespace Studio\Auth\Model;
 
 /**
- * CodeChallengeMethod Class Doc Comment
+ * TokenEndpointAuthMethod Class Doc Comment
  *
- * @description PKCE コードチャレンジメソッド。本実装は S256（SHA-256）のみをサポートします。  **RFC 7636 Section 4.3**: - &#x60;S256&#x60;: code_challenge &#x3D; BASE64URL(SHA256(ASCII(code_verifier))) - &#x60;plain&#x60;: セキュリティ上のリスクがあるため、本実装では非サポート  クライアントは必ず S256 メソッドを使用してください。
+ * @description トークンエンドポイントでのクライアント認証方式 (OIDC Core 1.0 Section 9)。  - &#x60;client_secret_basic&#x60;: HTTP Basic 認証 - &#x60;client_secret_post&#x60;: リクエストボディでの送信 - &#x60;private_key_jwt&#x60;: JWT による認証
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  */
-enum CodeChallengeMethod: string
+enum TokenEndpointAuthMethod: string
 {
-    case S256 = 'S256';
+    case CLIENT_SECRET_BASIC = 'client_secret_basic';
+
+    case CLIENT_SECRET_POST = 'client_secret_post';
+
+    case PRIVATE_KEY_JWT = 'private_key_jwt';
 }
 
 

@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * CodeChallengeMethod
+ * OrganizationMemberSortBy
  *
  * PHP version 8.1
  *
@@ -30,16 +30,24 @@ declare(strict_types=1);
 namespace Studio\Auth\Model;
 
 /**
- * CodeChallengeMethod Class Doc Comment
+ * OrganizationMemberSortBy Class Doc Comment
  *
- * @description PKCE コードチャレンジメソッド。本実装は S256（SHA-256）のみをサポートします。  **RFC 7636 Section 4.3**: - &#x60;S256&#x60;: code_challenge &#x3D; BASE64URL(SHA256(ASCII(code_verifier))) - &#x60;plain&#x60;: セキュリティ上のリスクがあるため、本実装では非サポート  クライアントは必ず S256 メソッドを使用してください。
+ * @description 組織メンバー一覧のソート基準フィールド。 - &#x60;name&#x60;: ユーザー表示名 - &#x60;email&#x60;: ユーザーメールアドレス - &#x60;role&#x60;: 組織内ロール - &#x60;joined_at&#x60;: 組織への参加日時 - &#x60;last_access&#x60;: 組織への最終アクセス日時
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  */
-enum CodeChallengeMethod: string
+enum OrganizationMemberSortBy: string
 {
-    case S256 = 'S256';
+    case NAME = 'name';
+
+    case EMAIL = 'email';
+
+    case ROLE = 'role';
+
+    case JOINED_AT = 'joined_at';
+
+    case LAST_ACCESS = 'last_access';
 }
 
 

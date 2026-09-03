@@ -1,5 +1,28 @@
 # studio-design/studio-auth-php
 
+## [0.6.0](https://github.com/studio-design/studio-auth/compare/sdk-v0.5.0...sdk-v0.6.0) (2026-09-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* **sdk:** the generated SDK now types these against named enums instead of string — Client / AdminClientCreateRequest / AdminClientUpdateRequest / AdminClientCreatedResponse (client_type, allowed_scopes, grant_types_supported, token_endpoint_auth_method), JsonWebKey (kty, use, alg), MyOrganization (domain_verification_status, sso_connection_status), AdminPortalSessionCreateRequest (intent), OpenIDProviderMetadataResponse (subject_types_supported, prompt_values_supported), and the members-list `sort_by` / `sort_order` arguments. The matching `*_ALLOWABLE_VALUES` constants and `get*AllowableValues()` helpers are gone; read the enum cases instead. studio-api requires ^0.3.0 (locked at v0.3.3), so it does not pick this up until that constraint is raised deliberately.
+
+### Features
+
+* **sdk:** extract inline spec enums into leaf schemas ([9977f28](https://github.com/studio-design/studio-auth/commit/9977f280690f7c493ed5209cef398cb9ebd6b8b0))
+
+
+### Bug Fixes
+
+* **sdk:** document that invitation_token bypasses silent SSO ([18687cc](https://github.com/studio-design/studio-auth/commit/18687ccea5276e255ce44c19c04dfc5b442cccb1))
+* **sdk:** document the access_denied redirect for a rejected organization binding ([932bb7c](https://github.com/studio-design/studio-auth/commit/932bb7c84b815b69c891f2c238792072c92f7daa))
+* **sdk:** document the membership rejection on the organization_id parameter ([7cb278e](https://github.com/studio-design/studio-auth/commit/7cb278ed0185c8a148bf1b5aaa4b0a4e3a3827f9))
+* **sdk:** document when the authorize context parameter reaches the IdP ([a6dad76](https://github.com/studio-design/studio-auth/commit/a6dad769140d4906ae1535766f8c2ae24a54bf60)), closes [#1692](https://github.com/studio-design/studio-auth/issues/1692)
+* **sdk:** exclude prompt=none from the context IdP-redirect examples ([133fa08](https://github.com/studio-design/studio-auth/commit/133fa087f84b984b0b0f923e44b8c540b7a4f9ab))
+* **sdk:** scope the access_denied membership rejection to the non-SSO login path ([16cd4cc](https://github.com/studio-design/studio-auth/commit/16cd4cc4b9623cbfb8bd816271fe9250a288fd7c))
+* **sdk:** scope the invitation interaction_required to a live session ([6812905](https://github.com/studio-design/studio-auth/commit/68129054fdc7975f654ff2aaa0b8f511fce6912a))
+* **sdk:** scope the invitation trigger on the interaction_required code ([2307c67](https://github.com/studio-design/studio-auth/commit/2307c6737a6e91dd71731b40ebf40d726fa9aede))
+
 ## [0.5.0](https://github.com/studio-design/studio-auth/compare/sdk-v0.4.0...sdk-v0.5.0) (2026-08-27)
 
 

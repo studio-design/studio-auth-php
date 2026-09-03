@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * CodeChallengeMethod
+ * ClientType
  *
  * PHP version 8.1
  *
@@ -30,16 +30,16 @@ declare(strict_types=1);
 namespace Studio\Auth\Model;
 
 /**
- * CodeChallengeMethod Class Doc Comment
+ * ClientType Class Doc Comment
  *
- * @description PKCE コードチャレンジメソッド。本実装は S256（SHA-256）のみをサポートします。  **RFC 7636 Section 4.3**: - &#x60;S256&#x60;: code_challenge &#x3D; BASE64URL(SHA256(ASCII(code_verifier))) - &#x60;plain&#x60;: セキュリティ上のリスクがあるため、本実装では非サポート  クライアントは必ず S256 メソッドを使用してください。
+ * @description クライアントタイプ。  - &#x60;confidential&#x60;: 機密クライアント（サーバーサイドアプリ）。クライアントシークレットを安全に保持可能。
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  */
-enum CodeChallengeMethod: string
+enum ClientType: string
 {
-    case S256 = 'S256';
+    case CONFIDENTIAL = 'confidential';
 }
 
 
