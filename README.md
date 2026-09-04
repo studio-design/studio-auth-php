@@ -238,6 +238,7 @@ Class | Method | HTTP request | Description
 - RevokeErrorResponse
 - RsaJsonWebKey
 - ScopeValue
+- ScreenHint
 - ServiceInfoResponse
 - SortOrder
 - SsoConnectionStatus
@@ -276,4 +277,4 @@ MIT License - [LICENSE](LICENSE) を参照してください。
 
 ---
 
-このパッケージは [Studio Auth Service の OpenAPI 仕様](https://github.com/studio-design/studio-auth) から自動生成されています（SDK バージョン: `0.6.0`）。
+このパッケージは [Studio Auth Service の OpenAPI 仕様](https://github.com/studio-design/studio-auth) から自動生成されています（SDK バージョン: `0.6.1-rc.50`）。
