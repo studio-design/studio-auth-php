@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * ResponseType
+ * ScreenHint
  *
  * PHP version 8.1
  *
@@ -30,16 +30,18 @@ declare(strict_types=1);
 namespace Studio\Auth\Model;
 
 /**
- * ResponseType Class Doc Comment
+ * ScreenHint Class Doc Comment
  *
- * @description OAuth 2.0 認可リクエストのレスポンスタイプ (RFC 6749 Section 3.1.1)。本実装は Authorization Code フロー のみをサポートします。  - &#x60;code&#x60;: Authorization Code フロー。認可サーバーは &#x60;redirect_uri&#x60; に認可コードを付与してリダイレクトします。
+ * @description WorkOS AuthKit で最初に表示する画面のヒント。 - &#x60;sign-up&#x60;: サインアップ画面を表示するようヒントを送る - &#x60;sign-in&#x60;: サインイン画面を表示するようヒントを送る - 未指定: 本サーバは値を送らず、WorkOS 側の既定に従う（WorkOS SDK v9 の定義では &#x60;sign-in&#x60;）
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  */
-enum ResponseType: string
+enum ScreenHint: string
 {
-    case CODE = 'code';
+    case SIGN_UP = 'sign-up';
+
+    case SIGN_IN = 'sign-in';
 }
 
 

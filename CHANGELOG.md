@@ -1,5 +1,18 @@
 # studio-design/studio-auth-php
 
+## [0.6.1](https://github.com/studio-design/studio-auth/compare/sdk-v0.6.0...sdk-v0.6.1) (2026-09-04)
+
+
+### Features
+
+* /oauth/authorize に screen_hint を追加し WorkOS AuthKit へパススルーする ([40567d7](https://github.com/studio-design/studio-auth/commit/40567d738a4d05082df4ed613c846b76aa773b6d))
+* **sdk:** add screen_hint parameter to /oauth/authorize ([cf9b10d](https://github.com/studio-design/studio-auth/commit/cf9b10d828d76fdc01d7fe3d3d81f9c93a22350f))
+
+
+### Bug Fixes
+
+* **sdk:** correct overstated claims in the screen_hint contract ([fb9ef21](https://github.com/studio-design/studio-auth/commit/fb9ef213cd676c4896a71ceb780d4fece5b1a7ef))
+
 ## [0.6.0](https://github.com/studio-design/studio-auth/compare/sdk-v0.5.0...sdk-v0.6.0) (2026-09-03)
 
 
