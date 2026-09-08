@@ -1,5 +1,12 @@
 # studio-design/studio-auth-php
 
+## [0.6.2](https://github.com/studio-design/studio-auth/compare/sdk-v0.6.1...sdk-v0.6.2) (2026-09-08)
+
+
+### Bug Fixes
+
+* **sdk:** raise the callback state length limit to 1024 ([0fa242d](https://github.com/studio-design/studio-auth/commit/0fa242d8716aef173060c9cff010fe8c94012238)), closes [#1777](https://github.com/studio-design/studio-auth/issues/1777)
+
 ## [0.6.1](https://github.com/studio-design/studio-auth/compare/sdk-v0.6.0...sdk-v0.6.1) (2026-09-04)
 
 
