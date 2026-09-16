@@ -1,5 +1,12 @@
 # studio-design/studio-auth-php
 
+## [0.6.3](https://github.com/studio-design/studio-auth/compare/sdk-v0.6.2...sdk-v0.6.3) (2026-09-16)
+
+
+### Bug Fixes
+
+* token エンドポイントで grant の発行先クライアントと認証済みクライアントを照合する ([b70b56f](https://github.com/studio-design/studio-auth/commit/b70b56fb7707418f2971fcd498c053f42fa294a6))
+
 ## [0.6.2](https://github.com/studio-design/studio-auth/compare/sdk-v0.6.1...sdk-v0.6.2) (2026-09-08)
 
 
