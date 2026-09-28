@@ -1,5 +1,18 @@
 # studio-design/studio-auth-php
 
+## [0.6.4](https://github.com/studio-design/studio-auth/compare/sdk-v0.6.3...sdk-v0.6.4) (2026-09-28)
+
+
+### Features
+
+* **sdk:** /oauth/authorize に max_age パラメータを追加する ([a161343](https://github.com/studio-design/studio-auth/commit/a16134318d5bb05fbf1160bd1627a14d9c494b75))
+
+
+### Bug Fixes
+
+* **sdk:** callback の max_age 説明にフロー内認証の扱いを追記する ([f1f86b4](https://github.com/studio-design/studio-auth/commit/f1f86b42287a3e381c2d3bce3e055df73978984d))
+* **sdk:** 能動認証時刻が不明なセッションは max_age 指定時に再認証になることを説明する ([c80a297](https://github.com/studio-design/studio-auth/commit/c80a297937ef9675710360c22e3507defa7e2912))
+
 ## [0.6.3](https://github.com/studio-design/studio-auth/compare/sdk-v0.6.2...sdk-v0.6.3) (2026-09-16)
 
 
