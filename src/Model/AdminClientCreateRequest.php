@@ -68,7 +68,9 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
         'postLogoutRedirectUris' => 'string[]',
         'allowedScopes' => '\Studio\Auth\Model\ScopeValue[]',
         'grantTypesSupported' => '\Studio\Auth\Model\GrantType[]',
-        'tokenEndpointAuthMethod' => '\Studio\Auth\Model\TokenEndpointAuthMethod'
+        'tokenEndpointAuthMethod' => '\Studio\Auth\Model\TokenEndpointAuthMethod',
+        'tokenEndpointAuthSigningAlg' => '\Studio\Auth\Model\ClientAssertionSigningAlg',
+        'jwks' => '\Studio\Auth\Model\ClientJwkSet'
     ];
 
     /**
@@ -84,7 +86,9 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
         'postLogoutRedirectUris' => 'uri',
         'allowedScopes' => null,
         'grantTypesSupported' => null,
-        'tokenEndpointAuthMethod' => null
+        'tokenEndpointAuthMethod' => null,
+        'tokenEndpointAuthSigningAlg' => null,
+        'jwks' => null
     ];
 
     /**
@@ -100,7 +104,9 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
         'postLogoutRedirectUris' => false,
         'allowedScopes' => false,
         'grantTypesSupported' => false,
-        'tokenEndpointAuthMethod' => false
+        'tokenEndpointAuthMethod' => false,
+        'tokenEndpointAuthSigningAlg' => false,
+        'jwks' => false
     ];
 
     /**
@@ -196,7 +202,9 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
         'postLogoutRedirectUris' => 'post_logout_redirect_uris',
         'allowedScopes' => 'allowed_scopes',
         'grantTypesSupported' => 'grant_types_supported',
-        'tokenEndpointAuthMethod' => 'token_endpoint_auth_method'
+        'tokenEndpointAuthMethod' => 'token_endpoint_auth_method',
+        'tokenEndpointAuthSigningAlg' => 'token_endpoint_auth_signing_alg',
+        'jwks' => 'jwks'
     ];
 
     /**
@@ -212,7 +220,9 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
         'postLogoutRedirectUris' => 'setPostLogoutRedirectUris',
         'allowedScopes' => 'setAllowedScopes',
         'grantTypesSupported' => 'setGrantTypesSupported',
-        'tokenEndpointAuthMethod' => 'setTokenEndpointAuthMethod'
+        'tokenEndpointAuthMethod' => 'setTokenEndpointAuthMethod',
+        'tokenEndpointAuthSigningAlg' => 'setTokenEndpointAuthSigningAlg',
+        'jwks' => 'setJwks'
     ];
 
     /**
@@ -228,7 +238,9 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
         'postLogoutRedirectUris' => 'getPostLogoutRedirectUris',
         'allowedScopes' => 'getAllowedScopes',
         'grantTypesSupported' => 'getGrantTypesSupported',
-        'tokenEndpointAuthMethod' => 'getTokenEndpointAuthMethod'
+        'tokenEndpointAuthMethod' => 'getTokenEndpointAuthMethod',
+        'tokenEndpointAuthSigningAlg' => 'getTokenEndpointAuthSigningAlg',
+        'jwks' => 'getJwks'
     ];
 
     /**
@@ -296,6 +308,8 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
         $this->setIfExists('allowedScopes', $data ?? [], null);
         $this->setIfExists('grantTypesSupported', $data ?? [], null);
         $this->setIfExists('tokenEndpointAuthMethod', $data ?? [], TokenEndpointAuthMethod::CLIENT_SECRET_BASIC);
+        $this->setIfExists('tokenEndpointAuthSigningAlg', $data ?? [], null);
+        $this->setIfExists('jwks', $data ?? [], null);
     }
 
     /**
@@ -617,6 +631,60 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
             throw new InvalidArgumentException('non-nullable tokenEndpointAuthMethod cannot be null');
         }
         $this->container['tokenEndpointAuthMethod'] = $tokenEndpointAuthMethod;
+
+        return $this;
+    }
+
+    /**
+     * Gets tokenEndpointAuthSigningAlg
+     *
+     * @return \Studio\Auth\Model\ClientAssertionSigningAlg|null
+     */
+    public function getTokenEndpointAuthSigningAlg(): ?\Studio\Auth\Model\ClientAssertionSigningAlg
+    {
+        return $this->container['tokenEndpointAuthSigningAlg'];
+    }
+
+    /**
+     * Sets tokenEndpointAuthSigningAlg
+     *
+     * @param \Studio\Auth\Model\ClientAssertionSigningAlg|null $tokenEndpointAuthSigningAlg `token_endpoint_auth_method: private_key_jwt` のときのみ指定可。省略時は `RS256`。
+     *
+     * @return $this
+     */
+    public function setTokenEndpointAuthSigningAlg(?\Studio\Auth\Model\ClientAssertionSigningAlg $tokenEndpointAuthSigningAlg): static
+    {
+        if (is_null($tokenEndpointAuthSigningAlg)) {
+            throw new InvalidArgumentException('non-nullable tokenEndpointAuthSigningAlg cannot be null');
+        }
+        $this->container['tokenEndpointAuthSigningAlg'] = $tokenEndpointAuthSigningAlg;
+
+        return $this;
+    }
+
+    /**
+     * Gets jwks
+     *
+     * @return \Studio\Auth\Model\ClientJwkSet|null
+     */
+    public function getJwks(): ?\Studio\Auth\Model\ClientJwkSet
+    {
+        return $this->container['jwks'];
+    }
+
+    /**
+     * Sets jwks
+     *
+     * @param \Studio\Auth\Model\ClientJwkSet|null $jwks `token_endpoint_auth_method: private_key_jwt` のとき必須（`jwks_uri` と排他、RFC 7591 §2）。 それ以外の認証方式では指定できない。
+     *
+     * @return $this
+     */
+    public function setJwks(?\Studio\Auth\Model\ClientJwkSet $jwks): static
+    {
+        if (is_null($jwks)) {
+            throw new InvalidArgumentException('non-nullable jwks cannot be null');
+        }
+        $this->container['jwks'] = $jwks;
 
         return $this;
     }

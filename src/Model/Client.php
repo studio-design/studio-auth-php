@@ -70,6 +70,8 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         'allowedScopes' => '\Studio\Auth\Model\ScopeValue[]',
         'grantTypesSupported' => '\Studio\Auth\Model\GrantType[]',
         'tokenEndpointAuthMethod' => '\Studio\Auth\Model\TokenEndpointAuthMethod',
+        'tokenEndpointAuthSigningAlg' => '\Studio\Auth\Model\ClientAssertionSigningAlg',
+        'jwksUri' => 'string',
         'isActive' => 'bool',
         'createdAt' => '\DateTime',
         'updatedAt' => '\DateTime'
@@ -90,6 +92,8 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         'allowedScopes' => null,
         'grantTypesSupported' => null,
         'tokenEndpointAuthMethod' => null,
+        'tokenEndpointAuthSigningAlg' => null,
+        'jwksUri' => 'uri',
         'isActive' => null,
         'createdAt' => 'date-time',
         'updatedAt' => 'date-time'
@@ -110,6 +114,8 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         'allowedScopes' => false,
         'grantTypesSupported' => false,
         'tokenEndpointAuthMethod' => false,
+        'tokenEndpointAuthSigningAlg' => true,
+        'jwksUri' => true,
         'isActive' => false,
         'createdAt' => false,
         'updatedAt' => false
@@ -210,6 +216,8 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         'allowedScopes' => 'allowed_scopes',
         'grantTypesSupported' => 'grant_types_supported',
         'tokenEndpointAuthMethod' => 'token_endpoint_auth_method',
+        'tokenEndpointAuthSigningAlg' => 'token_endpoint_auth_signing_alg',
+        'jwksUri' => 'jwks_uri',
         'isActive' => 'is_active',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
@@ -230,6 +238,8 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         'allowedScopes' => 'setAllowedScopes',
         'grantTypesSupported' => 'setGrantTypesSupported',
         'tokenEndpointAuthMethod' => 'setTokenEndpointAuthMethod',
+        'tokenEndpointAuthSigningAlg' => 'setTokenEndpointAuthSigningAlg',
+        'jwksUri' => 'setJwksUri',
         'isActive' => 'setIsActive',
         'createdAt' => 'setCreatedAt',
         'updatedAt' => 'setUpdatedAt'
@@ -250,6 +260,8 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         'allowedScopes' => 'getAllowedScopes',
         'grantTypesSupported' => 'getGrantTypesSupported',
         'tokenEndpointAuthMethod' => 'getTokenEndpointAuthMethod',
+        'tokenEndpointAuthSigningAlg' => 'getTokenEndpointAuthSigningAlg',
+        'jwksUri' => 'getJwksUri',
         'isActive' => 'getIsActive',
         'createdAt' => 'getCreatedAt',
         'updatedAt' => 'getUpdatedAt'
@@ -321,6 +333,8 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         $this->setIfExists('allowedScopes', $data ?? [], null);
         $this->setIfExists('grantTypesSupported', $data ?? [], null);
         $this->setIfExists('tokenEndpointAuthMethod', $data ?? [], null);
+        $this->setIfExists('tokenEndpointAuthSigningAlg', $data ?? [], null);
+        $this->setIfExists('jwksUri', $data ?? [], null);
         $this->setIfExists('isActive', $data ?? [], true);
         $this->setIfExists('createdAt', $data ?? [], null);
         $this->setIfExists('updatedAt', $data ?? [], null);
@@ -413,6 +427,16 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         if ($this->container['tokenEndpointAuthMethod'] === null) {
             $invalidProperties[] = "'tokenEndpointAuthMethod' can't be null";
         }
+        if ($this->container['tokenEndpointAuthSigningAlg'] === null && !$this->isNullableSetToNull('tokenEndpointAuthSigningAlg')) {
+            $invalidProperties[] = "'tokenEndpointAuthSigningAlg' is required";
+        }
+        if ($this->container['jwksUri'] === null && !$this->isNullableSetToNull('jwksUri')) {
+            $invalidProperties[] = "'jwksUri' is required";
+        }
+        if (!is_null($this->container['jwksUri']) && (mb_strlen($this->container['jwksUri']) > 512)) {
+            $invalidProperties[] = "invalid value for 'jwksUri', the character length must be smaller than or equal to 512.";
+        }
+
         if ($this->container['isActive'] === null) {
             $invalidProperties[] = "'isActive' can't be null";
         }
@@ -719,6 +743,78 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
             throw new InvalidArgumentException('non-nullable tokenEndpointAuthMethod cannot be null');
         }
         $this->container['tokenEndpointAuthMethod'] = $tokenEndpointAuthMethod;
+
+        return $this;
+    }
+
+    /**
+     * Gets tokenEndpointAuthSigningAlg
+     *
+     * @return \Studio\Auth\Model\ClientAssertionSigningAlg|null
+     */
+    public function getTokenEndpointAuthSigningAlg(): ?\Studio\Auth\Model\ClientAssertionSigningAlg
+    {
+        return $this->container['tokenEndpointAuthSigningAlg'];
+    }
+
+    /**
+     * Sets tokenEndpointAuthSigningAlg
+     *
+     * @param \Studio\Auth\Model\ClientAssertionSigningAlg|null $tokenEndpointAuthSigningAlg client assertion の署名アルゴリズム。`private_key_jwt` 以外では `null`。
+     *
+     * @return $this
+     */
+    public function setTokenEndpointAuthSigningAlg(?\Studio\Auth\Model\ClientAssertionSigningAlg $tokenEndpointAuthSigningAlg): static
+    {
+        if (is_null($tokenEndpointAuthSigningAlg)) {
+            array_push($this->openAPINullablesSetToNull, 'tokenEndpointAuthSigningAlg');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('tokenEndpointAuthSigningAlg', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['tokenEndpointAuthSigningAlg'] = $tokenEndpointAuthSigningAlg;
+
+        return $this;
+    }
+
+    /**
+     * Gets jwksUri
+     *
+     * @return string|null
+     */
+    public function getJwksUri(): ?string
+    {
+        return $this->container['jwksUri'];
+    }
+
+    /**
+     * Sets jwksUri
+     *
+     * @param string|null $jwksUri 公開鍵を取得する JWK Set の URL。静的登録のクライアントと secret 系のクライアントでは `null`。
+     *
+     * @return $this
+     */
+    public function setJwksUri(?string $jwksUri): static
+    {
+        if (is_null($jwksUri)) {
+            array_push($this->openAPINullablesSetToNull, 'jwksUri');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('jwksUri', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        if (!is_null($jwksUri) && (mb_strlen($jwksUri) > 512)) {
+            throw new InvalidArgumentException('invalid length for $jwksUri when calling Client., must be smaller than or equal to 512.');
+        }
+
+        $this->container['jwksUri'] = $jwksUri;
 
         return $this;
     }
