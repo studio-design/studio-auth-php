@@ -1,5 +1,17 @@
 # studio-design/studio-auth-php
 
+## [0.7.0](https://github.com/studio-design/studio-auth/compare/sdk-v0.6.4...sdk-v0.7.0) (2026-10-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* **sdk:** wire payloads are unchanged; the declared TypeScript property `IntrospectResponse.username` and the PHP SDK accessors `getUsername()` / `setUsername()` are removed. studio-api reads getActive / getOrgId / getSub only. 0.x + bump-minor-pre-major lands this as sdk 0.6.4 → 0.7.0.
+
+### Bug Fixes
+
+* **sdk:** describe revoke as refresh-token-only and introspect as access-token-only ([964cd39](https://github.com/studio-design/studio-auth/commit/964cd39c5ace4ec8e62875a9cec34d2624c3c107)), closes [#2022](https://github.com/studio-design/studio-auth/issues/2022)
+* **sdk:** drop the username member from the introspection response ([3830583](https://github.com/studio-design/studio-auth/commit/38305832739e1aecd7b22a4cf3cadf555cb4b191))
+
 ## [0.6.4](https://github.com/studio-design/studio-auth/compare/sdk-v0.6.3...sdk-v0.6.4) (2026-09-28)
 
 
