@@ -1,5 +1,15 @@
 # studio-design/studio-auth-php
 
+## [0.7.1](https://github.com/studio-design/studio-auth/compare/sdk-v0.7.0...sdk-v0.7.1) (2026-10-17)
+
+
+### Features
+
+* Admin API で jwks_uri を指定して private_key_jwt のクライアントを登録できるようにする ([b9cd927](https://github.com/studio-design/studio-auth/commit/b9cd9277c9899988ab48d368f88818b19df2e3d7))
+* private_key_jwt のクライアントを、ドメイン層を通して secret 無しで作成できるようにする ([7ae68fe](https://github.com/studio-design/studio-auth/commit/7ae68fe8e153d43a7c601a66642ece28adc86b34))
+* **sdk:** accept jwks_uri when registering a private_key_jwt client ([322b973](https://github.com/studio-design/studio-auth/commit/322b9732fd38b69a2c83b8a0cac0b369c0cb3a4b))
+* **sdk:** describe private_key_jwt key registration on the admin client API ([90fa04b](https://github.com/studio-design/studio-auth/commit/90fa04bdbb36e9b861aaefe1a9251e8418612c65))
+
 ## [0.7.0](https://github.com/studio-design/studio-auth/compare/sdk-v0.6.4...sdk-v0.7.0) (2026-10-14)
 
 
