@@ -1,5 +1,17 @@
 # studio-design/studio-auth-php
 
+## [0.7.2](https://github.com/studio-design/studio-auth/compare/sdk-v0.7.1...sdk-v0.7.2) (2026-10-18)
+
+
+### Features
+
+* id_token_hint が無いか現在の OP セッションと一致しないログアウトで End-User に確認する ([87df58c](https://github.com/studio-design/studio-auth/commit/87df58c0e35da03a77856bda2a9a6f9987d2542c))
+
+
+### Bug Fixes
+
+* nbf 付き client assertion の未来 iat をサーバの時計に対して拒否する ([0ab837f](https://github.com/studio-design/studio-auth/commit/0ab837f4706270d4435b1752d4431f92acd996c5))
+
 ## [0.7.1](https://github.com/studio-design/studio-auth/compare/sdk-v0.7.0...sdk-v0.7.1) (2026-10-17)
 
 
