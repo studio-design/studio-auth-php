@@ -73,6 +73,8 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         'subjectTypesSupported' => '\Studio\Auth\Model\SubjectType[]',
         'idTokenSigningAlgValuesSupported' => 'string[]',
         'tokenEndpointAuthMethodsSupported' => 'string[]',
+        'introspectionEndpointAuthMethodsSupported' => 'string[]',
+        'revocationEndpointAuthMethodsSupported' => 'string[]',
         'claimsSupported' => 'string[]',
         'codeChallengeMethodsSupported' => 'string[]',
         'promptValuesSupported' => '\Studio\Auth\Model\Prompt[]',
@@ -99,6 +101,8 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         'subjectTypesSupported' => null,
         'idTokenSigningAlgValuesSupported' => null,
         'tokenEndpointAuthMethodsSupported' => null,
+        'introspectionEndpointAuthMethodsSupported' => null,
+        'revocationEndpointAuthMethodsSupported' => null,
         'claimsSupported' => null,
         'codeChallengeMethodsSupported' => null,
         'promptValuesSupported' => null,
@@ -125,6 +129,8 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         'subjectTypesSupported' => false,
         'idTokenSigningAlgValuesSupported' => false,
         'tokenEndpointAuthMethodsSupported' => false,
+        'introspectionEndpointAuthMethodsSupported' => false,
+        'revocationEndpointAuthMethodsSupported' => false,
         'claimsSupported' => false,
         'codeChallengeMethodsSupported' => false,
         'promptValuesSupported' => false,
@@ -231,6 +237,8 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         'subjectTypesSupported' => 'subject_types_supported',
         'idTokenSigningAlgValuesSupported' => 'id_token_signing_alg_values_supported',
         'tokenEndpointAuthMethodsSupported' => 'token_endpoint_auth_methods_supported',
+        'introspectionEndpointAuthMethodsSupported' => 'introspection_endpoint_auth_methods_supported',
+        'revocationEndpointAuthMethodsSupported' => 'revocation_endpoint_auth_methods_supported',
         'claimsSupported' => 'claims_supported',
         'codeChallengeMethodsSupported' => 'code_challenge_methods_supported',
         'promptValuesSupported' => 'prompt_values_supported',
@@ -257,6 +265,8 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         'subjectTypesSupported' => 'setSubjectTypesSupported',
         'idTokenSigningAlgValuesSupported' => 'setIdTokenSigningAlgValuesSupported',
         'tokenEndpointAuthMethodsSupported' => 'setTokenEndpointAuthMethodsSupported',
+        'introspectionEndpointAuthMethodsSupported' => 'setIntrospectionEndpointAuthMethodsSupported',
+        'revocationEndpointAuthMethodsSupported' => 'setRevocationEndpointAuthMethodsSupported',
         'claimsSupported' => 'setClaimsSupported',
         'codeChallengeMethodsSupported' => 'setCodeChallengeMethodsSupported',
         'promptValuesSupported' => 'setPromptValuesSupported',
@@ -283,6 +293,8 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         'subjectTypesSupported' => 'getSubjectTypesSupported',
         'idTokenSigningAlgValuesSupported' => 'getIdTokenSigningAlgValuesSupported',
         'tokenEndpointAuthMethodsSupported' => 'getTokenEndpointAuthMethodsSupported',
+        'introspectionEndpointAuthMethodsSupported' => 'getIntrospectionEndpointAuthMethodsSupported',
+        'revocationEndpointAuthMethodsSupported' => 'getRevocationEndpointAuthMethodsSupported',
         'claimsSupported' => 'getClaimsSupported',
         'codeChallengeMethodsSupported' => 'getCodeChallengeMethodsSupported',
         'promptValuesSupported' => 'getPromptValuesSupported',
@@ -360,6 +372,8 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         $this->setIfExists('subjectTypesSupported', $data ?? [], null);
         $this->setIfExists('idTokenSigningAlgValuesSupported', $data ?? [], null);
         $this->setIfExists('tokenEndpointAuthMethodsSupported', $data ?? [], null);
+        $this->setIfExists('introspectionEndpointAuthMethodsSupported', $data ?? [], null);
+        $this->setIfExists('revocationEndpointAuthMethodsSupported', $data ?? [], null);
         $this->setIfExists('claimsSupported', $data ?? [], null);
         $this->setIfExists('codeChallengeMethodsSupported', $data ?? [], null);
         $this->setIfExists('promptValuesSupported', $data ?? [], null);
@@ -751,6 +765,60 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
             throw new InvalidArgumentException('non-nullable tokenEndpointAuthMethodsSupported cannot be null');
         }
         $this->container['tokenEndpointAuthMethodsSupported'] = $tokenEndpointAuthMethodsSupported;
+
+        return $this;
+    }
+
+    /**
+     * Gets introspectionEndpointAuthMethodsSupported
+     *
+     * @return string[]|null
+     */
+    public function getIntrospectionEndpointAuthMethodsSupported(): ?array
+    {
+        return $this->container['introspectionEndpointAuthMethodsSupported'];
+    }
+
+    /**
+     * Sets introspectionEndpointAuthMethodsSupported
+     *
+     * @param string[]|null $introspectionEndpointAuthMethodsSupported イントロスペクションエンドポイントでサポートするクライアント認証方式のリスト (RFC 8414 Section 2)。
+     *
+     * @return $this
+     */
+    public function setIntrospectionEndpointAuthMethodsSupported(?array $introspectionEndpointAuthMethodsSupported): static
+    {
+        if (is_null($introspectionEndpointAuthMethodsSupported)) {
+            throw new InvalidArgumentException('non-nullable introspectionEndpointAuthMethodsSupported cannot be null');
+        }
+        $this->container['introspectionEndpointAuthMethodsSupported'] = $introspectionEndpointAuthMethodsSupported;
+
+        return $this;
+    }
+
+    /**
+     * Gets revocationEndpointAuthMethodsSupported
+     *
+     * @return string[]|null
+     */
+    public function getRevocationEndpointAuthMethodsSupported(): ?array
+    {
+        return $this->container['revocationEndpointAuthMethodsSupported'];
+    }
+
+    /**
+     * Sets revocationEndpointAuthMethodsSupported
+     *
+     * @param string[]|null $revocationEndpointAuthMethodsSupported トークン取り消しエンドポイントでサポートするクライアント認証方式のリスト (RFC 8414 Section 2)。
+     *
+     * @return $this
+     */
+    public function setRevocationEndpointAuthMethodsSupported(?array $revocationEndpointAuthMethodsSupported): static
+    {
+        if (is_null($revocationEndpointAuthMethodsSupported)) {
+            throw new InvalidArgumentException('non-nullable revocationEndpointAuthMethodsSupported cannot be null');
+        }
+        $this->container['revocationEndpointAuthMethodsSupported'] = $revocationEndpointAuthMethodsSupported;
 
         return $this;
     }
