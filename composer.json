@@ -26,8 +26,15 @@
         "ext-curl": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
+        "ext-openssl": "*",
         "guzzlehttp/guzzle": "^7.4.5",
-        "guzzlehttp/psr7": "^2.0"
+        "guzzlehttp/psr7": "^2.0",
+        "psr/clock": "^1.0",
+        "psr/simple-cache": "^1.0 || ^2.0 || ^3.0",
+        "studio-design/ecdsa-signature": "^1.0"
+    },
+    "suggest": {
+        "google/cloud-kms": "Signs client assertions with Cloud KMS via Studio\\Auth\\ClientAssertion\\Kms (^2.8)"
     },
     "autoload": {
         "psr-4": { "Studio\\Auth\\" : "src/" }
