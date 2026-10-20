@@ -1,5 +1,19 @@
 # studio-design/studio-auth-php
 
+## [0.7.3](https://github.com/studio-design/studio-auth/compare/sdk-v0.7.2...sdk-v0.7.3) (2026-10-20)
+
+
+### Features
+
+* introspect / revoke で private_key_jwt のクライアント認証を受け付ける ([660dc04](https://github.com/studio-design/studio-auth/commit/660dc046a6fad1cb9f0569fc2f188fb9828568b8))
+* **sdk:** accept private_key_jwt client assertions on introspect and revoke ([31a5b0a](https://github.com/studio-design/studio-auth/commit/31a5b0aaef10f002fd9938bb1582351c73fd48fc))
+* **sdk:** advertise client assertion signing algorithms in discovery ([88bfa1f](https://github.com/studio-design/studio-auth/commit/88bfa1fb576dbb9c78d03178cad659b774d710ed))
+
+
+### Bug Fixes
+
+* discovery に token / introspection / revocation の *_auth_signing_alg_values_supported を出す ([ae272b7](https://github.com/studio-design/studio-auth/commit/ae272b7054e319e81753609921d6967f110bc3b1))
+
 ## [0.7.2](https://github.com/studio-design/studio-auth/compare/sdk-v0.7.1...sdk-v0.7.2) (2026-10-18)
 
 
