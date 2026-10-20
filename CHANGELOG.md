@@ -1,5 +1,25 @@
 # studio-design/studio-auth-php
 
+## [0.7.4](https://github.com/studio-design/studio-auth/compare/sdk-v0.7.3...sdk-v0.7.4) (2026-10-20)
+
+
+### Features
+
+* **sdk:** add CRC-32C and RFC 7638 thumbprint helpers for client assertions ([1bd03dd](https://github.com/studio-design/studio-auth/commit/1bd03dd1f73d80c816b3f8e6cb2aa0cbbdf7b43c))
+* **sdk:** add shared KMS operation deadlines ([9850285](https://github.com/studio-design/studio-auth/commit/9850285409ab0d62109d24b01294a59a2fbd2ab7))
+* **sdk:** build private_key_jwt client assertions with a pluggable signer ([42fa832](https://github.com/studio-design/studio-auth/commit/42fa832d972c379f801b1ad1faaec26e863ab3d0))
+* **sdk:** convert Cloud KMS PEM public keys to P-256 JWKs with thumbprint kids ([f431171](https://github.com/studio-design/studio-auth/commit/f4311711da1093c38149df3d33d7fec12b3f0e92))
+* **sdk:** PHP SDK で private_key_jwt の client assertion を Cloud KMS で署名できるようにする ([6100d70](https://github.com/studio-design/studio-auth/commit/6100d700084b0c3ad691fbc982d224ec607093d7))
+* **sdk:** sign client assertions with Cloud KMS and publish key versions as a JWKS ([b89e0d6](https://github.com/studio-design/studio-auth/commit/b89e0d63a07004c569576ddf41620ea4be77d7d4))
+
+
+### Bug Fixes
+
+* **sdk:** bound KMS RPCs and paginated inventory calls ([149fc00](https://github.com/studio-design/studio-auth/commit/149fc00252344d701db7fb08f1f25de53f296520))
+* **sdk:** reject Cloud KMS public keys returned for another key version ([5266d5b](https://github.com/studio-design/studio-auth/commit/5266d5b1a734f1ab0728bdab23fc49002d200faa))
+* ログアウトで client_id が id_token_hint の発行先と食い違うリクエストを 400 で拒否する ([ca17079](https://github.com/studio-design/studio-auth/commit/ca170793309cb587869c6fd9adcd40fb95ec3d85))
+* 組織から外されたユーザーの org_id 付きアクセストークンを introspection で inactive にする ([8f38739](https://github.com/studio-design/studio-auth/commit/8f387399f058de46cb41efc1832e6b1acc9514ee))
+
 ## [0.7.3](https://github.com/studio-design/studio-auth/compare/sdk-v0.7.2...sdk-v0.7.3) (2026-10-20)
 
 
