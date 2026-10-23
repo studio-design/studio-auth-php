@@ -1,5 +1,19 @@
 # studio-design/studio-auth-php
 
+## [0.7.5](https://github.com/studio-design/studio-auth/compare/sdk-v0.7.4...sdk-v0.7.5) (2026-10-23)
+
+
+### Features
+
+* authorize で grant の登録を見て、コード交換で現在の allowed_scopes に縮める ([bc4aaf1](https://github.com/studio-design/studio-auth/commit/bc4aaf15ab1f549ac547f48e1e071f5a82e368b5))
+* **sdk:** reject /oauth/authorize with unauthorized_client when authorization_code is not registered ([910f6e5](https://github.com/studio-design/studio-auth/commit/910f6e5406614974a62e534a6b55af09ea001629))
+
+
+### Bug Fixes
+
+* callback が RP へ転送する error_description を error ごとの固定文にする ([6d85a69](https://github.com/studio-design/studio-auth/commit/6d85a69b410d53a442b2b7ee6b1c7351a22784bf))
+* 未知の grant_type に unsupported_grant_type を返す ([9ef1e7e](https://github.com/studio-design/studio-auth/commit/9ef1e7eae6d57504f3a0e71a8308b768aea1e53f))
+
 ## [0.7.4](https://github.com/studio-design/studio-auth/compare/sdk-v0.7.3...sdk-v0.7.4) (2026-10-20)
 
 
