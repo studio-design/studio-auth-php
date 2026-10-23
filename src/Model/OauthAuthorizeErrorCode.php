@@ -32,7 +32,7 @@ namespace Studio\Auth\Model;
 /**
  * OauthAuthorizeErrorCode Class Doc Comment
  *
- * @description &#x60;/oauth/authorize&#x60; が 422 Problem Details (&#x60;application/problem+json&#x60;) のレスポンスボディで &#x60;extensions.error&#x60; に設定する OAuth 2.0 エラーコード (RFC 6749 Section 4.1.2.1)。  本実装が実際に返す値のみ列挙しています。&#x60;invalid_scope&#x60; については &#x60;extensions.error&#x60; ではなく より詳細な &#x60;extensions.scope_violation&#x60; 経由で通知されるため本 enum には含みません。  - &#x60;invalid_request&#x60;: リクエストに必須パラメータが不足、無効なパラメータ値、または不正な形式 (PKCE S256 未指定、&#x60;state&#x60; / &#x60;nonce&#x60; 不正、組織指定不正など) - &#x60;unsupported_response_type&#x60;: &#x60;response_type&#x60; が &#x60;code&#x60; 以外。本実装は Authorization Code フローのみサポート
+ * @description &#x60;/oauth/authorize&#x60; が 422 Problem Details (&#x60;application/problem+json&#x60;) のレスポンスボディで &#x60;extensions.error&#x60; に設定する OAuth 2.0 エラーコード (RFC 6749 Section 4.1.2.1)。  本実装が実際に返す値のみ列挙しています。&#x60;invalid_scope&#x60; については &#x60;extensions.error&#x60; ではなく より詳細な &#x60;extensions.scope_violation&#x60; 経由で通知されるため本 enum には含みません。  - &#x60;invalid_request&#x60;: リクエストに必須パラメータが不足、無効なパラメータ値、または不正な形式 (PKCE S256 未指定、&#x60;state&#x60; / &#x60;nonce&#x60; 不正、組織指定不正など) - &#x60;unsupported_response_type&#x60;: &#x60;response_type&#x60; が &#x60;code&#x60; 以外。本実装は Authorization Code フローのみサポート - &#x60;unauthorized_client&#x60;: クライアント登録の &#x60;grant_types_supported&#x60; に &#x60;authorization_code&#x60; が無い (RFC 6749 Section 4.1.2.1)。認可リクエスト行も IdP へのリダイレクトも作られません
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
@@ -42,6 +42,8 @@ enum OauthAuthorizeErrorCode: string
     case INVALID_REQUEST = 'invalid_request';
 
     case UNSUPPORTED_RESPONSE_TYPE = 'unsupported_response_type';
+
+    case UNAUTHORIZED_CLIENT = 'unauthorized_client';
 }
 
 
