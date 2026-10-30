@@ -230,6 +230,15 @@ HTTP の判定は transport の handler で行います。GAX は handler が返
 `KmsKeyVersionInventory` がキャッシュを書くのは全ページと全公開鍵を取り終えたときだけで、途中で失敗したら値も取得時刻も
 変えません（キャッシュがあれば前回の完全な一覧、無ければ例外）。
 
+### セキュリティ設定画面へのリンク
+
+ユーザー本人がパスワードと 2 段階認証を設定する画面の URL を返します。API は呼びません。リンクとして置き、新しいタブで開いてください（パラメータ・戻り先は指定できません）。
+
+```php
+$url = Studio\Auth\SecuritySettings::url('https://auth.studio.design');
+// https://auth.studio.design/account/security
+```
+
 ### アクセストークンの取得
 
 Bearer 認証で使うアクセストークンは、Authorization Code + PKCE フロー（`/oauth/authorize` → `/oauth/token`）で発行されます。有効期限切れ時は `refresh_token` グラントで再発行します。フローの詳細は社内ポータルの API リファレンスを参照してください。`client_id` / `client_secret` は Auth Service 管理者がアプリケーションごとに発行します。
@@ -417,4 +426,4 @@ MIT License - [LICENSE](LICENSE) を参照してください。
 
 ---
 
-このパッケージは [Studio Auth Service の OpenAPI 仕様](https://github.com/studio-design/studio-auth) から自動生成されています（SDK バージョン: `0.7.6`）。
+このパッケージは [Studio Auth Service の OpenAPI 仕様](https://github.com/studio-design/studio-auth) から自動生成されています（SDK バージョン: `0.7.7`）。
