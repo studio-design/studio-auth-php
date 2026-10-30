@@ -1,5 +1,12 @@
 # studio-design/studio-auth-php
 
+## [0.7.6](https://github.com/studio-design/studio-auth/compare/sdk-v0.7.5...sdk-v0.7.6) (2026-10-30)
+
+
+### Bug Fixes
+
+* 組織 API でアクセストークンの org_id と操作先の組織の一致を要求する ([f6d80c6](https://github.com/studio-design/studio-auth/commit/f6d80c64426f6c9d8962830039b7dfd6a79a0b4d))
+
 ## [0.7.5](https://github.com/studio-design/studio-auth/compare/sdk-v0.7.4...sdk-v0.7.5) (2026-10-23)
 
 
