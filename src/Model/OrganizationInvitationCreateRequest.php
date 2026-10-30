@@ -286,7 +286,7 @@ class OrganizationInvitationCreateRequest implements ModelInterface, ArrayAccess
         if ($this->container['email'] === null) {
             $invalidProperties[] = "'email' can't be null";
         }
-        if ((mb_strlen($this->container['email']) > 255)) {
+        if ((mb_strlen($this->container['email'], 'UTF-8') > 255)) {
             $invalidProperties[] = "invalid value for 'email', the character length must be smaller than or equal to 255.";
         }
 
@@ -330,7 +330,7 @@ class OrganizationInvitationCreateRequest implements ModelInterface, ArrayAccess
         if (is_null($email)) {
             throw new InvalidArgumentException('non-nullable email cannot be null');
         }
-        if ((mb_strlen($email) > 255)) {
+        if ((mb_strlen($email, 'UTF-8') > 255)) {
             throw new InvalidArgumentException('invalid length for $email when calling OrganizationInvitationCreateRequest., must be smaller than or equal to 255.');
         }
 

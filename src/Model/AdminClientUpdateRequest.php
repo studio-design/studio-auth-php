@@ -332,15 +332,15 @@ class AdminClientUpdateRequest implements ModelInterface, ArrayAccess, JsonSeria
     {
         $invalidProperties = [];
 
-        if (!is_null($this->container['clientName']) && (mb_strlen($this->container['clientName']) > 255)) {
+        if (!is_null($this->container['clientName']) && (mb_strlen($this->container['clientName'], 'UTF-8') > 255)) {
             $invalidProperties[] = "invalid value for 'clientName', the character length must be smaller than or equal to 255.";
         }
 
-        if (!is_null($this->container['clientName']) && (mb_strlen($this->container['clientName']) < 1)) {
+        if (!is_null($this->container['clientName']) && (mb_strlen($this->container['clientName'], 'UTF-8') < 1)) {
             $invalidProperties[] = "invalid value for 'clientName', the character length must be bigger than or equal to 1.";
         }
 
-        if (!is_null($this->container['description']) && (mb_strlen($this->container['description']) > 1000)) {
+        if (!is_null($this->container['description']) && (mb_strlen($this->container['description'], 'UTF-8') > 1000)) {
             $invalidProperties[] = "invalid value for 'description', the character length must be smaller than or equal to 1000.";
         }
 
@@ -356,7 +356,7 @@ class AdminClientUpdateRequest implements ModelInterface, ArrayAccess, JsonSeria
             $invalidProperties[] = "invalid value for 'grantTypesSupported', number of items must be greater than or equal to 1.";
         }
 
-        if (!is_null($this->container['idpApplicationId']) && (mb_strlen($this->container['idpApplicationId']) > 255)) {
+        if (!is_null($this->container['idpApplicationId']) && (mb_strlen($this->container['idpApplicationId'], 'UTF-8') > 255)) {
             $invalidProperties[] = "invalid value for 'idpApplicationId', the character length must be smaller than or equal to 255.";
         }
 
@@ -397,10 +397,10 @@ class AdminClientUpdateRequest implements ModelInterface, ArrayAccess, JsonSeria
         if (is_null($clientName)) {
             throw new InvalidArgumentException('non-nullable clientName cannot be null');
         }
-        if ((mb_strlen($clientName) > 255)) {
+        if ((mb_strlen($clientName, 'UTF-8') > 255)) {
             throw new InvalidArgumentException('invalid length for $clientName when calling AdminClientUpdateRequest., must be smaller than or equal to 255.');
         }
-        if ((mb_strlen($clientName) < 1)) {
+        if ((mb_strlen($clientName, 'UTF-8') < 1)) {
             throw new InvalidArgumentException('invalid length for $clientName when calling AdminClientUpdateRequest., must be bigger than or equal to 1.');
         }
 
@@ -438,7 +438,7 @@ class AdminClientUpdateRequest implements ModelInterface, ArrayAccess, JsonSeria
                 $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
             }
         }
-        if (!is_null($description) && (mb_strlen($description) > 1000)) {
+        if (!is_null($description) && (mb_strlen($description, 'UTF-8') > 1000)) {
             throw new InvalidArgumentException('invalid length for $description when calling AdminClientUpdateRequest., must be smaller than or equal to 1000.');
         }
 
@@ -653,7 +653,7 @@ class AdminClientUpdateRequest implements ModelInterface, ArrayAccess, JsonSeria
                 $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
             }
         }
-        if (!is_null($idpApplicationId) && (mb_strlen($idpApplicationId) > 255)) {
+        if (!is_null($idpApplicationId) && (mb_strlen($idpApplicationId, 'UTF-8') > 255)) {
             throw new InvalidArgumentException('invalid length for $idpApplicationId when calling AdminClientUpdateRequest., must be smaller than or equal to 255.');
         }
 

@@ -338,11 +338,11 @@ class MyOrganization implements ModelInterface, ArrayAccess, JsonSerializable
         if ($this->container['name'] === null) {
             $invalidProperties[] = "'name' can't be null";
         }
-        if ((mb_strlen($this->container['name']) > 255)) {
+        if ((mb_strlen($this->container['name'], 'UTF-8') > 255)) {
             $invalidProperties[] = "invalid value for 'name', the character length must be smaller than or equal to 255.";
         }
 
-        if ((mb_strlen($this->container['name']) < 1)) {
+        if ((mb_strlen($this->container['name'], 'UTF-8') < 1)) {
             $invalidProperties[] = "invalid value for 'name', the character length must be bigger than or equal to 1.";
         }
 
@@ -353,7 +353,7 @@ class MyOrganization implements ModelInterface, ArrayAccess, JsonSerializable
         if ($this->container['displayName'] === null && !$this->isNullableSetToNull('displayName')) {
             $invalidProperties[] = "'displayName' is required";
         }
-        if (!is_null($this->container['displayName']) && (mb_strlen($this->container['displayName']) > 255)) {
+        if (!is_null($this->container['displayName']) && (mb_strlen($this->container['displayName'], 'UTF-8') > 255)) {
             $invalidProperties[] = "invalid value for 'displayName', the character length must be smaller than or equal to 255.";
         }
 
@@ -439,10 +439,10 @@ class MyOrganization implements ModelInterface, ArrayAccess, JsonSerializable
         if (is_null($name)) {
             throw new InvalidArgumentException('non-nullable name cannot be null');
         }
-        if ((mb_strlen($name) > 255)) {
+        if ((mb_strlen($name, 'UTF-8') > 255)) {
             throw new InvalidArgumentException('invalid length for $name when calling MyOrganization., must be smaller than or equal to 255.');
         }
-        if ((mb_strlen($name) < 1)) {
+        if ((mb_strlen($name, 'UTF-8') < 1)) {
             throw new InvalidArgumentException('invalid length for $name when calling MyOrganization., must be bigger than or equal to 1.');
         }
         if ((!preg_match("/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/", ObjectSerializer::toString($name)))) {
@@ -483,7 +483,7 @@ class MyOrganization implements ModelInterface, ArrayAccess, JsonSerializable
                 $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
             }
         }
-        if (!is_null($displayName) && (mb_strlen($displayName) > 255)) {
+        if (!is_null($displayName) && (mb_strlen($displayName, 'UTF-8') > 255)) {
             throw new InvalidArgumentException('invalid length for $displayName when calling MyOrganization., must be smaller than or equal to 255.');
         }
 

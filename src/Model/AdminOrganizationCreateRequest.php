@@ -286,11 +286,11 @@ class AdminOrganizationCreateRequest implements ModelInterface, ArrayAccess, Jso
         if ($this->container['name'] === null) {
             $invalidProperties[] = "'name' can't be null";
         }
-        if ((mb_strlen($this->container['name']) > 255)) {
+        if ((mb_strlen($this->container['name'], 'UTF-8') > 255)) {
             $invalidProperties[] = "invalid value for 'name', the character length must be smaller than or equal to 255.";
         }
 
-        if ((mb_strlen($this->container['name']) < 1)) {
+        if ((mb_strlen($this->container['name'], 'UTF-8') < 1)) {
             $invalidProperties[] = "invalid value for 'name', the character length must be bigger than or equal to 1.";
         }
 
@@ -298,11 +298,11 @@ class AdminOrganizationCreateRequest implements ModelInterface, ArrayAccess, Jso
             $invalidProperties[] = "invalid value for 'name', must be conform to the pattern /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.";
         }
 
-        if (!is_null($this->container['displayName']) && (mb_strlen($this->container['displayName']) > 255)) {
+        if (!is_null($this->container['displayName']) && (mb_strlen($this->container['displayName'], 'UTF-8') > 255)) {
             $invalidProperties[] = "invalid value for 'displayName', the character length must be smaller than or equal to 255.";
         }
 
-        if (!is_null($this->container['displayName']) && (mb_strlen($this->container['displayName']) < 1)) {
+        if (!is_null($this->container['displayName']) && (mb_strlen($this->container['displayName'], 'UTF-8') < 1)) {
             $invalidProperties[] = "invalid value for 'displayName', the character length must be bigger than or equal to 1.";
         }
 
@@ -343,10 +343,10 @@ class AdminOrganizationCreateRequest implements ModelInterface, ArrayAccess, Jso
         if (is_null($name)) {
             throw new InvalidArgumentException('non-nullable name cannot be null');
         }
-        if ((mb_strlen($name) > 255)) {
+        if ((mb_strlen($name, 'UTF-8') > 255)) {
             throw new InvalidArgumentException('invalid length for $name when calling AdminOrganizationCreateRequest., must be smaller than or equal to 255.');
         }
-        if ((mb_strlen($name) < 1)) {
+        if ((mb_strlen($name, 'UTF-8') < 1)) {
             throw new InvalidArgumentException('invalid length for $name when calling AdminOrganizationCreateRequest., must be bigger than or equal to 1.');
         }
         if ((!preg_match("/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/", ObjectSerializer::toString($name)))) {
@@ -387,10 +387,10 @@ class AdminOrganizationCreateRequest implements ModelInterface, ArrayAccess, Jso
                 $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
             }
         }
-        if (!is_null($displayName) && (mb_strlen($displayName) > 255)) {
+        if (!is_null($displayName) && (mb_strlen($displayName, 'UTF-8') > 255)) {
             throw new InvalidArgumentException('invalid length for $displayName when calling AdminOrganizationCreateRequest., must be smaller than or equal to 255.');
         }
-        if (!is_null($displayName) && (mb_strlen($displayName) < 1)) {
+        if (!is_null($displayName) && (mb_strlen($displayName, 'UTF-8') < 1)) {
             throw new InvalidArgumentException('invalid length for $displayName when calling AdminOrganizationCreateRequest., must be bigger than or equal to 1.');
         }
 

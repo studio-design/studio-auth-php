@@ -1392,10 +1392,10 @@ class OrganizationApi
 
         
         
-        if ($search !== null && strlen($search) > 255) {
+        if ($search !== null && mb_strlen($search, 'UTF-8') > 255) {
             throw new InvalidArgumentException('invalid length for "$search" when calling OrganizationApi.listMembers, must be smaller than or equal to 255.');
         }
-        if ($search !== null && strlen($search) < 1) {
+        if ($search !== null && mb_strlen($search, 'UTF-8') < 1) {
             throw new InvalidArgumentException('invalid length for "$search" when calling OrganizationApi.listMembers, must be bigger than or equal to 1.');
         }
         
