@@ -1,5 +1,13 @@
 # studio-design/studio-auth-php
 
+## [0.7.7](https://github.com/studio-design/studio-auth/compare/sdk-v0.7.6...sdk-v0.7.7) (2026-10-30)
+
+
+### Features
+
+* **sdk:** add idp_application_id to the admin client schemas ([3f7bd22](https://github.com/studio-design/studio-auth/commit/3f7bd221477b666cd5557fbc2c8aa2977ca861e2))
+* **sdk:** build the security settings page URL in the PHP SDK ([1de442d](https://github.com/studio-design/studio-auth/commit/1de442da49c70cb0e5564d41f24e526f5e58dec4))
+
 ## [0.7.6](https://github.com/studio-design/studio-auth/compare/sdk-v0.7.5...sdk-v0.7.6) (2026-10-30)
 
 
