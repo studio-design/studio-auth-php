@@ -73,6 +73,7 @@ class AdminClientCreatedResponse implements ModelInterface, ArrayAccess, JsonSer
         'tokenEndpointAuthMethod' => 'string',
         'tokenEndpointAuthSigningAlg' => '\Studio\Auth\Model\ClientAssertionSigningAlg',
         'jwksUri' => 'string',
+        'idpApplicationId' => 'string',
         'isActive' => 'bool',
         'createdAt' => '\DateTime',
         'updatedAt' => '\DateTime'
@@ -96,6 +97,7 @@ class AdminClientCreatedResponse implements ModelInterface, ArrayAccess, JsonSer
         'tokenEndpointAuthMethod' => null,
         'tokenEndpointAuthSigningAlg' => null,
         'jwksUri' => 'uri',
+        'idpApplicationId' => null,
         'isActive' => null,
         'createdAt' => 'date-time',
         'updatedAt' => 'date-time'
@@ -119,6 +121,7 @@ class AdminClientCreatedResponse implements ModelInterface, ArrayAccess, JsonSer
         'tokenEndpointAuthMethod' => false,
         'tokenEndpointAuthSigningAlg' => true,
         'jwksUri' => true,
+        'idpApplicationId' => true,
         'isActive' => false,
         'createdAt' => false,
         'updatedAt' => false
@@ -222,6 +225,7 @@ class AdminClientCreatedResponse implements ModelInterface, ArrayAccess, JsonSer
         'tokenEndpointAuthMethod' => 'token_endpoint_auth_method',
         'tokenEndpointAuthSigningAlg' => 'token_endpoint_auth_signing_alg',
         'jwksUri' => 'jwks_uri',
+        'idpApplicationId' => 'idp_application_id',
         'isActive' => 'is_active',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
@@ -245,6 +249,7 @@ class AdminClientCreatedResponse implements ModelInterface, ArrayAccess, JsonSer
         'tokenEndpointAuthMethod' => 'setTokenEndpointAuthMethod',
         'tokenEndpointAuthSigningAlg' => 'setTokenEndpointAuthSigningAlg',
         'jwksUri' => 'setJwksUri',
+        'idpApplicationId' => 'setIdpApplicationId',
         'isActive' => 'setIsActive',
         'createdAt' => 'setCreatedAt',
         'updatedAt' => 'setUpdatedAt'
@@ -268,6 +273,7 @@ class AdminClientCreatedResponse implements ModelInterface, ArrayAccess, JsonSer
         'tokenEndpointAuthMethod' => 'getTokenEndpointAuthMethod',
         'tokenEndpointAuthSigningAlg' => 'getTokenEndpointAuthSigningAlg',
         'jwksUri' => 'getJwksUri',
+        'idpApplicationId' => 'getIdpApplicationId',
         'isActive' => 'getIsActive',
         'createdAt' => 'getCreatedAt',
         'updatedAt' => 'getUpdatedAt'
@@ -342,6 +348,7 @@ class AdminClientCreatedResponse implements ModelInterface, ArrayAccess, JsonSer
         $this->setIfExists('tokenEndpointAuthMethod', $data ?? [], null);
         $this->setIfExists('tokenEndpointAuthSigningAlg', $data ?? [], null);
         $this->setIfExists('jwksUri', $data ?? [], null);
+        $this->setIfExists('idpApplicationId', $data ?? [], null);
         $this->setIfExists('isActive', $data ?? [], null);
         $this->setIfExists('createdAt', $data ?? [], null);
         $this->setIfExists('updatedAt', $data ?? [], null);
@@ -409,6 +416,13 @@ class AdminClientCreatedResponse implements ModelInterface, ArrayAccess, JsonSer
         }
         if (!is_null($this->container['jwksUri']) && (mb_strlen($this->container['jwksUri']) > 512)) {
             $invalidProperties[] = "invalid value for 'jwksUri', the character length must be smaller than or equal to 512.";
+        }
+
+        if ($this->container['idpApplicationId'] === null && !$this->isNullableSetToNull('idpApplicationId')) {
+            $invalidProperties[] = "'idpApplicationId' is required";
+        }
+        if (!is_null($this->container['idpApplicationId']) && (mb_strlen($this->container['idpApplicationId']) > 255)) {
+            $invalidProperties[] = "invalid value for 'idpApplicationId', the character length must be smaller than or equal to 255.";
         }
 
         if ($this->container['isActive'] === null) {
@@ -787,6 +801,44 @@ class AdminClientCreatedResponse implements ModelInterface, ArrayAccess, JsonSer
         }
 
         $this->container['jwksUri'] = $jwksUri;
+
+        return $this;
+    }
+
+    /**
+     * Gets idpApplicationId
+     *
+     * @return string|null
+     */
+    public function getIdpApplicationId(): ?string
+    {
+        return $this->container['idpApplicationId'];
+    }
+
+    /**
+     * Sets idpApplicationId
+     *
+     * @param string|null $idpApplicationId このクライアントのログインに使う IdP 側の application の識別子。登録時は既定の application を使うので常に `null`。
+     *
+     * @return $this
+     */
+    public function setIdpApplicationId(?string $idpApplicationId): static
+    {
+        if (is_null($idpApplicationId)) {
+            array_push($this->openAPINullablesSetToNull, 'idpApplicationId');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('idpApplicationId', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        if (!is_null($idpApplicationId) && (mb_strlen($idpApplicationId) > 255)) {
+            throw new InvalidArgumentException('invalid length for $idpApplicationId when calling AdminClientCreatedResponse., must be smaller than or equal to 255.');
+        }
+
+        $this->container['idpApplicationId'] = $idpApplicationId;
 
         return $this;
     }
