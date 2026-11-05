@@ -1,5 +1,20 @@
 # studio-design/studio-auth-php
 
+## [0.7.9](https://github.com/studio-design/studio-auth/compare/sdk-v0.7.8...sdk-v0.7.9) (2026-11-05)
+
+
+### Features
+
+* **sdk:** allow Guzzle 8 and PSR-7 3 ([7af9ee8](https://github.com/studio-design/studio-auth/commit/7af9ee89d2fdcd795b70c3c1f616ec9fb7dabfeb)), closes [#1722](https://github.com/studio-design/studio-auth/issues/1722)
+
+
+### Bug Fixes
+
+* **sdk:** convert Guzzle 8 transport exceptions to ApiException ([b56ace1](https://github.com/studio-design/studio-auth/commit/b56ace12403a83595726ee7d5b8e794a9808efc6)), closes [#1722](https://github.com/studio-design/studio-auth/issues/1722)
+* **sdk:** encode JSON request bodies without the Utils helper Guzzle 8 removed ([d8cd98f](https://github.com/studio-design/studio-auth/commit/d8cd98f735f765d3878bce949bbd30a62c98a9cc))
+* **sdk:** Guzzle 8 で JSON 本文を送る操作が落ちる問題を直す ([52759aa](https://github.com/studio-design/studio-auth/commit/52759aa22ba145fe9d656f08b69cef9cb8b72768))
+* **sdk:** guzzle 8 の通信例外を ApiException に変換し、guzzle 8 / psr7 3 を許容する ([c0e4ffb](https://github.com/studio-design/studio-auth/commit/c0e4ffbea6253c219bfd971faac71f7ddaa76652))
+
 ## [0.7.8](https://github.com/studio-design/studio-auth/compare/sdk-v0.7.7...sdk-v0.7.8) (2026-11-05)
 
 
