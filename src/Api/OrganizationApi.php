@@ -32,8 +32,8 @@ use InvalidArgumentException;
 use JsonException;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Psr7\MultipartStream;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
@@ -199,20 +199,14 @@ class OrganizationApi
             $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->send($request, $options);
-            } catch (RequestException $e) {
+            } catch (TransferException $e) {
+                $response = self::responseOf($e);
+
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
-                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
-                    $e,
-                );
-            } catch (ConnectException $e) {
-                throw new ApiException(
-                    "[{$e->getCode()}] {$e->getMessage()}",
-                    (int) $e->getCode(),
-                    null,
-                    null,
+                    $response?->getHeaders(),
+                    $response !== null ? (string) $response->getBody() : null,
                     $e,
                 );
             }
@@ -314,8 +308,9 @@ class OrganizationApi
                     ];
                 },
                 function ($exception) {
-                    if ($exception instanceof RequestException && $exception->hasResponse()) {
-                        $response = $exception->getResponse();
+                    $response = $exception instanceof TransferException ? self::responseOf($exception) : null;
+
+                    if ($response !== null) {
                         $statusCode = $response->getStatusCode();
                         $body = (string) $response->getBody();
                         $headers = $response->getHeaders();
@@ -337,10 +332,10 @@ class OrganizationApi
                         throw ApiException::specialize($base, $problem);
                     }
 
-                    if ($exception instanceof ConnectException || $exception instanceof RequestException) {
-                        // ConnectException, or a RequestException without a response, carries no
-                        // HTTP metadata — surface it as the base ApiException with status 0, the
-                        // same contract as the synchronous ConnectException path.
+                    if ($exception instanceof TransferException) {
+                        // A transport failure without a response carries no HTTP metadata — surface
+                        // it as the base ApiException with status 0, the same contract as the
+                        // synchronous path.
                         throw new ApiException(
                             "[{$exception->getCode()}] {$exception->getMessage()}",
                             (int) $exception->getCode(),
@@ -351,7 +346,7 @@ class OrganizationApi
                     }
 
                     // Any other rejection reason is outside the transport-error contract. The
-                    // synchronous path only converts RequestException/ConnectException, so mirror
+                    // synchronous path only converts TransferException, so mirror
                     // it: rethrow a Throwable unchanged, and normalize a non-Throwable reason into
                     // Guzzle's RejectionException instead of letting a PHP Error escape.
                     throw Create::exceptionFor($exception);
@@ -519,20 +514,14 @@ class OrganizationApi
             $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->send($request, $options);
-            } catch (RequestException $e) {
+            } catch (TransferException $e) {
+                $response = self::responseOf($e);
+
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
-                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
-                    $e,
-                );
-            } catch (ConnectException $e) {
-                throw new ApiException(
-                    "[{$e->getCode()}] {$e->getMessage()}",
-                    (int) $e->getCode(),
-                    null,
-                    null,
+                    $response?->getHeaders(),
+                    $response !== null ? (string) $response->getBody() : null,
                     $e,
                 );
             }
@@ -630,8 +619,9 @@ class OrganizationApi
                     ];
                 },
                 function ($exception) {
-                    if ($exception instanceof RequestException && $exception->hasResponse()) {
-                        $response = $exception->getResponse();
+                    $response = $exception instanceof TransferException ? self::responseOf($exception) : null;
+
+                    if ($response !== null) {
                         $statusCode = $response->getStatusCode();
                         $body = (string) $response->getBody();
                         $headers = $response->getHeaders();
@@ -653,10 +643,10 @@ class OrganizationApi
                         throw ApiException::specialize($base, $problem);
                     }
 
-                    if ($exception instanceof ConnectException || $exception instanceof RequestException) {
-                        // ConnectException, or a RequestException without a response, carries no
-                        // HTTP metadata — surface it as the base ApiException with status 0, the
-                        // same contract as the synchronous ConnectException path.
+                    if ($exception instanceof TransferException) {
+                        // A transport failure without a response carries no HTTP metadata — surface
+                        // it as the base ApiException with status 0, the same contract as the
+                        // synchronous path.
                         throw new ApiException(
                             "[{$exception->getCode()}] {$exception->getMessage()}",
                             (int) $exception->getCode(),
@@ -667,7 +657,7 @@ class OrganizationApi
                     }
 
                     // Any other rejection reason is outside the transport-error contract. The
-                    // synchronous path only converts RequestException/ConnectException, so mirror
+                    // synchronous path only converts TransferException, so mirror
                     // it: rethrow a Throwable unchanged, and normalize a non-Throwable reason into
                     // Guzzle's RejectionException instead of letting a PHP Error escape.
                     throw Create::exceptionFor($exception);
@@ -819,20 +809,14 @@ class OrganizationApi
             $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->send($request, $options);
-            } catch (RequestException $e) {
+            } catch (TransferException $e) {
+                $response = self::responseOf($e);
+
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
-                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
-                    $e,
-                );
-            } catch (ConnectException $e) {
-                throw new ApiException(
-                    "[{$e->getCode()}] {$e->getMessage()}",
-                    (int) $e->getCode(),
-                    null,
-                    null,
+                    $response?->getHeaders(),
+                    $response !== null ? (string) $response->getBody() : null,
                     $e,
                 );
             }
@@ -930,8 +914,9 @@ class OrganizationApi
                     ];
                 },
                 function ($exception) {
-                    if ($exception instanceof RequestException && $exception->hasResponse()) {
-                        $response = $exception->getResponse();
+                    $response = $exception instanceof TransferException ? self::responseOf($exception) : null;
+
+                    if ($response !== null) {
                         $statusCode = $response->getStatusCode();
                         $body = (string) $response->getBody();
                         $headers = $response->getHeaders();
@@ -953,10 +938,10 @@ class OrganizationApi
                         throw ApiException::specialize($base, $problem);
                     }
 
-                    if ($exception instanceof ConnectException || $exception instanceof RequestException) {
-                        // ConnectException, or a RequestException without a response, carries no
-                        // HTTP metadata — surface it as the base ApiException with status 0, the
-                        // same contract as the synchronous ConnectException path.
+                    if ($exception instanceof TransferException) {
+                        // A transport failure without a response carries no HTTP metadata — surface
+                        // it as the base ApiException with status 0, the same contract as the
+                        // synchronous path.
                         throw new ApiException(
                             "[{$exception->getCode()}] {$exception->getMessage()}",
                             (int) $exception->getCode(),
@@ -967,7 +952,7 @@ class OrganizationApi
                     }
 
                     // Any other rejection reason is outside the transport-error contract. The
-                    // synchronous path only converts RequestException/ConnectException, so mirror
+                    // synchronous path only converts TransferException, so mirror
                     // it: rethrow a Throwable unchanged, and normalize a non-Throwable reason into
                     // Guzzle's RejectionException instead of letting a PHP Error escape.
                     throw Create::exceptionFor($exception);
@@ -1151,20 +1136,14 @@ class OrganizationApi
             $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->send($request, $options);
-            } catch (RequestException $e) {
+            } catch (TransferException $e) {
+                $response = self::responseOf($e);
+
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
-                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
-                    $e,
-                );
-            } catch (ConnectException $e) {
-                throw new ApiException(
-                    "[{$e->getCode()}] {$e->getMessage()}",
-                    (int) $e->getCode(),
-                    null,
-                    null,
+                    $response?->getHeaders(),
+                    $response !== null ? (string) $response->getBody() : null,
                     $e,
                 );
             }
@@ -1294,8 +1273,9 @@ class OrganizationApi
                     ];
                 },
                 function ($exception) {
-                    if ($exception instanceof RequestException && $exception->hasResponse()) {
-                        $response = $exception->getResponse();
+                    $response = $exception instanceof TransferException ? self::responseOf($exception) : null;
+
+                    if ($response !== null) {
                         $statusCode = $response->getStatusCode();
                         $body = (string) $response->getBody();
                         $headers = $response->getHeaders();
@@ -1317,10 +1297,10 @@ class OrganizationApi
                         throw ApiException::specialize($base, $problem);
                     }
 
-                    if ($exception instanceof ConnectException || $exception instanceof RequestException) {
-                        // ConnectException, or a RequestException without a response, carries no
-                        // HTTP metadata — surface it as the base ApiException with status 0, the
-                        // same contract as the synchronous ConnectException path.
+                    if ($exception instanceof TransferException) {
+                        // A transport failure without a response carries no HTTP metadata — surface
+                        // it as the base ApiException with status 0, the same contract as the
+                        // synchronous path.
                         throw new ApiException(
                             "[{$exception->getCode()}] {$exception->getMessage()}",
                             (int) $exception->getCode(),
@@ -1331,7 +1311,7 @@ class OrganizationApi
                     }
 
                     // Any other rejection reason is outside the transport-error contract. The
-                    // synchronous path only converts RequestException/ConnectException, so mirror
+                    // synchronous path only converts TransferException, so mirror
                     // it: rethrow a Throwable unchanged, and normalize a non-Throwable reason into
                     // Guzzle's RejectionException instead of letting a PHP Error escape.
                     throw Create::exceptionFor($exception);
@@ -1596,20 +1576,14 @@ class OrganizationApi
             $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->send($request, $options);
-            } catch (RequestException $e) {
+            } catch (TransferException $e) {
+                $response = self::responseOf($e);
+
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
-                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
-                    $e,
-                );
-            } catch (ConnectException $e) {
-                throw new ApiException(
-                    "[{$e->getCode()}] {$e->getMessage()}",
-                    (int) $e->getCode(),
-                    null,
-                    null,
+                    $response?->getHeaders(),
+                    $response !== null ? (string) $response->getBody() : null,
                     $e,
                 );
             }
@@ -1679,8 +1653,9 @@ class OrganizationApi
                     return [null, $response->getStatusCode(), $response->getHeaders()];
                 },
                 function ($exception) {
-                    if ($exception instanceof RequestException && $exception->hasResponse()) {
-                        $response = $exception->getResponse();
+                    $response = $exception instanceof TransferException ? self::responseOf($exception) : null;
+
+                    if ($response !== null) {
                         $statusCode = $response->getStatusCode();
                         $body = (string) $response->getBody();
                         $headers = $response->getHeaders();
@@ -1702,10 +1677,10 @@ class OrganizationApi
                         throw ApiException::specialize($base, $problem);
                     }
 
-                    if ($exception instanceof ConnectException || $exception instanceof RequestException) {
-                        // ConnectException, or a RequestException without a response, carries no
-                        // HTTP metadata — surface it as the base ApiException with status 0, the
-                        // same contract as the synchronous ConnectException path.
+                    if ($exception instanceof TransferException) {
+                        // A transport failure without a response carries no HTTP metadata — surface
+                        // it as the base ApiException with status 0, the same contract as the
+                        // synchronous path.
                         throw new ApiException(
                             "[{$exception->getCode()}] {$exception->getMessage()}",
                             (int) $exception->getCode(),
@@ -1716,7 +1691,7 @@ class OrganizationApi
                     }
 
                     // Any other rejection reason is outside the transport-error contract. The
-                    // synchronous path only converts RequestException/ConnectException, so mirror
+                    // synchronous path only converts TransferException, so mirror
                     // it: rethrow a Throwable unchanged, and normalize a non-Throwable reason into
                     // Guzzle's RejectionException instead of letting a PHP Error escape.
                     throw Create::exceptionFor($exception);
@@ -1889,20 +1864,14 @@ class OrganizationApi
             $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->send($request, $options);
-            } catch (RequestException $e) {
+            } catch (TransferException $e) {
+                $response = self::responseOf($e);
+
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
-                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
-                    $e,
-                );
-            } catch (ConnectException $e) {
-                throw new ApiException(
-                    "[{$e->getCode()}] {$e->getMessage()}",
-                    (int) $e->getCode(),
-                    null,
-                    null,
+                    $response?->getHeaders(),
+                    $response !== null ? (string) $response->getBody() : null,
                     $e,
                 );
             }
@@ -2004,8 +1973,9 @@ class OrganizationApi
                     ];
                 },
                 function ($exception) {
-                    if ($exception instanceof RequestException && $exception->hasResponse()) {
-                        $response = $exception->getResponse();
+                    $response = $exception instanceof TransferException ? self::responseOf($exception) : null;
+
+                    if ($response !== null) {
                         $statusCode = $response->getStatusCode();
                         $body = (string) $response->getBody();
                         $headers = $response->getHeaders();
@@ -2027,10 +1997,10 @@ class OrganizationApi
                         throw ApiException::specialize($base, $problem);
                     }
 
-                    if ($exception instanceof ConnectException || $exception instanceof RequestException) {
-                        // ConnectException, or a RequestException without a response, carries no
-                        // HTTP metadata — surface it as the base ApiException with status 0, the
-                        // same contract as the synchronous ConnectException path.
+                    if ($exception instanceof TransferException) {
+                        // A transport failure without a response carries no HTTP metadata — surface
+                        // it as the base ApiException with status 0, the same contract as the
+                        // synchronous path.
                         throw new ApiException(
                             "[{$exception->getCode()}] {$exception->getMessage()}",
                             (int) $exception->getCode(),
@@ -2041,7 +2011,7 @@ class OrganizationApi
                     }
 
                     // Any other rejection reason is outside the transport-error contract. The
-                    // synchronous path only converts RequestException/ConnectException, so mirror
+                    // synchronous path only converts TransferException, so mirror
                     // it: rethrow a Throwable unchanged, and normalize a non-Throwable reason into
                     // Guzzle's RejectionException instead of letting a PHP Error escape.
                     throw Create::exceptionFor($exception);
@@ -2217,20 +2187,14 @@ class OrganizationApi
             $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->send($request, $options);
-            } catch (RequestException $e) {
+            } catch (TransferException $e) {
+                $response = self::responseOf($e);
+
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
-                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
-                    $e,
-                );
-            } catch (ConnectException $e) {
-                throw new ApiException(
-                    "[{$e->getCode()}] {$e->getMessage()}",
-                    (int) $e->getCode(),
-                    null,
-                    null,
+                    $response?->getHeaders(),
+                    $response !== null ? (string) $response->getBody() : null,
                     $e,
                 );
             }
@@ -2336,8 +2300,9 @@ class OrganizationApi
                     ];
                 },
                 function ($exception) {
-                    if ($exception instanceof RequestException && $exception->hasResponse()) {
-                        $response = $exception->getResponse();
+                    $response = $exception instanceof TransferException ? self::responseOf($exception) : null;
+
+                    if ($response !== null) {
                         $statusCode = $response->getStatusCode();
                         $body = (string) $response->getBody();
                         $headers = $response->getHeaders();
@@ -2359,10 +2324,10 @@ class OrganizationApi
                         throw ApiException::specialize($base, $problem);
                     }
 
-                    if ($exception instanceof ConnectException || $exception instanceof RequestException) {
-                        // ConnectException, or a RequestException without a response, carries no
-                        // HTTP metadata — surface it as the base ApiException with status 0, the
-                        // same contract as the synchronous ConnectException path.
+                    if ($exception instanceof TransferException) {
+                        // A transport failure without a response carries no HTTP metadata — surface
+                        // it as the base ApiException with status 0, the same contract as the
+                        // synchronous path.
                         throw new ApiException(
                             "[{$exception->getCode()}] {$exception->getMessage()}",
                             (int) $exception->getCode(),
@@ -2373,7 +2338,7 @@ class OrganizationApi
                     }
 
                     // Any other rejection reason is outside the transport-error contract. The
-                    // synchronous path only converts RequestException/ConnectException, so mirror
+                    // synchronous path only converts TransferException, so mirror
                     // it: rethrow a Throwable unchanged, and normalize a non-Throwable reason into
                     // Guzzle's RejectionException instead of letting a PHP Error escape.
                     throw Create::exceptionFor($exception);
@@ -2562,20 +2527,14 @@ class OrganizationApi
             $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->send($request, $options);
-            } catch (RequestException $e) {
+            } catch (TransferException $e) {
+                $response = self::responseOf($e);
+
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     (int) $e->getCode(),
-                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
-                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
-                    $e,
-                );
-            } catch (ConnectException $e) {
-                throw new ApiException(
-                    "[{$e->getCode()}] {$e->getMessage()}",
-                    (int) $e->getCode(),
-                    null,
-                    null,
+                    $response?->getHeaders(),
+                    $response !== null ? (string) $response->getBody() : null,
                     $e,
                 );
             }
@@ -2677,8 +2636,9 @@ class OrganizationApi
                     ];
                 },
                 function ($exception) {
-                    if ($exception instanceof RequestException && $exception->hasResponse()) {
-                        $response = $exception->getResponse();
+                    $response = $exception instanceof TransferException ? self::responseOf($exception) : null;
+
+                    if ($response !== null) {
                         $statusCode = $response->getStatusCode();
                         $body = (string) $response->getBody();
                         $headers = $response->getHeaders();
@@ -2700,10 +2660,10 @@ class OrganizationApi
                         throw ApiException::specialize($base, $problem);
                     }
 
-                    if ($exception instanceof ConnectException || $exception instanceof RequestException) {
-                        // ConnectException, or a RequestException without a response, carries no
-                        // HTTP metadata — surface it as the base ApiException with status 0, the
-                        // same contract as the synchronous ConnectException path.
+                    if ($exception instanceof TransferException) {
+                        // A transport failure without a response carries no HTTP metadata — surface
+                        // it as the base ApiException with status 0, the same contract as the
+                        // synchronous path.
                         throw new ApiException(
                             "[{$exception->getCode()}] {$exception->getMessage()}",
                             (int) $exception->getCode(),
@@ -2714,7 +2674,7 @@ class OrganizationApi
                     }
 
                     // Any other rejection reason is outside the transport-error contract. The
-                    // synchronous path only converts RequestException/ConnectException, so mirror
+                    // synchronous path only converts TransferException, so mirror
                     // it: rethrow a Throwable unchanged, and normalize a non-Throwable reason into
                     // Guzzle's RejectionException instead of letting a PHP Error escape.
                     throw Create::exceptionFor($exception);
@@ -2854,6 +2814,14 @@ class OrganizationApi
         }
 
         return $options;
+    }
+
+    /**
+     * Guzzle 7 puts a nullable getResponse() on every RequestException; Guzzle 8 moves it to ResponseException.
+     */
+    private static function responseOf(TransferException $e): ?ResponseInterface
+    {
+        return $e instanceof RequestException && method_exists($e, 'getResponse') ? $e->getResponse() : null;
     }
 
     private function handleResponseWithDataType(
