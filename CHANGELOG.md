@@ -1,5 +1,20 @@
 # studio-design/studio-auth-php
 
+## [0.7.8](https://github.com/studio-design/studio-auth/compare/sdk-v0.7.7...sdk-v0.7.8) (2026-11-05)
+
+
+### Features
+
+* RFC 8414 の discovery パスを追加し、認可応答に RFC 9207 の iss を付ける ([1962c71](https://github.com/studio-design/studio-auth/commit/1962c712d82fafda7da6b8bbe5fb30cf61126b54))
+* **sdk:** describe the RFC 8414 metadata path and the RFC 9207 iss support flag ([cfbb215](https://github.com/studio-design/studio-auth/commit/cfbb215f908c05086b6bbe1600b1ff5806448440))
+* **sdk:** let readers recognize the MCP enum values before any writer emits them ([a57c478](https://github.com/studio-design/studio-auth/commit/a57c4786ac369327fab7521ee3745374a8559b49))
+* **sdk:** MCP 対応で使う enum の値を、読み取り側だけ先に追加する ([e072cf0](https://github.com/studio-design/studio-auth/commit/e072cf04173105f7d0118797f576cd9e8c61d945))
+
+
+### Bug Fixes
+
+* **sdk:** count characters, not bytes, in PHP SDK parameter length checks ([e392247](https://github.com/studio-design/studio-auth/commit/e3922474cc7dc4bb857f811cbfdf30a92998150e))
+
 ## [0.7.7](https://github.com/studio-design/studio-auth/compare/sdk-v0.7.6...sdk-v0.7.7) (2026-10-30)
 
 
