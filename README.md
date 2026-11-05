@@ -315,6 +315,7 @@ Class | Method | HTTP request | Description
 *OrganizationApi* | **updateMyOrganization** | **PATCH** /organizations/{organization_id} | 自分が所属する組織情報更新（組織メンバー向け）
 *SystemApi* | **getHealthStatus** | **GET** /health | ヘルスチェック
 *SystemApi* | **getJwks** | **GET** /jwks | JSON Web Key Set の取得
+*SystemApi* | **getOAuthAuthorizationServerMetadata** | **GET** /.well-known/oauth-authorization-server | OAuth 2.0 Authorization Server Metadata
 *SystemApi* | **getOpenIDConfiguration** | **GET** /.well-known/openid-configuration | OpenID Connect Discovery
 *SystemApi* | **getServiceInfo** | **GET** / | サービス情報
 
@@ -426,4 +427,4 @@ MIT License - [LICENSE](LICENSE) を参照してください。
 
 ---
 
-このパッケージは [Studio Auth Service の OpenAPI 仕様](https://github.com/studio-design/studio-auth) から自動生成されています（SDK バージョン: `0.7.7`）。
+このパッケージは [Studio Auth Service の OpenAPI 仕様](https://github.com/studio-design/studio-auth) から自動生成されています（SDK バージョン: `0.7.8`）。
