@@ -1537,7 +1537,8 @@ class AuthApi
      * @param  string $state CSRF 対策用のランダムなトークン。 (required)
      * @param  \Studio\Auth\Model\CodeChallengeMethod $codeChallengeMethod codeChallengeMethod (required)
      * @param  string $codeChallenge codeChallenge (required)
-     * @param  string $nonce OIDC リプレイ攻撃対策用の値。レスポンスに含めて検証します。 (required)
+     * @param  string|null $nonce OIDC リプレイ攻撃対策用の値。レスポンスに含めて検証します。  必須です。ただし &#x60;resource&#x60; を指定し、かつ &#x60;scope&#x60; に &#x60;openid&#x60; を含めない場合は省略できます（ID トークンを発行しないため）。 (optional)
+     * @param  string|null $resource アクセストークンを使う先の資源サーバを示す絶対 URI（RFC 8707 Resource Indicators）。fragment は含められません。  指定した値は発行するアクセストークンの &#x60;aud&#x60; になります。認可サーバに登録された資源サーバのものだけを受け付け、未登録の値・形式が不正な値・複数指定は &#x60;invalid_target&#x60; になります。MCP クライアントの受け付けが無効な環境では、指定するだけで &#x60;invalid_target&#x60; になります。  指定した場合、&#x60;scope&#x60; に &#x60;openid&#x60; が無ければ &#x60;openid&#x60; と &#x60;nonce&#x60; は必須になりません。 (optional)
      * @param  string|null $organizationId 認可対象の組織を指定する組織 ID（認可サーバが発行する UUID）。  IdP リダイレクトを伴うフローでは、指定された組織は組織固有の SSO プロバイダ（Okta, Azure AD 等）へのルーティングに使用されます。存在しない、非アクティブ、または IdP 未連携の組織 ID を指定した場合はエラーになります。  IdP が組織を返さないログイン（Google / password / magic link 等）では、認証したユーザがこの組織の active メンバーであることをコールバック時に検証します（メンバーシップは認証が完了して初めて判定できるため、&#x60;/oauth/authorize&#x60; の時点では検証できません）。非メンバーだった場合は認可コードを発行せず、redirect_uri へ &#x60;error&#x3D;access_denied&#x60; を返します。前回のセッションから引き継いだ組織 ID を指定している場合は、それを破棄して &#x60;organization_id&#x60; 無しで再試行してください。IdP が組織を返すログイン（組織の SSO 接続経由）ではこの検証は行われず、IdP が返した組織が &#x60;org_id&#x60; クレームの根拠になります。  有効なセッションがあっても、そのセッションがこの組織で認証されたもの（ログイン時に IdP がこの組織を示したもの）でなければ、セッションを再利用せず、この組織を指定して IdP で認証し直させます。組織ごとの認証ポリシー（MFA の必須化など）は IdP 側にあり、別の組織で認証したセッションには適用されていないためです。&#x60;prompt&#x3D;none&#x60; の場合は &#x60;error&#x3D;login_required&#x60; を返します。  未指定時は認可サーバが下記の順序で組織を解決します:   - ログイン時に IdP が組織を示した場合は、その組織にバインドします（新規ログイン）。   - 認可サーバ側でユーザが active な組織に対して active なメンバーシップをちょうど 1 つだけ持つ場合、その組織に自動的にバインドして &#x60;org_id&#x60; クレーム付きの id_token を発行します（silent SSO / 新規ログイン両フロー）。silent SSO では、上記の組織指定時と同じくセッションがその組織で認証されている必要があります。   - 2 つ以上持つ場合は、認可サーバの組織選択画面で選ばせます（&#x60;prompt&#x3D;none&#x60; では &#x60;error&#x3D;interaction_required&#x60;）。   - 組織未所属の場合は &#x60;org_id&#x60; クレーム無しの id_token が発行されます。 (optional)
      * @param  string|null $invitationToken WorkOS 招待メールに含まれるトークン。指定時は WorkOS AuthKit に招待受諾フローとして パススルーされます。  招待の受諾は IdP 側でしか行えないため、このパラメータを指定したリクエストは、有効な 認証セッションがあってもセッション再利用による即時発行 (silent SSO) や組織選択画面を 経由せず、必ず IdP へリダイレクトします（&#x60;organization_id&#x60; に IdP 未連携の組織を指定した 場合は、セッションが無い場合と同様に 422 で失敗します）。  &#x60;prompt&#x3D;none&#x60; を併用した場合は IdP へリダイレクトできないため、認可コードを発行せず エラーをクライアントの &#x60;redirect_uri&#x60; へ返します。有効なセッションがある場合は &#x60;error&#x3D;interaction_required&#x60;（認証は済んでおり、足りないのは招待受諾という対話のため）、 セッションが無い場合や、対象組織のメンバーでその組織での再認証（組織の切り替え・SSO）が 必要な場合は従来どおり &#x60;error&#x3D;login_required&#x60; です。 (optional)
      * @param  \Studio\Auth\Model\Prompt|null $prompt prompt (optional)
@@ -1558,7 +1559,8 @@ class AuthApi
         string $state,
         \Studio\Auth\Model\CodeChallengeMethod $codeChallengeMethod,
         string $codeChallenge,
-        string $nonce,
+        ?string $nonce = null,
+        ?string $resource = null,
         ?string $organizationId = null,
         ?string $invitationToken = null,
         ?\Studio\Auth\Model\Prompt $prompt = null,
@@ -1568,7 +1570,7 @@ class AuthApi
         string $contentType = self::contentTypes['initiateAuthorization'][0]
     ): void
     {
-        $this->initiateAuthorizationWithHttpInfo($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $invitationToken, $prompt, $maxAge, $context, $screenHint, $contentType);
+        $this->initiateAuthorizationWithHttpInfo($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $resource, $organizationId, $invitationToken, $prompt, $maxAge, $context, $screenHint, $contentType);
     }
 
     /**
@@ -1583,7 +1585,8 @@ class AuthApi
      * @param  string $state CSRF 対策用のランダムなトークン。 (required)
      * @param  \Studio\Auth\Model\CodeChallengeMethod $codeChallengeMethod (required)
      * @param  string $codeChallenge (required)
-     * @param  string $nonce OIDC リプレイ攻撃対策用の値。レスポンスに含めて検証します。 (required)
+     * @param  string|null $nonce OIDC リプレイ攻撃対策用の値。レスポンスに含めて検証します。  必須です。ただし &#x60;resource&#x60; を指定し、かつ &#x60;scope&#x60; に &#x60;openid&#x60; を含めない場合は省略できます（ID トークンを発行しないため）。 (optional)
+     * @param  string|null $resource アクセストークンを使う先の資源サーバを示す絶対 URI（RFC 8707 Resource Indicators）。fragment は含められません。  指定した値は発行するアクセストークンの &#x60;aud&#x60; になります。認可サーバに登録された資源サーバのものだけを受け付け、未登録の値・形式が不正な値・複数指定は &#x60;invalid_target&#x60; になります。MCP クライアントの受け付けが無効な環境では、指定するだけで &#x60;invalid_target&#x60; になります。  指定した場合、&#x60;scope&#x60; に &#x60;openid&#x60; が無ければ &#x60;openid&#x60; と &#x60;nonce&#x60; は必須になりません。 (optional)
      * @param  string|null $organizationId 認可対象の組織を指定する組織 ID（認可サーバが発行する UUID）。  IdP リダイレクトを伴うフローでは、指定された組織は組織固有の SSO プロバイダ（Okta, Azure AD 等）へのルーティングに使用されます。存在しない、非アクティブ、または IdP 未連携の組織 ID を指定した場合はエラーになります。  IdP が組織を返さないログイン（Google / password / magic link 等）では、認証したユーザがこの組織の active メンバーであることをコールバック時に検証します（メンバーシップは認証が完了して初めて判定できるため、&#x60;/oauth/authorize&#x60; の時点では検証できません）。非メンバーだった場合は認可コードを発行せず、redirect_uri へ &#x60;error&#x3D;access_denied&#x60; を返します。前回のセッションから引き継いだ組織 ID を指定している場合は、それを破棄して &#x60;organization_id&#x60; 無しで再試行してください。IdP が組織を返すログイン（組織の SSO 接続経由）ではこの検証は行われず、IdP が返した組織が &#x60;org_id&#x60; クレームの根拠になります。  有効なセッションがあっても、そのセッションがこの組織で認証されたもの（ログイン時に IdP がこの組織を示したもの）でなければ、セッションを再利用せず、この組織を指定して IdP で認証し直させます。組織ごとの認証ポリシー（MFA の必須化など）は IdP 側にあり、別の組織で認証したセッションには適用されていないためです。&#x60;prompt&#x3D;none&#x60; の場合は &#x60;error&#x3D;login_required&#x60; を返します。  未指定時は認可サーバが下記の順序で組織を解決します:   - ログイン時に IdP が組織を示した場合は、その組織にバインドします（新規ログイン）。   - 認可サーバ側でユーザが active な組織に対して active なメンバーシップをちょうど 1 つだけ持つ場合、その組織に自動的にバインドして &#x60;org_id&#x60; クレーム付きの id_token を発行します（silent SSO / 新規ログイン両フロー）。silent SSO では、上記の組織指定時と同じくセッションがその組織で認証されている必要があります。   - 2 つ以上持つ場合は、認可サーバの組織選択画面で選ばせます（&#x60;prompt&#x3D;none&#x60; では &#x60;error&#x3D;interaction_required&#x60;）。   - 組織未所属の場合は &#x60;org_id&#x60; クレーム無しの id_token が発行されます。 (optional)
      * @param  string|null $invitationToken WorkOS 招待メールに含まれるトークン。指定時は WorkOS AuthKit に招待受諾フローとして パススルーされます。  招待の受諾は IdP 側でしか行えないため、このパラメータを指定したリクエストは、有効な 認証セッションがあってもセッション再利用による即時発行 (silent SSO) や組織選択画面を 経由せず、必ず IdP へリダイレクトします（&#x60;organization_id&#x60; に IdP 未連携の組織を指定した 場合は、セッションが無い場合と同様に 422 で失敗します）。  &#x60;prompt&#x3D;none&#x60; を併用した場合は IdP へリダイレクトできないため、認可コードを発行せず エラーをクライアントの &#x60;redirect_uri&#x60; へ返します。有効なセッションがある場合は &#x60;error&#x3D;interaction_required&#x60;（認証は済んでおり、足りないのは招待受諾という対話のため）、 セッションが無い場合や、対象組織のメンバーでその組織での再認証（組織の切り替え・SSO）が 必要な場合は従来どおり &#x60;error&#x3D;login_required&#x60; です。 (optional)
      * @param  \Studio\Auth\Model\Prompt|null $prompt (optional)
@@ -1604,7 +1607,8 @@ class AuthApi
         string $state,
         \Studio\Auth\Model\CodeChallengeMethod $codeChallengeMethod,
         string $codeChallenge,
-        string $nonce,
+        ?string $nonce = null,
+        ?string $resource = null,
         ?string $organizationId = null,
         ?string $invitationToken = null,
         ?\Studio\Auth\Model\Prompt $prompt = null,
@@ -1614,7 +1618,7 @@ class AuthApi
         string $contentType = self::contentTypes['initiateAuthorization'][0]
     ): array
     {
-        $request = $this->initiateAuthorizationRequest($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $invitationToken, $prompt, $maxAge, $context, $screenHint, $contentType);
+        $request = $this->initiateAuthorizationRequest($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $resource, $organizationId, $invitationToken, $prompt, $maxAge, $context, $screenHint, $contentType);
 
         try {
             $options = $this->createHttpClientOption();
@@ -1655,7 +1659,8 @@ class AuthApi
      * @param  string $state CSRF 対策用のランダムなトークン。 (required)
      * @param  \Studio\Auth\Model\CodeChallengeMethod $codeChallengeMethod (required)
      * @param  string $codeChallenge (required)
-     * @param  string $nonce OIDC リプレイ攻撃対策用の値。レスポンスに含めて検証します。 (required)
+     * @param  string|null $nonce OIDC リプレイ攻撃対策用の値。レスポンスに含めて検証します。  必須です。ただし &#x60;resource&#x60; を指定し、かつ &#x60;scope&#x60; に &#x60;openid&#x60; を含めない場合は省略できます（ID トークンを発行しないため）。 (optional)
+     * @param  string|null $resource アクセストークンを使う先の資源サーバを示す絶対 URI（RFC 8707 Resource Indicators）。fragment は含められません。  指定した値は発行するアクセストークンの &#x60;aud&#x60; になります。認可サーバに登録された資源サーバのものだけを受け付け、未登録の値・形式が不正な値・複数指定は &#x60;invalid_target&#x60; になります。MCP クライアントの受け付けが無効な環境では、指定するだけで &#x60;invalid_target&#x60; になります。  指定した場合、&#x60;scope&#x60; に &#x60;openid&#x60; が無ければ &#x60;openid&#x60; と &#x60;nonce&#x60; は必須になりません。 (optional)
      * @param  string|null $organizationId 認可対象の組織を指定する組織 ID（認可サーバが発行する UUID）。  IdP リダイレクトを伴うフローでは、指定された組織は組織固有の SSO プロバイダ（Okta, Azure AD 等）へのルーティングに使用されます。存在しない、非アクティブ、または IdP 未連携の組織 ID を指定した場合はエラーになります。  IdP が組織を返さないログイン（Google / password / magic link 等）では、認証したユーザがこの組織の active メンバーであることをコールバック時に検証します（メンバーシップは認証が完了して初めて判定できるため、&#x60;/oauth/authorize&#x60; の時点では検証できません）。非メンバーだった場合は認可コードを発行せず、redirect_uri へ &#x60;error&#x3D;access_denied&#x60; を返します。前回のセッションから引き継いだ組織 ID を指定している場合は、それを破棄して &#x60;organization_id&#x60; 無しで再試行してください。IdP が組織を返すログイン（組織の SSO 接続経由）ではこの検証は行われず、IdP が返した組織が &#x60;org_id&#x60; クレームの根拠になります。  有効なセッションがあっても、そのセッションがこの組織で認証されたもの（ログイン時に IdP がこの組織を示したもの）でなければ、セッションを再利用せず、この組織を指定して IdP で認証し直させます。組織ごとの認証ポリシー（MFA の必須化など）は IdP 側にあり、別の組織で認証したセッションには適用されていないためです。&#x60;prompt&#x3D;none&#x60; の場合は &#x60;error&#x3D;login_required&#x60; を返します。  未指定時は認可サーバが下記の順序で組織を解決します:   - ログイン時に IdP が組織を示した場合は、その組織にバインドします（新規ログイン）。   - 認可サーバ側でユーザが active な組織に対して active なメンバーシップをちょうど 1 つだけ持つ場合、その組織に自動的にバインドして &#x60;org_id&#x60; クレーム付きの id_token を発行します（silent SSO / 新規ログイン両フロー）。silent SSO では、上記の組織指定時と同じくセッションがその組織で認証されている必要があります。   - 2 つ以上持つ場合は、認可サーバの組織選択画面で選ばせます（&#x60;prompt&#x3D;none&#x60; では &#x60;error&#x3D;interaction_required&#x60;）。   - 組織未所属の場合は &#x60;org_id&#x60; クレーム無しの id_token が発行されます。 (optional)
      * @param  string|null $invitationToken WorkOS 招待メールに含まれるトークン。指定時は WorkOS AuthKit に招待受諾フローとして パススルーされます。  招待の受諾は IdP 側でしか行えないため、このパラメータを指定したリクエストは、有効な 認証セッションがあってもセッション再利用による即時発行 (silent SSO) や組織選択画面を 経由せず、必ず IdP へリダイレクトします（&#x60;organization_id&#x60; に IdP 未連携の組織を指定した 場合は、セッションが無い場合と同様に 422 で失敗します）。  &#x60;prompt&#x3D;none&#x60; を併用した場合は IdP へリダイレクトできないため、認可コードを発行せず エラーをクライアントの &#x60;redirect_uri&#x60; へ返します。有効なセッションがある場合は &#x60;error&#x3D;interaction_required&#x60;（認証は済んでおり、足りないのは招待受諾という対話のため）、 セッションが無い場合や、対象組織のメンバーでその組織での再認証（組織の切り替え・SSO）が 必要な場合は従来どおり &#x60;error&#x3D;login_required&#x60; です。 (optional)
      * @param  \Studio\Auth\Model\Prompt|null $prompt (optional)
@@ -1675,7 +1680,8 @@ class AuthApi
         string $state,
         \Studio\Auth\Model\CodeChallengeMethod $codeChallengeMethod,
         string $codeChallenge,
-        string $nonce,
+        ?string $nonce = null,
+        ?string $resource = null,
         ?string $organizationId = null,
         ?string $invitationToken = null,
         ?\Studio\Auth\Model\Prompt $prompt = null,
@@ -1685,7 +1691,7 @@ class AuthApi
         string $contentType = self::contentTypes['initiateAuthorization'][0]
     ): PromiseInterface
     {
-        return $this->initiateAuthorizationAsyncWithHttpInfo($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $invitationToken, $prompt, $maxAge, $context, $screenHint, $contentType)
+        return $this->initiateAuthorizationAsyncWithHttpInfo($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $resource, $organizationId, $invitationToken, $prompt, $maxAge, $context, $screenHint, $contentType)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1705,7 +1711,8 @@ class AuthApi
      * @param  string $state CSRF 対策用のランダムなトークン。 (required)
      * @param  \Studio\Auth\Model\CodeChallengeMethod $codeChallengeMethod (required)
      * @param  string $codeChallenge (required)
-     * @param  string $nonce OIDC リプレイ攻撃対策用の値。レスポンスに含めて検証します。 (required)
+     * @param  string|null $nonce OIDC リプレイ攻撃対策用の値。レスポンスに含めて検証します。  必須です。ただし &#x60;resource&#x60; を指定し、かつ &#x60;scope&#x60; に &#x60;openid&#x60; を含めない場合は省略できます（ID トークンを発行しないため）。 (optional)
+     * @param  string|null $resource アクセストークンを使う先の資源サーバを示す絶対 URI（RFC 8707 Resource Indicators）。fragment は含められません。  指定した値は発行するアクセストークンの &#x60;aud&#x60; になります。認可サーバに登録された資源サーバのものだけを受け付け、未登録の値・形式が不正な値・複数指定は &#x60;invalid_target&#x60; になります。MCP クライアントの受け付けが無効な環境では、指定するだけで &#x60;invalid_target&#x60; になります。  指定した場合、&#x60;scope&#x60; に &#x60;openid&#x60; が無ければ &#x60;openid&#x60; と &#x60;nonce&#x60; は必須になりません。 (optional)
      * @param  string|null $organizationId 認可対象の組織を指定する組織 ID（認可サーバが発行する UUID）。  IdP リダイレクトを伴うフローでは、指定された組織は組織固有の SSO プロバイダ（Okta, Azure AD 等）へのルーティングに使用されます。存在しない、非アクティブ、または IdP 未連携の組織 ID を指定した場合はエラーになります。  IdP が組織を返さないログイン（Google / password / magic link 等）では、認証したユーザがこの組織の active メンバーであることをコールバック時に検証します（メンバーシップは認証が完了して初めて判定できるため、&#x60;/oauth/authorize&#x60; の時点では検証できません）。非メンバーだった場合は認可コードを発行せず、redirect_uri へ &#x60;error&#x3D;access_denied&#x60; を返します。前回のセッションから引き継いだ組織 ID を指定している場合は、それを破棄して &#x60;organization_id&#x60; 無しで再試行してください。IdP が組織を返すログイン（組織の SSO 接続経由）ではこの検証は行われず、IdP が返した組織が &#x60;org_id&#x60; クレームの根拠になります。  有効なセッションがあっても、そのセッションがこの組織で認証されたもの（ログイン時に IdP がこの組織を示したもの）でなければ、セッションを再利用せず、この組織を指定して IdP で認証し直させます。組織ごとの認証ポリシー（MFA の必須化など）は IdP 側にあり、別の組織で認証したセッションには適用されていないためです。&#x60;prompt&#x3D;none&#x60; の場合は &#x60;error&#x3D;login_required&#x60; を返します。  未指定時は認可サーバが下記の順序で組織を解決します:   - ログイン時に IdP が組織を示した場合は、その組織にバインドします（新規ログイン）。   - 認可サーバ側でユーザが active な組織に対して active なメンバーシップをちょうど 1 つだけ持つ場合、その組織に自動的にバインドして &#x60;org_id&#x60; クレーム付きの id_token を発行します（silent SSO / 新規ログイン両フロー）。silent SSO では、上記の組織指定時と同じくセッションがその組織で認証されている必要があります。   - 2 つ以上持つ場合は、認可サーバの組織選択画面で選ばせます（&#x60;prompt&#x3D;none&#x60; では &#x60;error&#x3D;interaction_required&#x60;）。   - 組織未所属の場合は &#x60;org_id&#x60; クレーム無しの id_token が発行されます。 (optional)
      * @param  string|null $invitationToken WorkOS 招待メールに含まれるトークン。指定時は WorkOS AuthKit に招待受諾フローとして パススルーされます。  招待の受諾は IdP 側でしか行えないため、このパラメータを指定したリクエストは、有効な 認証セッションがあってもセッション再利用による即時発行 (silent SSO) や組織選択画面を 経由せず、必ず IdP へリダイレクトします（&#x60;organization_id&#x60; に IdP 未連携の組織を指定した 場合は、セッションが無い場合と同様に 422 で失敗します）。  &#x60;prompt&#x3D;none&#x60; を併用した場合は IdP へリダイレクトできないため、認可コードを発行せず エラーをクライアントの &#x60;redirect_uri&#x60; へ返します。有効なセッションがある場合は &#x60;error&#x3D;interaction_required&#x60;（認証は済んでおり、足りないのは招待受諾という対話のため）、 セッションが無い場合や、対象組織のメンバーでその組織での再認証（組織の切り替え・SSO）が 必要な場合は従来どおり &#x60;error&#x3D;login_required&#x60; です。 (optional)
      * @param  \Studio\Auth\Model\Prompt|null $prompt (optional)
@@ -1725,7 +1732,8 @@ class AuthApi
         string $state,
         \Studio\Auth\Model\CodeChallengeMethod $codeChallengeMethod,
         string $codeChallenge,
-        string $nonce,
+        ?string $nonce = null,
+        ?string $resource = null,
         ?string $organizationId = null,
         ?string $invitationToken = null,
         ?\Studio\Auth\Model\Prompt $prompt = null,
@@ -1736,7 +1744,7 @@ class AuthApi
     ): PromiseInterface
     {
         $returnType = '';
-        $request = $this->initiateAuthorizationRequest($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $organizationId, $invitationToken, $prompt, $maxAge, $context, $screenHint, $contentType);
+        $request = $this->initiateAuthorizationRequest($responseType, $clientId, $redirectUri, $scope, $state, $codeChallengeMethod, $codeChallenge, $nonce, $resource, $organizationId, $invitationToken, $prompt, $maxAge, $context, $screenHint, $contentType);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1801,7 +1809,8 @@ class AuthApi
      * @param  string $state CSRF 対策用のランダムなトークン。 (required)
      * @param  \Studio\Auth\Model\CodeChallengeMethod $codeChallengeMethod (required)
      * @param  string $codeChallenge (required)
-     * @param  string $nonce OIDC リプレイ攻撃対策用の値。レスポンスに含めて検証します。 (required)
+     * @param  string|null $nonce OIDC リプレイ攻撃対策用の値。レスポンスに含めて検証します。  必須です。ただし &#x60;resource&#x60; を指定し、かつ &#x60;scope&#x60; に &#x60;openid&#x60; を含めない場合は省略できます（ID トークンを発行しないため）。 (optional)
+     * @param  string|null $resource アクセストークンを使う先の資源サーバを示す絶対 URI（RFC 8707 Resource Indicators）。fragment は含められません。  指定した値は発行するアクセストークンの &#x60;aud&#x60; になります。認可サーバに登録された資源サーバのものだけを受け付け、未登録の値・形式が不正な値・複数指定は &#x60;invalid_target&#x60; になります。MCP クライアントの受け付けが無効な環境では、指定するだけで &#x60;invalid_target&#x60; になります。  指定した場合、&#x60;scope&#x60; に &#x60;openid&#x60; が無ければ &#x60;openid&#x60; と &#x60;nonce&#x60; は必須になりません。 (optional)
      * @param  string|null $organizationId 認可対象の組織を指定する組織 ID（認可サーバが発行する UUID）。  IdP リダイレクトを伴うフローでは、指定された組織は組織固有の SSO プロバイダ（Okta, Azure AD 等）へのルーティングに使用されます。存在しない、非アクティブ、または IdP 未連携の組織 ID を指定した場合はエラーになります。  IdP が組織を返さないログイン（Google / password / magic link 等）では、認証したユーザがこの組織の active メンバーであることをコールバック時に検証します（メンバーシップは認証が完了して初めて判定できるため、&#x60;/oauth/authorize&#x60; の時点では検証できません）。非メンバーだった場合は認可コードを発行せず、redirect_uri へ &#x60;error&#x3D;access_denied&#x60; を返します。前回のセッションから引き継いだ組織 ID を指定している場合は、それを破棄して &#x60;organization_id&#x60; 無しで再試行してください。IdP が組織を返すログイン（組織の SSO 接続経由）ではこの検証は行われず、IdP が返した組織が &#x60;org_id&#x60; クレームの根拠になります。  有効なセッションがあっても、そのセッションがこの組織で認証されたもの（ログイン時に IdP がこの組織を示したもの）でなければ、セッションを再利用せず、この組織を指定して IdP で認証し直させます。組織ごとの認証ポリシー（MFA の必須化など）は IdP 側にあり、別の組織で認証したセッションには適用されていないためです。&#x60;prompt&#x3D;none&#x60; の場合は &#x60;error&#x3D;login_required&#x60; を返します。  未指定時は認可サーバが下記の順序で組織を解決します:   - ログイン時に IdP が組織を示した場合は、その組織にバインドします（新規ログイン）。   - 認可サーバ側でユーザが active な組織に対して active なメンバーシップをちょうど 1 つだけ持つ場合、その組織に自動的にバインドして &#x60;org_id&#x60; クレーム付きの id_token を発行します（silent SSO / 新規ログイン両フロー）。silent SSO では、上記の組織指定時と同じくセッションがその組織で認証されている必要があります。   - 2 つ以上持つ場合は、認可サーバの組織選択画面で選ばせます（&#x60;prompt&#x3D;none&#x60; では &#x60;error&#x3D;interaction_required&#x60;）。   - 組織未所属の場合は &#x60;org_id&#x60; クレーム無しの id_token が発行されます。 (optional)
      * @param  string|null $invitationToken WorkOS 招待メールに含まれるトークン。指定時は WorkOS AuthKit に招待受諾フローとして パススルーされます。  招待の受諾は IdP 側でしか行えないため、このパラメータを指定したリクエストは、有効な 認証セッションがあってもセッション再利用による即時発行 (silent SSO) や組織選択画面を 経由せず、必ず IdP へリダイレクトします（&#x60;organization_id&#x60; に IdP 未連携の組織を指定した 場合は、セッションが無い場合と同様に 422 で失敗します）。  &#x60;prompt&#x3D;none&#x60; を併用した場合は IdP へリダイレクトできないため、認可コードを発行せず エラーをクライアントの &#x60;redirect_uri&#x60; へ返します。有効なセッションがある場合は &#x60;error&#x3D;interaction_required&#x60;（認証は済んでおり、足りないのは招待受諾という対話のため）、 セッションが無い場合や、対象組織のメンバーでその組織での再認証（組織の切り替え・SSO）が 必要な場合は従来どおり &#x60;error&#x3D;login_required&#x60; です。 (optional)
      * @param  \Studio\Auth\Model\Prompt|null $prompt (optional)
@@ -1821,7 +1830,8 @@ class AuthApi
         string $state,
         \Studio\Auth\Model\CodeChallengeMethod $codeChallengeMethod,
         string $codeChallenge,
-        string $nonce,
+        ?string $nonce = null,
+        ?string $resource = null,
         ?string $organizationId = null,
         ?string $invitationToken = null,
         ?\Studio\Auth\Model\Prompt $prompt = null,
@@ -1908,20 +1918,18 @@ class AuthApi
             );
         }
 
-        // verify the required parameter 'nonce' is set
-        if ($nonce === null || (is_array($nonce) && count($nonce) === 0)) {
-            throw new InvalidArgumentException(
-                'Missing the required parameter $nonce when calling initiateAuthorization'
-            );
-        }
-        if (mb_strlen($nonce, 'UTF-8') > 255) {
+        if ($nonce !== null && mb_strlen($nonce, 'UTF-8') > 255) {
             throw new InvalidArgumentException('invalid length for "$nonce" when calling AuthApi.initiateAuthorization, must be smaller than or equal to 255.');
         }
-        if (mb_strlen($nonce, 'UTF-8') < 8) {
+        if ($nonce !== null && mb_strlen($nonce, 'UTF-8') < 8) {
             throw new InvalidArgumentException('invalid length for "$nonce" when calling AuthApi.initiateAuthorization, must be bigger than or equal to 8.');
         }
-        if (!preg_match("/^[A-Za-z0-9._~+\/=-]{8,255}$/", $nonce)) {
+        if ($nonce !== null && !preg_match("/^[A-Za-z0-9._~+\/=-]{8,255}$/", $nonce)) {
             throw new InvalidArgumentException("invalid value for \"nonce\" when calling AuthApi.initiateAuthorization, must conform to the pattern /^[A-Za-z0-9._~+\/=-]{8,255}$/.");
+        }
+        
+        if ($resource !== null && mb_strlen($resource, 'UTF-8') > 512) {
+            throw new InvalidArgumentException('invalid length for "$resource" when calling AuthApi.initiateAuthorization, must be smaller than or equal to 512.');
         }
         
 
@@ -2026,7 +2034,16 @@ class AuthApi
             'string', // openApiType
             'form', // style
             true, // explode
-            true // required
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $resource,
+            'resource', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
         ) ?? []);
         // query params
         $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
@@ -2511,6 +2528,7 @@ class AuthApi
      * @param  string|null $codeVerifier PKCE (RFC 7636) のコードベリファイア。  クライアントが生成したランダム文字列で、&#x60;code_challenge&#x60; の元となる値です。 トークンエンドポイントで検証に使用されます。 (optional)
      * @param  string|null $refreshToken 事前に発行されたリフレッシュトークン。再発行時には同じスコープまたはそのサブセットを要求できます。 (optional)
      * @param  string|null $scope Refresh Token グラントにおいて、元のトークンより狭い権限を要求する場合に限定して指定できます。 元の認可リクエストで承認されたスコープのサブセットのみが許可されます。 (optional)
+     * @param  string|null $resource アクセストークンを使う先の資源サーバ（RFC 8707）。省略するか、認可リクエストで指定した値と同じ値だけを指定できます。 認可リクエストで指定した場合、発行するアクセストークンの &#x60;aud&#x60; はその値になります。 (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['issueTokens'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -2528,10 +2546,11 @@ class AuthApi
         ?string $codeVerifier = null,
         ?string $refreshToken = null,
         ?string $scope = null,
+        ?string $resource = null,
         string $contentType = self::contentTypes['issueTokens'][0]
     ): \Studio\Auth\Model\TokenResponse
     {
-        [$response] = $this->issueTokensWithHttpInfo($grantType, $clientId, $clientSecret, $clientAssertionType, $clientAssertion, $code, $redirectUri, $codeVerifier, $refreshToken, $scope, $contentType);
+        [$response] = $this->issueTokensWithHttpInfo($grantType, $clientId, $clientSecret, $clientAssertionType, $clientAssertion, $code, $redirectUri, $codeVerifier, $refreshToken, $scope, $resource, $contentType);
 
         return $response;
     }
@@ -2551,6 +2570,7 @@ class AuthApi
      * @param  string|null $codeVerifier PKCE (RFC 7636) のコードベリファイア。  クライアントが生成したランダム文字列で、&#x60;code_challenge&#x60; の元となる値です。 トークンエンドポイントで検証に使用されます。 (optional)
      * @param  string|null $refreshToken 事前に発行されたリフレッシュトークン。再発行時には同じスコープまたはそのサブセットを要求できます。 (optional)
      * @param  string|null $scope Refresh Token グラントにおいて、元のトークンより狭い権限を要求する場合に限定して指定できます。 元の認可リクエストで承認されたスコープのサブセットのみが許可されます。 (optional)
+     * @param  string|null $resource アクセストークンを使う先の資源サーバ（RFC 8707）。省略するか、認可リクエストで指定した値と同じ値だけを指定できます。 認可リクエストで指定した場合、発行するアクセストークンの &#x60;aud&#x60; はその値になります。 (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['issueTokens'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -2568,10 +2588,11 @@ class AuthApi
         ?string $codeVerifier = null,
         ?string $refreshToken = null,
         ?string $scope = null,
+        ?string $resource = null,
         string $contentType = self::contentTypes['issueTokens'][0]
     ): array
     {
-        $request = $this->issueTokensRequest($grantType, $clientId, $clientSecret, $clientAssertionType, $clientAssertion, $code, $redirectUri, $codeVerifier, $refreshToken, $scope, $contentType);
+        $request = $this->issueTokensRequest($grantType, $clientId, $clientSecret, $clientAssertionType, $clientAssertion, $code, $redirectUri, $codeVerifier, $refreshToken, $scope, $resource, $contentType);
 
         try {
             $options = $this->createHttpClientOption();
@@ -2634,6 +2655,7 @@ class AuthApi
      * @param  string|null $codeVerifier PKCE (RFC 7636) のコードベリファイア。  クライアントが生成したランダム文字列で、&#x60;code_challenge&#x60; の元となる値です。 トークンエンドポイントで検証に使用されます。 (optional)
      * @param  string|null $refreshToken 事前に発行されたリフレッシュトークン。再発行時には同じスコープまたはそのサブセットを要求できます。 (optional)
      * @param  string|null $scope Refresh Token グラントにおいて、元のトークンより狭い権限を要求する場合に限定して指定できます。 元の認可リクエストで承認されたスコープのサブセットのみが許可されます。 (optional)
+     * @param  string|null $resource アクセストークンを使う先の資源サーバ（RFC 8707）。省略するか、認可リクエストで指定した値と同じ値だけを指定できます。 認可リクエストで指定した場合、発行するアクセストークンの &#x60;aud&#x60; はその値になります。 (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['issueTokens'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2650,10 +2672,11 @@ class AuthApi
         ?string $codeVerifier = null,
         ?string $refreshToken = null,
         ?string $scope = null,
+        ?string $resource = null,
         string $contentType = self::contentTypes['issueTokens'][0]
     ): PromiseInterface
     {
-        return $this->issueTokensAsyncWithHttpInfo($grantType, $clientId, $clientSecret, $clientAssertionType, $clientAssertion, $code, $redirectUri, $codeVerifier, $refreshToken, $scope, $contentType)
+        return $this->issueTokensAsyncWithHttpInfo($grantType, $clientId, $clientSecret, $clientAssertionType, $clientAssertion, $code, $redirectUri, $codeVerifier, $refreshToken, $scope, $resource, $contentType)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2676,6 +2699,7 @@ class AuthApi
      * @param  string|null $codeVerifier PKCE (RFC 7636) のコードベリファイア。  クライアントが生成したランダム文字列で、&#x60;code_challenge&#x60; の元となる値です。 トークンエンドポイントで検証に使用されます。 (optional)
      * @param  string|null $refreshToken 事前に発行されたリフレッシュトークン。再発行時には同じスコープまたはそのサブセットを要求できます。 (optional)
      * @param  string|null $scope Refresh Token グラントにおいて、元のトークンより狭い権限を要求する場合に限定して指定できます。 元の認可リクエストで承認されたスコープのサブセットのみが許可されます。 (optional)
+     * @param  string|null $resource アクセストークンを使う先の資源サーバ（RFC 8707）。省略するか、認可リクエストで指定した値と同じ値だけを指定できます。 認可リクエストで指定した場合、発行するアクセストークンの &#x60;aud&#x60; はその値になります。 (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['issueTokens'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2692,11 +2716,12 @@ class AuthApi
         ?string $codeVerifier = null,
         ?string $refreshToken = null,
         ?string $scope = null,
+        ?string $resource = null,
         string $contentType = self::contentTypes['issueTokens'][0]
     ): PromiseInterface
     {
         $returnType = '\Studio\Auth\Model\TokenResponse';
-        $request = $this->issueTokensRequest($grantType, $clientId, $clientSecret, $clientAssertionType, $clientAssertion, $code, $redirectUri, $codeVerifier, $refreshToken, $scope, $contentType);
+        $request = $this->issueTokensRequest($grantType, $clientId, $clientSecret, $clientAssertionType, $clientAssertion, $code, $redirectUri, $codeVerifier, $refreshToken, $scope, $resource, $contentType);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2777,6 +2802,7 @@ class AuthApi
      * @param  string|null $codeVerifier PKCE (RFC 7636) のコードベリファイア。  クライアントが生成したランダム文字列で、&#x60;code_challenge&#x60; の元となる値です。 トークンエンドポイントで検証に使用されます。 (optional)
      * @param  string|null $refreshToken 事前に発行されたリフレッシュトークン。再発行時には同じスコープまたはそのサブセットを要求できます。 (optional)
      * @param  string|null $scope Refresh Token グラントにおいて、元のトークンより狭い権限を要求する場合に限定して指定できます。 元の認可リクエストで承認されたスコープのサブセットのみが許可されます。 (optional)
+     * @param  string|null $resource アクセストークンを使う先の資源サーバ（RFC 8707）。省略するか、認可リクエストで指定した値と同じ値だけを指定できます。 認可リクエストで指定した場合、発行するアクセストークンの &#x60;aud&#x60; はその値になります。 (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['issueTokens'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2793,6 +2819,7 @@ class AuthApi
         ?string $codeVerifier = null,
         ?string $refreshToken = null,
         ?string $scope = null,
+        ?string $resource = null,
         string $contentType = self::contentTypes['issueTokens'][0]
     ): Request
     {
@@ -2828,6 +2855,10 @@ class AuthApi
         }
         
 
+        if ($resource !== null && mb_strlen($resource, 'UTF-8') > 512) {
+            throw new InvalidArgumentException('invalid length for "$resource" when calling AuthApi.issueTokens, must be smaller than or equal to 512.');
+        }
+        
 
         $resourcePath = '/oauth/token';
         $formParams = [];
@@ -2853,6 +2884,7 @@ class AuthApi
             'code_verifier' => $codeVerifier,
             'refresh_token' => $refreshToken,
             'scope' => $scope,
+            'resource' => $resource,
         ]);
 
         $formParams = $formDataProcessor->flatten($formData);
