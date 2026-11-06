@@ -38,7 +38,7 @@ use JsonSerializable;
 /**
  * OrganizationUpdateRequest Class Doc Comment
  *
- * @description 組織情報更新リクエスト（組織メンバー向け）。 指定されたフィールドのみが更新されます。  user-facing 版は &#x60;display_name&#x60; のみ更新可能です。 &#x60;name&#x60; (slug) / &#x60;is_active&#x60; / &#x60;is_sso_enforced&#x60; は管理者専用エンドポイント (&#x60;PATCH /admin/organizations/{organization_id}&#x60;) からのみ更新できます。
+ * @description 組織情報更新リクエスト（組織メンバー向け）。 指定されたフィールドのみが更新されます。  user-facing 版は &#x60;display_name&#x60; のみ更新可能です。 &#x60;name&#x60; (slug) / &#x60;is_active&#x60; / &#x60;is_sso_enforced&#x60; / &#x60;is_audit_forwarding_enabled&#x60; は管理者専用エンドポイント (&#x60;PATCH /admin/organizations/{organization_id}&#x60;) からのみ更新できます。
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech

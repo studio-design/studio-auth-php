@@ -66,6 +66,7 @@ class MyOrganization implements ModelInterface, ArrayAccess, JsonSerializable
         'displayName' => 'string',
         'isActive' => 'bool',
         'isSsoEnforced' => 'bool',
+        'isAuditForwardingEnabled' => 'bool',
         'createdAt' => '\DateTime',
         'updatedAt' => '\DateTime',
         'domainVerificationStatus' => '\Studio\Auth\Model\DomainVerificationStatus',
@@ -83,6 +84,7 @@ class MyOrganization implements ModelInterface, ArrayAccess, JsonSerializable
         'displayName' => null,
         'isActive' => null,
         'isSsoEnforced' => null,
+        'isAuditForwardingEnabled' => null,
         'createdAt' => 'date-time',
         'updatedAt' => 'date-time',
         'domainVerificationStatus' => null,
@@ -100,6 +102,7 @@ class MyOrganization implements ModelInterface, ArrayAccess, JsonSerializable
         'displayName' => true,
         'isActive' => false,
         'isSsoEnforced' => false,
+        'isAuditForwardingEnabled' => false,
         'createdAt' => false,
         'updatedAt' => false,
         'domainVerificationStatus' => false,
@@ -197,6 +200,7 @@ class MyOrganization implements ModelInterface, ArrayAccess, JsonSerializable
         'displayName' => 'display_name',
         'isActive' => 'is_active',
         'isSsoEnforced' => 'is_sso_enforced',
+        'isAuditForwardingEnabled' => 'is_audit_forwarding_enabled',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at',
         'domainVerificationStatus' => 'domain_verification_status',
@@ -214,6 +218,7 @@ class MyOrganization implements ModelInterface, ArrayAccess, JsonSerializable
         'displayName' => 'setDisplayName',
         'isActive' => 'setIsActive',
         'isSsoEnforced' => 'setIsSsoEnforced',
+        'isAuditForwardingEnabled' => 'setIsAuditForwardingEnabled',
         'createdAt' => 'setCreatedAt',
         'updatedAt' => 'setUpdatedAt',
         'domainVerificationStatus' => 'setDomainVerificationStatus',
@@ -231,6 +236,7 @@ class MyOrganization implements ModelInterface, ArrayAccess, JsonSerializable
         'displayName' => 'getDisplayName',
         'isActive' => 'getIsActive',
         'isSsoEnforced' => 'getIsSsoEnforced',
+        'isAuditForwardingEnabled' => 'getIsAuditForwardingEnabled',
         'createdAt' => 'getCreatedAt',
         'updatedAt' => 'getUpdatedAt',
         'domainVerificationStatus' => 'getDomainVerificationStatus',
@@ -299,6 +305,7 @@ class MyOrganization implements ModelInterface, ArrayAccess, JsonSerializable
         $this->setIfExists('displayName', $data ?? [], null);
         $this->setIfExists('isActive', $data ?? [], true);
         $this->setIfExists('isSsoEnforced', $data ?? [], false);
+        $this->setIfExists('isAuditForwardingEnabled', $data ?? [], null);
         $this->setIfExists('createdAt', $data ?? [], null);
         $this->setIfExists('updatedAt', $data ?? [], null);
         $this->setIfExists('domainVerificationStatus', $data ?? [], null);
@@ -362,6 +369,9 @@ class MyOrganization implements ModelInterface, ArrayAccess, JsonSerializable
         }
         if ($this->container['isSsoEnforced'] === null) {
             $invalidProperties[] = "'isSsoEnforced' can't be null";
+        }
+        if ($this->container['isAuditForwardingEnabled'] === null) {
+            $invalidProperties[] = "'isAuditForwardingEnabled' can't be null";
         }
         if ($this->container['createdAt'] === null) {
             $invalidProperties[] = "'createdAt' can't be null";
@@ -542,6 +552,33 @@ class MyOrganization implements ModelInterface, ArrayAccess, JsonSerializable
             throw new InvalidArgumentException('non-nullable isSsoEnforced cannot be null');
         }
         $this->container['isSsoEnforced'] = $isSsoEnforced;
+
+        return $this;
+    }
+
+    /**
+     * Gets isAuditForwardingEnabled
+     *
+     * @return bool
+     */
+    public function getIsAuditForwardingEnabled(): bool
+    {
+        return $this->container['isAuditForwardingEnabled'];
+    }
+
+    /**
+     * Sets isAuditForwardingEnabled
+     *
+     * @param bool $isAuditForwardingEnabled 監査ログを WorkOS へ転送しているかどうか（組織単位の opt-in）。 `false` の組織では、Admin Portal の `audit_log` intent は 403 になります。
+     *
+     * @return $this
+     */
+    public function setIsAuditForwardingEnabled(bool $isAuditForwardingEnabled): static
+    {
+        if (is_null($isAuditForwardingEnabled)) {
+            throw new InvalidArgumentException('non-nullable isAuditForwardingEnabled cannot be null');
+        }
+        $this->container['isAuditForwardingEnabled'] = $isAuditForwardingEnabled;
 
         return $this;
     }
