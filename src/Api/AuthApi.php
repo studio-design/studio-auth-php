@@ -2519,7 +2519,7 @@ class AuthApi
      * トークンエンドポイント
      *
      * @param  mixed|null $grantType grantType (required)
-     * @param  string|null $clientId OAuth 2.0 クライアント識別子。  HTTP Basic 認証で送信する場合（&#x60;client_secret_basic&#x60;）は本文での指定は任意です。 &#x60;client_secret_post&#x60; / &#x60;private_key_jwt&#x60; で送信する場合は本文に含めることが必須です。 (optional)
+     * @param  string|null $clientId OAuth 2.0 クライアント識別子。  HTTP Basic 認証で送信する場合（&#x60;client_secret_basic&#x60;）は本文での指定は任意です。 &#x60;client_secret_post&#x60; / &#x60;private_key_jwt&#x60; / &#x60;none&#x60; で送信する場合は本文に含めることが必須です。 (optional)
      * @param  string|null $clientSecret OAuth 2.0 クライアントシークレット。&#x60;client_secret_post&#x60; 認証方式でのみ使用します。  &#x60;client_assertion&#x60; と同時に送ることはできません（排他）。HTTP Basic 認証でクレデンシャルを送信する場合は本文に含めないでください。 (optional)
      * @param  string|null $clientAssertionType &#x60;client_assertion&#x60; が JWT bearer assertion であることを示す識別子 (RFC 7521 §4.2)。 &#x60;private_key_jwt&#x60; 認証方式を使う場合は必ず &#x60;client_assertion&#x60; と同時に送信してください。 (optional)
      * @param  string|null $clientAssertion &#x60;private_key_jwt&#x60; 認証方式 (RFC 7523) におけるクライアントアサーション JWT。  - &#x60;header.alg&#x60;: 認可サーバーが対応する非対称アルゴリズム (&#x60;RS256&#x60; / &#x60;ES256&#x60;) - &#x60;header.kid&#x60;: 認可サーバーに登録された公開鍵の識別子 - &#x60;iss&#x60; / &#x60;sub&#x60;: ともに &#x60;client_id&#x60; と一致する必要があります - &#x60;aud&#x60;: Issuer URL（トークンエンドポイント URL も現在は受理します） - &#x60;exp&#x60; / &#x60;iat&#x60;: 必須。&#x60;iat&#x60; は認可サーバーの現在時刻より未来であってはならず、&#x60;exp - iat&#x60; は認可サーバーの許容ライフタイム以内 - &#x60;jti&#x60;: 必須。リプレイ検知のため短期間の一意性が強制されます (optional)
@@ -2561,7 +2561,7 @@ class AuthApi
      * トークンエンドポイント
      *
      * @param  mixed|null $grantType (required)
-     * @param  string|null $clientId OAuth 2.0 クライアント識別子。  HTTP Basic 認証で送信する場合（&#x60;client_secret_basic&#x60;）は本文での指定は任意です。 &#x60;client_secret_post&#x60; / &#x60;private_key_jwt&#x60; で送信する場合は本文に含めることが必須です。 (optional)
+     * @param  string|null $clientId OAuth 2.0 クライアント識別子。  HTTP Basic 認証で送信する場合（&#x60;client_secret_basic&#x60;）は本文での指定は任意です。 &#x60;client_secret_post&#x60; / &#x60;private_key_jwt&#x60; / &#x60;none&#x60; で送信する場合は本文に含めることが必須です。 (optional)
      * @param  string|null $clientSecret OAuth 2.0 クライアントシークレット。&#x60;client_secret_post&#x60; 認証方式でのみ使用します。  &#x60;client_assertion&#x60; と同時に送ることはできません（排他）。HTTP Basic 認証でクレデンシャルを送信する場合は本文に含めないでください。 (optional)
      * @param  string|null $clientAssertionType &#x60;client_assertion&#x60; が JWT bearer assertion であることを示す識別子 (RFC 7521 §4.2)。 &#x60;private_key_jwt&#x60; 認証方式を使う場合は必ず &#x60;client_assertion&#x60; と同時に送信してください。 (optional)
      * @param  string|null $clientAssertion &#x60;private_key_jwt&#x60; 認証方式 (RFC 7523) におけるクライアントアサーション JWT。  - &#x60;header.alg&#x60;: 認可サーバーが対応する非対称アルゴリズム (&#x60;RS256&#x60; / &#x60;ES256&#x60;) - &#x60;header.kid&#x60;: 認可サーバーに登録された公開鍵の識別子 - &#x60;iss&#x60; / &#x60;sub&#x60;: ともに &#x60;client_id&#x60; と一致する必要があります - &#x60;aud&#x60;: Issuer URL（トークンエンドポイント URL も現在は受理します） - &#x60;exp&#x60; / &#x60;iat&#x60;: 必須。&#x60;iat&#x60; は認可サーバーの現在時刻より未来であってはならず、&#x60;exp - iat&#x60; は認可サーバーの許容ライフタイム以内 - &#x60;jti&#x60;: 必須。リプレイ検知のため短期間の一意性が強制されます (optional)
@@ -2646,7 +2646,7 @@ class AuthApi
      * トークンエンドポイント
      *
      * @param  mixed|null $grantType (required)
-     * @param  string|null $clientId OAuth 2.0 クライアント識別子。  HTTP Basic 認証で送信する場合（&#x60;client_secret_basic&#x60;）は本文での指定は任意です。 &#x60;client_secret_post&#x60; / &#x60;private_key_jwt&#x60; で送信する場合は本文に含めることが必須です。 (optional)
+     * @param  string|null $clientId OAuth 2.0 クライアント識別子。  HTTP Basic 認証で送信する場合（&#x60;client_secret_basic&#x60;）は本文での指定は任意です。 &#x60;client_secret_post&#x60; / &#x60;private_key_jwt&#x60; / &#x60;none&#x60; で送信する場合は本文に含めることが必須です。 (optional)
      * @param  string|null $clientSecret OAuth 2.0 クライアントシークレット。&#x60;client_secret_post&#x60; 認証方式でのみ使用します。  &#x60;client_assertion&#x60; と同時に送ることはできません（排他）。HTTP Basic 認証でクレデンシャルを送信する場合は本文に含めないでください。 (optional)
      * @param  string|null $clientAssertionType &#x60;client_assertion&#x60; が JWT bearer assertion であることを示す識別子 (RFC 7521 §4.2)。 &#x60;private_key_jwt&#x60; 認証方式を使う場合は必ず &#x60;client_assertion&#x60; と同時に送信してください。 (optional)
      * @param  string|null $clientAssertion &#x60;private_key_jwt&#x60; 認証方式 (RFC 7523) におけるクライアントアサーション JWT。  - &#x60;header.alg&#x60;: 認可サーバーが対応する非対称アルゴリズム (&#x60;RS256&#x60; / &#x60;ES256&#x60;) - &#x60;header.kid&#x60;: 認可サーバーに登録された公開鍵の識別子 - &#x60;iss&#x60; / &#x60;sub&#x60;: ともに &#x60;client_id&#x60; と一致する必要があります - &#x60;aud&#x60;: Issuer URL（トークンエンドポイント URL も現在は受理します） - &#x60;exp&#x60; / &#x60;iat&#x60;: 必須。&#x60;iat&#x60; は認可サーバーの現在時刻より未来であってはならず、&#x60;exp - iat&#x60; は認可サーバーの許容ライフタイム以内 - &#x60;jti&#x60;: 必須。リプレイ検知のため短期間の一意性が強制されます (optional)
@@ -2690,7 +2690,7 @@ class AuthApi
      * トークンエンドポイント
      *
      * @param  mixed|null $grantType (required)
-     * @param  string|null $clientId OAuth 2.0 クライアント識別子。  HTTP Basic 認証で送信する場合（&#x60;client_secret_basic&#x60;）は本文での指定は任意です。 &#x60;client_secret_post&#x60; / &#x60;private_key_jwt&#x60; で送信する場合は本文に含めることが必須です。 (optional)
+     * @param  string|null $clientId OAuth 2.0 クライアント識別子。  HTTP Basic 認証で送信する場合（&#x60;client_secret_basic&#x60;）は本文での指定は任意です。 &#x60;client_secret_post&#x60; / &#x60;private_key_jwt&#x60; / &#x60;none&#x60; で送信する場合は本文に含めることが必須です。 (optional)
      * @param  string|null $clientSecret OAuth 2.0 クライアントシークレット。&#x60;client_secret_post&#x60; 認証方式でのみ使用します。  &#x60;client_assertion&#x60; と同時に送ることはできません（排他）。HTTP Basic 認証でクレデンシャルを送信する場合は本文に含めないでください。 (optional)
      * @param  string|null $clientAssertionType &#x60;client_assertion&#x60; が JWT bearer assertion であることを示す識別子 (RFC 7521 §4.2)。 &#x60;private_key_jwt&#x60; 認証方式を使う場合は必ず &#x60;client_assertion&#x60; と同時に送信してください。 (optional)
      * @param  string|null $clientAssertion &#x60;private_key_jwt&#x60; 認証方式 (RFC 7523) におけるクライアントアサーション JWT。  - &#x60;header.alg&#x60;: 認可サーバーが対応する非対称アルゴリズム (&#x60;RS256&#x60; / &#x60;ES256&#x60;) - &#x60;header.kid&#x60;: 認可サーバーに登録された公開鍵の識別子 - &#x60;iss&#x60; / &#x60;sub&#x60;: ともに &#x60;client_id&#x60; と一致する必要があります - &#x60;aud&#x60;: Issuer URL（トークンエンドポイント URL も現在は受理します） - &#x60;exp&#x60; / &#x60;iat&#x60;: 必須。&#x60;iat&#x60; は認可サーバーの現在時刻より未来であってはならず、&#x60;exp - iat&#x60; は認可サーバーの許容ライフタイム以内 - &#x60;jti&#x60;: 必須。リプレイ検知のため短期間の一意性が強制されます (optional)
@@ -2793,7 +2793,7 @@ class AuthApi
      * Create request for operation 'issueTokens'
      *
      * @param  mixed|null $grantType (required)
-     * @param  string|null $clientId OAuth 2.0 クライアント識別子。  HTTP Basic 認証で送信する場合（&#x60;client_secret_basic&#x60;）は本文での指定は任意です。 &#x60;client_secret_post&#x60; / &#x60;private_key_jwt&#x60; で送信する場合は本文に含めることが必須です。 (optional)
+     * @param  string|null $clientId OAuth 2.0 クライアント識別子。  HTTP Basic 認証で送信する場合（&#x60;client_secret_basic&#x60;）は本文での指定は任意です。 &#x60;client_secret_post&#x60; / &#x60;private_key_jwt&#x60; / &#x60;none&#x60; で送信する場合は本文に含めることが必須です。 (optional)
      * @param  string|null $clientSecret OAuth 2.0 クライアントシークレット。&#x60;client_secret_post&#x60; 認証方式でのみ使用します。  &#x60;client_assertion&#x60; と同時に送ることはできません（排他）。HTTP Basic 認証でクレデンシャルを送信する場合は本文に含めないでください。 (optional)
      * @param  string|null $clientAssertionType &#x60;client_assertion&#x60; が JWT bearer assertion であることを示す識別子 (RFC 7521 §4.2)。 &#x60;private_key_jwt&#x60; 認証方式を使う場合は必ず &#x60;client_assertion&#x60; と同時に送信してください。 (optional)
      * @param  string|null $clientAssertion &#x60;private_key_jwt&#x60; 認証方式 (RFC 7523) におけるクライアントアサーション JWT。  - &#x60;header.alg&#x60;: 認可サーバーが対応する非対称アルゴリズム (&#x60;RS256&#x60; / &#x60;ES256&#x60;) - &#x60;header.kid&#x60;: 認可サーバーに登録された公開鍵の識別子 - &#x60;iss&#x60; / &#x60;sub&#x60;: ともに &#x60;client_id&#x60; と一致する必要があります - &#x60;aud&#x60;: Issuer URL（トークンエンドポイント URL も現在は受理します） - &#x60;exp&#x60; / &#x60;iat&#x60;: 必須。&#x60;iat&#x60; は認可サーバーの現在時刻より未来であってはならず、&#x60;exp - iat&#x60; は認可サーバーの許容ライフタイム以内 - &#x60;jti&#x60;: 必須。リプレイ検知のため短期間の一意性が強制されます (optional)

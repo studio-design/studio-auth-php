@@ -482,7 +482,7 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
     /**
      * Sets clientType
      *
-     * @param \Studio\Auth\Model\ClientType $clientType clientType
+     * @param \Studio\Auth\Model\ClientType $clientType `public` は `token_endpoint_auth_method: none` とだけ、`confidential` は `none` 以外とだけ組み合わせられる。
      *
      * @return $this
      */
@@ -632,7 +632,7 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
     /**
      * Sets tokenEndpointAuthMethod
      *
-     * @param \Studio\Auth\Model\TokenEndpointAuthMethod|null $tokenEndpointAuthMethod tokenEndpointAuthMethod
+     * @param \Studio\Auth\Model\TokenEndpointAuthMethod|null $tokenEndpointAuthMethod `client_type: public` では `none` が必須（省略できない）、`confidential` では `none` を指定できない。 `none` ではクライアントシークレットを発行せず、`jwks` / `jwks_uri` も指定できない。
      *
      * @return $this
      */
