@@ -1,5 +1,20 @@
 # studio-design/studio-auth-php
 
+## [0.8.0](https://github.com/studio-design/studio-auth/compare/sdk-v0.7.9...sdk-v0.8.0) (2026-11-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* **sdk:** Organization (and MyOrganization, which includes it) gains the required member is_audit_forwarding_enabled. Typed fixtures and mocks that build these objects must supply it.
+
+### Features
+
+* **oauth:** RFC 8707 の resource を受け取りアクセストークンの aud にする（MCP フラグの裏） ([6f63a69](https://github.com/studio-design/studio-auth/commit/6f63a696e195c39368171847871f82d297d56f22))
+* **sdk:** accept is_audit_forwarding_enabled on PATCH /admin/organizations/{organization_id} ([6e00c36](https://github.com/studio-design/studio-auth/commit/6e00c36ccf27fb8ed5e204552a6a7dd83fbae57a))
+* **sdk:** add is_audit_forwarding_enabled to the Organization schema ([2756802](https://github.com/studio-design/studio-auth/commit/27568028f7b10ca32e2b7644dd40d06f1b773a71))
+* **sdk:** describe resource indicators and invalid_target for authorize and token ([ad41307](https://github.com/studio-design/studio-auth/commit/ad41307483fb0c22115f0dc16f151eb27ef9139b))
+* **sdk:** describe the 403 for the audit_log admin portal intent without forwarding opt-in ([8ab7971](https://github.com/studio-design/studio-auth/commit/8ab79713b6fec3bba12dd43f796786a85bc493f3))
+
 ## [0.7.9](https://github.com/studio-design/studio-auth/compare/sdk-v0.7.8...sdk-v0.7.9) (2026-11-05)
 
 
