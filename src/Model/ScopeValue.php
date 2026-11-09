@@ -32,7 +32,7 @@ namespace Studio\Auth\Model;
 /**
  * ScopeValue Class Doc Comment
  *
- * @description 個別のスコープ値。空白区切りの &#x60;scope&#x60; 文字列 (&#x60;Scope.yaml&#x60;) を構成する 1 要素。  - &#x60;openid&#x60;: OpenID Connect による認証を要求する（必須） - &#x60;profile&#x60;: 氏名等のプロフィールクレームを要求する - &#x60;email&#x60;: メールアドレスのクレームを要求する - &#x60;offline_access&#x60;: リフレッシュトークンの発行を要求する - &#x60;studio.design.read&#x60;: Studio のデザインデータの読み取りを要求する（現在は受け付けない） - &#x60;studio.design.write&#x60;: Studio のデザインデータの書き込みを要求する（現在は受け付けない）
+ * @description 個別のスコープ値。空白区切りの &#x60;scope&#x60; 文字列 (&#x60;Scope.yaml&#x60;) を構成する 1 要素。  - &#x60;openid&#x60;: OpenID Connect による認証を要求する（必須） - &#x60;profile&#x60;: 氏名等のプロフィールクレームを要求する - &#x60;email&#x60;: メールアドレスのクレームを要求する - &#x60;offline_access&#x60;: リフレッシュトークンの発行を要求する - &#x60;studio.design.read&#x60;: Studio のデザインデータの読み取りを要求する（認可サーバーで MCP クライアントを有効にしている場合だけ受け付ける） - &#x60;studio.design.write&#x60;: Studio のデザインデータの書き込みを要求する（認可サーバーで MCP クライアントを有効にしている場合だけ受け付ける）
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech

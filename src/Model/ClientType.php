@@ -32,7 +32,7 @@ namespace Studio\Auth\Model;
 /**
  * ClientType Class Doc Comment
  *
- * @description クライアントタイプ。  - &#x60;confidential&#x60;: 機密クライアント（サーバーサイドアプリ）。クライアントシークレットを安全に保持可能。 - &#x60;public&#x60;: 公開クライアント（ネイティブアプリ・ブラウザアプリ）。クライアントシークレットを保持できない。現在は受け付けない。
+ * @description クライアントタイプ。  - &#x60;confidential&#x60;: 機密クライアント（サーバーサイドアプリ）。クライアントシークレットを安全に保持可能。 - &#x60;public&#x60;: 公開クライアント（ネイティブアプリ・ブラウザアプリ）。クライアントシークレットを保持できない。段階投入中で、有効な環境でのみ受け付ける。
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech

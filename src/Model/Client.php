@@ -73,6 +73,7 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         'tokenEndpointAuthSigningAlg' => '\Studio\Auth\Model\ClientAssertionSigningAlg',
         'jwksUri' => 'string',
         'idpApplicationId' => 'string',
+        'resourceIndicator' => 'string',
         'isActive' => 'bool',
         'createdAt' => '\DateTime',
         'updatedAt' => '\DateTime'
@@ -96,6 +97,7 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         'tokenEndpointAuthSigningAlg' => null,
         'jwksUri' => 'uri',
         'idpApplicationId' => null,
+        'resourceIndicator' => null,
         'isActive' => null,
         'createdAt' => 'date-time',
         'updatedAt' => 'date-time'
@@ -119,6 +121,7 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         'tokenEndpointAuthSigningAlg' => true,
         'jwksUri' => true,
         'idpApplicationId' => true,
+        'resourceIndicator' => true,
         'isActive' => false,
         'createdAt' => false,
         'updatedAt' => false
@@ -222,6 +225,7 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         'tokenEndpointAuthSigningAlg' => 'token_endpoint_auth_signing_alg',
         'jwksUri' => 'jwks_uri',
         'idpApplicationId' => 'idp_application_id',
+        'resourceIndicator' => 'resource_indicator',
         'isActive' => 'is_active',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
@@ -245,6 +249,7 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         'tokenEndpointAuthSigningAlg' => 'setTokenEndpointAuthSigningAlg',
         'jwksUri' => 'setJwksUri',
         'idpApplicationId' => 'setIdpApplicationId',
+        'resourceIndicator' => 'setResourceIndicator',
         'isActive' => 'setIsActive',
         'createdAt' => 'setCreatedAt',
         'updatedAt' => 'setUpdatedAt'
@@ -268,6 +273,7 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         'tokenEndpointAuthSigningAlg' => 'getTokenEndpointAuthSigningAlg',
         'jwksUri' => 'getJwksUri',
         'idpApplicationId' => 'getIdpApplicationId',
+        'resourceIndicator' => 'getResourceIndicator',
         'isActive' => 'getIsActive',
         'createdAt' => 'getCreatedAt',
         'updatedAt' => 'getUpdatedAt'
@@ -342,6 +348,7 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         $this->setIfExists('tokenEndpointAuthSigningAlg', $data ?? [], null);
         $this->setIfExists('jwksUri', $data ?? [], null);
         $this->setIfExists('idpApplicationId', $data ?? [], null);
+        $this->setIfExists('resourceIndicator', $data ?? [], null);
         $this->setIfExists('isActive', $data ?? [], true);
         $this->setIfExists('createdAt', $data ?? [], null);
         $this->setIfExists('updatedAt', $data ?? [], null);
@@ -410,10 +417,6 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         if ($this->container['redirectUris'] === null) {
             $invalidProperties[] = "'redirectUris' can't be null";
         }
-        if ((count($this->container['redirectUris']) < 1)) {
-            $invalidProperties[] = "invalid value for 'redirectUris', number of items must be greater than or equal to 1.";
-        }
-
         if ($this->container['postLogoutRedirectUris'] === null) {
             $invalidProperties[] = "'postLogoutRedirectUris' can't be null";
         }
@@ -449,6 +452,13 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         }
         if (!is_null($this->container['idpApplicationId']) && (mb_strlen($this->container['idpApplicationId'], 'UTF-8') > 255)) {
             $invalidProperties[] = "invalid value for 'idpApplicationId', the character length must be smaller than or equal to 255.";
+        }
+
+        if ($this->container['resourceIndicator'] === null && !$this->isNullableSetToNull('resourceIndicator')) {
+            $invalidProperties[] = "'resourceIndicator' is required";
+        }
+        if (!is_null($this->container['resourceIndicator']) && (mb_strlen($this->container['resourceIndicator'], 'UTF-8') > 512)) {
+            $invalidProperties[] = "invalid value for 'resourceIndicator', the character length must be smaller than or equal to 512.";
         }
 
         if ($this->container['isActive'] === null) {
@@ -624,7 +634,7 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets redirectUris
      *
-     * @param string[] $redirectUris 許可されたリダイレクト URI のリスト。
+     * @param string[] $redirectUris 許可されたリダイレクト URI のリスト。token exchange だけを使うクライアントでは空です。
      *
      * @return $this
      */
@@ -632,11 +642,6 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
     {
         if (is_null($redirectUris)) {
             throw new InvalidArgumentException('non-nullable redirectUris cannot be null');
-        }
-
-
-        if ((count($redirectUris) < 1)) {
-            throw new InvalidArgumentException('invalid length for $redirectUris when calling Client., number of items must be greater than or equal to 1.');
         }
         $this->container['redirectUris'] = $redirectUris;
 
@@ -867,6 +872,44 @@ class Client implements ModelInterface, ArrayAccess, JsonSerializable
         }
 
         $this->container['idpApplicationId'] = $idpApplicationId;
+
+        return $this;
+    }
+
+    /**
+     * Gets resourceIndicator
+     *
+     * @return string|null
+     */
+    public function getResourceIndicator(): ?string
+    {
+        return $this->container['resourceIndicator'];
+    }
+
+    /**
+     * Sets resourceIndicator
+     *
+     * @param string|null $resourceIndicator このクライアントのアクセストークンを受け取る資源サーバの URI（RFC 8707）。登録していないクライアントでは `null`。
+     *
+     * @return $this
+     */
+    public function setResourceIndicator(?string $resourceIndicator): static
+    {
+        if (is_null($resourceIndicator)) {
+            array_push($this->openAPINullablesSetToNull, 'resourceIndicator');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('resourceIndicator', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        if (!is_null($resourceIndicator) && (mb_strlen($resourceIndicator, 'UTF-8') > 512)) {
+            throw new InvalidArgumentException('invalid length for $resourceIndicator when calling Client., must be smaller than or equal to 512.');
+        }
+
+        $this->container['resourceIndicator'] = $resourceIndicator;
 
         return $this;
     }
