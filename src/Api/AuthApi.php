@@ -1855,14 +1855,11 @@ class AuthApi
                 'Missing the required parameter $clientId when calling initiateAuthorization'
             );
         }
-        if (mb_strlen($clientId, 'UTF-8') > 128) {
-            throw new InvalidArgumentException('invalid length for "$clientId" when calling AuthApi.initiateAuthorization, must be smaller than or equal to 128.');
+        if (mb_strlen($clientId, 'UTF-8') > 512) {
+            throw new InvalidArgumentException('invalid length for "$clientId" when calling AuthApi.initiateAuthorization, must be smaller than or equal to 512.');
         }
-        if (mb_strlen($clientId, 'UTF-8') < 8) {
-            throw new InvalidArgumentException('invalid length for "$clientId" when calling AuthApi.initiateAuthorization, must be bigger than or equal to 8.');
-        }
-        if (!preg_match("/^[a-z0-9-]+$/", $clientId)) {
-            throw new InvalidArgumentException("invalid value for \"clientId\" when calling AuthApi.initiateAuthorization, must conform to the pattern /^[a-z0-9-]+$/.");
+        if (!preg_match("/^([a-z0-9-]{8,128}|https:\/\/[\\x21-\\x7E]+)$/", $clientId)) {
+            throw new InvalidArgumentException("invalid value for \"clientId\" when calling AuthApi.initiateAuthorization, must conform to the pattern /^([a-z0-9-]{8,128}|https:\/\/[\\x21-\\x7E]+)$/.");
         }
         
         // verify the required parameter 'redirectUri' is set
@@ -1884,8 +1881,8 @@ class AuthApi
         if (mb_strlen($scope, 'UTF-8') > 500) {
             throw new InvalidArgumentException('invalid length for "$scope" when calling AuthApi.initiateAuthorization, must be smaller than or equal to 500.');
         }
-        if (!preg_match("/^(openid|email|profile|offline_access)( (openid|email|profile|offline_access))*$/", $scope)) {
-            throw new InvalidArgumentException("invalid value for \"scope\" when calling AuthApi.initiateAuthorization, must conform to the pattern /^(openid|email|profile|offline_access)( (openid|email|profile|offline_access))*$/.");
+        if (!preg_match("/^(openid|email|profile|offline_access|studio\\.design\\.read|studio\\.design\\.write)( (openid|email|profile|offline_access|studio\\.design\\.read|studio\\.design\\.write))*$/", $scope)) {
+            throw new InvalidArgumentException("invalid value for \"scope\" when calling AuthApi.initiateAuthorization, must conform to the pattern /^(openid|email|profile|offline_access|studio\\.design\\.read|studio\\.design\\.write)( (openid|email|profile|offline_access|studio\\.design\\.read|studio\\.design\\.write))*$/.");
         }
         
         // verify the required parameter 'state' is set
@@ -2519,7 +2516,7 @@ class AuthApi
      * トークンエンドポイント
      *
      * @param  mixed|null $grantType grantType (required)
-     * @param  string|null $clientId OAuth 2.0 クライアント識別子。  HTTP Basic 認証で送信する場合（&#x60;client_secret_basic&#x60;）は本文での指定は任意です。 &#x60;client_secret_post&#x60; / &#x60;private_key_jwt&#x60; で送信する場合は本文に含めることが必須です。 (optional)
+     * @param  string|null $clientId OAuth 2.0 クライアント識別子。  HTTP Basic 認証で送信する場合（&#x60;client_secret_basic&#x60;）は本文での指定は任意です。 &#x60;client_secret_post&#x60; / &#x60;private_key_jwt&#x60; / &#x60;none&#x60; で送信する場合は本文に含めることが必須です。 (optional)
      * @param  string|null $clientSecret OAuth 2.0 クライアントシークレット。&#x60;client_secret_post&#x60; 認証方式でのみ使用します。  &#x60;client_assertion&#x60; と同時に送ることはできません（排他）。HTTP Basic 認証でクレデンシャルを送信する場合は本文に含めないでください。 (optional)
      * @param  string|null $clientAssertionType &#x60;client_assertion&#x60; が JWT bearer assertion であることを示す識別子 (RFC 7521 §4.2)。 &#x60;private_key_jwt&#x60; 認証方式を使う場合は必ず &#x60;client_assertion&#x60; と同時に送信してください。 (optional)
      * @param  string|null $clientAssertion &#x60;private_key_jwt&#x60; 認証方式 (RFC 7523) におけるクライアントアサーション JWT。  - &#x60;header.alg&#x60;: 認可サーバーが対応する非対称アルゴリズム (&#x60;RS256&#x60; / &#x60;ES256&#x60;) - &#x60;header.kid&#x60;: 認可サーバーに登録された公開鍵の識別子 - &#x60;iss&#x60; / &#x60;sub&#x60;: ともに &#x60;client_id&#x60; と一致する必要があります - &#x60;aud&#x60;: Issuer URL（トークンエンドポイント URL も現在は受理します） - &#x60;exp&#x60; / &#x60;iat&#x60;: 必須。&#x60;iat&#x60; は認可サーバーの現在時刻より未来であってはならず、&#x60;exp - iat&#x60; は認可サーバーの許容ライフタイム以内 - &#x60;jti&#x60;: 必須。リプレイ検知のため短期間の一意性が強制されます (optional)
@@ -2528,7 +2525,11 @@ class AuthApi
      * @param  string|null $codeVerifier PKCE (RFC 7636) のコードベリファイア。  クライアントが生成したランダム文字列で、&#x60;code_challenge&#x60; の元となる値です。 トークンエンドポイントで検証に使用されます。 (optional)
      * @param  string|null $refreshToken 事前に発行されたリフレッシュトークン。再発行時には同じスコープまたはそのサブセットを要求できます。 (optional)
      * @param  string|null $scope Refresh Token グラントにおいて、元のトークンより狭い権限を要求する場合に限定して指定できます。 元の認可リクエストで承認されたスコープのサブセットのみが許可されます。 (optional)
-     * @param  string|null $resource アクセストークンを使う先の資源サーバ（RFC 8707）。省略するか、認可リクエストで指定した値と同じ値だけを指定できます。 認可リクエストで指定した場合、発行するアクセストークンの &#x60;aud&#x60; はその値になります。 (optional)
+     * @param  string|null $resource アクセストークンを使う先の資源サーバ（RFC 8707）。省略するか、認可リクエストで指定した値と同じ値だけを指定できます。 認可リクエストで指定した場合、発行するアクセストークンの &#x60;aud&#x60; はその値になります。 Token Exchange グラントでは送れません（&#x60;invalid_target&#x60;）。交換先は &#x60;audience&#x60; で指定します。 (optional)
+     * @param  string|null $subjectToken Token Exchange グラント（RFC 8693）で交換するアクセストークン。この認可サーバーが発行し、&#x60;aud&#x60; がリクエストしたクライアントの資源サーバであるものに限ります。 (optional)
+     * @param  string|null $subjectTokenType &#x60;subject_token&#x60; の種類（RFC 8693 §3）。アクセストークンだけを受け付けます。 (optional)
+     * @param  string|null $audience Token Exchange グラントで発行するアクセストークンの &#x60;aud&#x60;（RFC 8693 §2.1）。認可サーバーが交換先として許可した値と完全一致する必要があります。 (optional)
+     * @param  string|null $requestedTokenType Token Exchange グラントで発行するトークンの種類（RFC 8693 §2.1）。省略するか、アクセストークンだけを指定できます。 (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['issueTokens'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -2547,10 +2548,14 @@ class AuthApi
         ?string $refreshToken = null,
         ?string $scope = null,
         ?string $resource = null,
+        ?string $subjectToken = null,
+        ?string $subjectTokenType = null,
+        ?string $audience = null,
+        ?string $requestedTokenType = null,
         string $contentType = self::contentTypes['issueTokens'][0]
     ): \Studio\Auth\Model\TokenResponse
     {
-        [$response] = $this->issueTokensWithHttpInfo($grantType, $clientId, $clientSecret, $clientAssertionType, $clientAssertion, $code, $redirectUri, $codeVerifier, $refreshToken, $scope, $resource, $contentType);
+        [$response] = $this->issueTokensWithHttpInfo($grantType, $clientId, $clientSecret, $clientAssertionType, $clientAssertion, $code, $redirectUri, $codeVerifier, $refreshToken, $scope, $resource, $subjectToken, $subjectTokenType, $audience, $requestedTokenType, $contentType);
 
         return $response;
     }
@@ -2561,7 +2566,7 @@ class AuthApi
      * トークンエンドポイント
      *
      * @param  mixed|null $grantType (required)
-     * @param  string|null $clientId OAuth 2.0 クライアント識別子。  HTTP Basic 認証で送信する場合（&#x60;client_secret_basic&#x60;）は本文での指定は任意です。 &#x60;client_secret_post&#x60; / &#x60;private_key_jwt&#x60; で送信する場合は本文に含めることが必須です。 (optional)
+     * @param  string|null $clientId OAuth 2.0 クライアント識別子。  HTTP Basic 認証で送信する場合（&#x60;client_secret_basic&#x60;）は本文での指定は任意です。 &#x60;client_secret_post&#x60; / &#x60;private_key_jwt&#x60; / &#x60;none&#x60; で送信する場合は本文に含めることが必須です。 (optional)
      * @param  string|null $clientSecret OAuth 2.0 クライアントシークレット。&#x60;client_secret_post&#x60; 認証方式でのみ使用します。  &#x60;client_assertion&#x60; と同時に送ることはできません（排他）。HTTP Basic 認証でクレデンシャルを送信する場合は本文に含めないでください。 (optional)
      * @param  string|null $clientAssertionType &#x60;client_assertion&#x60; が JWT bearer assertion であることを示す識別子 (RFC 7521 §4.2)。 &#x60;private_key_jwt&#x60; 認証方式を使う場合は必ず &#x60;client_assertion&#x60; と同時に送信してください。 (optional)
      * @param  string|null $clientAssertion &#x60;private_key_jwt&#x60; 認証方式 (RFC 7523) におけるクライアントアサーション JWT。  - &#x60;header.alg&#x60;: 認可サーバーが対応する非対称アルゴリズム (&#x60;RS256&#x60; / &#x60;ES256&#x60;) - &#x60;header.kid&#x60;: 認可サーバーに登録された公開鍵の識別子 - &#x60;iss&#x60; / &#x60;sub&#x60;: ともに &#x60;client_id&#x60; と一致する必要があります - &#x60;aud&#x60;: Issuer URL（トークンエンドポイント URL も現在は受理します） - &#x60;exp&#x60; / &#x60;iat&#x60;: 必須。&#x60;iat&#x60; は認可サーバーの現在時刻より未来であってはならず、&#x60;exp - iat&#x60; は認可サーバーの許容ライフタイム以内 - &#x60;jti&#x60;: 必須。リプレイ検知のため短期間の一意性が強制されます (optional)
@@ -2570,7 +2575,11 @@ class AuthApi
      * @param  string|null $codeVerifier PKCE (RFC 7636) のコードベリファイア。  クライアントが生成したランダム文字列で、&#x60;code_challenge&#x60; の元となる値です。 トークンエンドポイントで検証に使用されます。 (optional)
      * @param  string|null $refreshToken 事前に発行されたリフレッシュトークン。再発行時には同じスコープまたはそのサブセットを要求できます。 (optional)
      * @param  string|null $scope Refresh Token グラントにおいて、元のトークンより狭い権限を要求する場合に限定して指定できます。 元の認可リクエストで承認されたスコープのサブセットのみが許可されます。 (optional)
-     * @param  string|null $resource アクセストークンを使う先の資源サーバ（RFC 8707）。省略するか、認可リクエストで指定した値と同じ値だけを指定できます。 認可リクエストで指定した場合、発行するアクセストークンの &#x60;aud&#x60; はその値になります。 (optional)
+     * @param  string|null $resource アクセストークンを使う先の資源サーバ（RFC 8707）。省略するか、認可リクエストで指定した値と同じ値だけを指定できます。 認可リクエストで指定した場合、発行するアクセストークンの &#x60;aud&#x60; はその値になります。 Token Exchange グラントでは送れません（&#x60;invalid_target&#x60;）。交換先は &#x60;audience&#x60; で指定します。 (optional)
+     * @param  string|null $subjectToken Token Exchange グラント（RFC 8693）で交換するアクセストークン。この認可サーバーが発行し、&#x60;aud&#x60; がリクエストしたクライアントの資源サーバであるものに限ります。 (optional)
+     * @param  string|null $subjectTokenType &#x60;subject_token&#x60; の種類（RFC 8693 §3）。アクセストークンだけを受け付けます。 (optional)
+     * @param  string|null $audience Token Exchange グラントで発行するアクセストークンの &#x60;aud&#x60;（RFC 8693 §2.1）。認可サーバーが交換先として許可した値と完全一致する必要があります。 (optional)
+     * @param  string|null $requestedTokenType Token Exchange グラントで発行するトークンの種類（RFC 8693 §2.1）。省略するか、アクセストークンだけを指定できます。 (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['issueTokens'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -2589,10 +2598,14 @@ class AuthApi
         ?string $refreshToken = null,
         ?string $scope = null,
         ?string $resource = null,
+        ?string $subjectToken = null,
+        ?string $subjectTokenType = null,
+        ?string $audience = null,
+        ?string $requestedTokenType = null,
         string $contentType = self::contentTypes['issueTokens'][0]
     ): array
     {
-        $request = $this->issueTokensRequest($grantType, $clientId, $clientSecret, $clientAssertionType, $clientAssertion, $code, $redirectUri, $codeVerifier, $refreshToken, $scope, $resource, $contentType);
+        $request = $this->issueTokensRequest($grantType, $clientId, $clientSecret, $clientAssertionType, $clientAssertion, $code, $redirectUri, $codeVerifier, $refreshToken, $scope, $resource, $subjectToken, $subjectTokenType, $audience, $requestedTokenType, $contentType);
 
         try {
             $options = $this->createHttpClientOption();
@@ -2646,7 +2659,7 @@ class AuthApi
      * トークンエンドポイント
      *
      * @param  mixed|null $grantType (required)
-     * @param  string|null $clientId OAuth 2.0 クライアント識別子。  HTTP Basic 認証で送信する場合（&#x60;client_secret_basic&#x60;）は本文での指定は任意です。 &#x60;client_secret_post&#x60; / &#x60;private_key_jwt&#x60; で送信する場合は本文に含めることが必須です。 (optional)
+     * @param  string|null $clientId OAuth 2.0 クライアント識別子。  HTTP Basic 認証で送信する場合（&#x60;client_secret_basic&#x60;）は本文での指定は任意です。 &#x60;client_secret_post&#x60; / &#x60;private_key_jwt&#x60; / &#x60;none&#x60; で送信する場合は本文に含めることが必須です。 (optional)
      * @param  string|null $clientSecret OAuth 2.0 クライアントシークレット。&#x60;client_secret_post&#x60; 認証方式でのみ使用します。  &#x60;client_assertion&#x60; と同時に送ることはできません（排他）。HTTP Basic 認証でクレデンシャルを送信する場合は本文に含めないでください。 (optional)
      * @param  string|null $clientAssertionType &#x60;client_assertion&#x60; が JWT bearer assertion であることを示す識別子 (RFC 7521 §4.2)。 &#x60;private_key_jwt&#x60; 認証方式を使う場合は必ず &#x60;client_assertion&#x60; と同時に送信してください。 (optional)
      * @param  string|null $clientAssertion &#x60;private_key_jwt&#x60; 認証方式 (RFC 7523) におけるクライアントアサーション JWT。  - &#x60;header.alg&#x60;: 認可サーバーが対応する非対称アルゴリズム (&#x60;RS256&#x60; / &#x60;ES256&#x60;) - &#x60;header.kid&#x60;: 認可サーバーに登録された公開鍵の識別子 - &#x60;iss&#x60; / &#x60;sub&#x60;: ともに &#x60;client_id&#x60; と一致する必要があります - &#x60;aud&#x60;: Issuer URL（トークンエンドポイント URL も現在は受理します） - &#x60;exp&#x60; / &#x60;iat&#x60;: 必須。&#x60;iat&#x60; は認可サーバーの現在時刻より未来であってはならず、&#x60;exp - iat&#x60; は認可サーバーの許容ライフタイム以内 - &#x60;jti&#x60;: 必須。リプレイ検知のため短期間の一意性が強制されます (optional)
@@ -2655,7 +2668,11 @@ class AuthApi
      * @param  string|null $codeVerifier PKCE (RFC 7636) のコードベリファイア。  クライアントが生成したランダム文字列で、&#x60;code_challenge&#x60; の元となる値です。 トークンエンドポイントで検証に使用されます。 (optional)
      * @param  string|null $refreshToken 事前に発行されたリフレッシュトークン。再発行時には同じスコープまたはそのサブセットを要求できます。 (optional)
      * @param  string|null $scope Refresh Token グラントにおいて、元のトークンより狭い権限を要求する場合に限定して指定できます。 元の認可リクエストで承認されたスコープのサブセットのみが許可されます。 (optional)
-     * @param  string|null $resource アクセストークンを使う先の資源サーバ（RFC 8707）。省略するか、認可リクエストで指定した値と同じ値だけを指定できます。 認可リクエストで指定した場合、発行するアクセストークンの &#x60;aud&#x60; はその値になります。 (optional)
+     * @param  string|null $resource アクセストークンを使う先の資源サーバ（RFC 8707）。省略するか、認可リクエストで指定した値と同じ値だけを指定できます。 認可リクエストで指定した場合、発行するアクセストークンの &#x60;aud&#x60; はその値になります。 Token Exchange グラントでは送れません（&#x60;invalid_target&#x60;）。交換先は &#x60;audience&#x60; で指定します。 (optional)
+     * @param  string|null $subjectToken Token Exchange グラント（RFC 8693）で交換するアクセストークン。この認可サーバーが発行し、&#x60;aud&#x60; がリクエストしたクライアントの資源サーバであるものに限ります。 (optional)
+     * @param  string|null $subjectTokenType &#x60;subject_token&#x60; の種類（RFC 8693 §3）。アクセストークンだけを受け付けます。 (optional)
+     * @param  string|null $audience Token Exchange グラントで発行するアクセストークンの &#x60;aud&#x60;（RFC 8693 §2.1）。認可サーバーが交換先として許可した値と完全一致する必要があります。 (optional)
+     * @param  string|null $requestedTokenType Token Exchange グラントで発行するトークンの種類（RFC 8693 §2.1）。省略するか、アクセストークンだけを指定できます。 (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['issueTokens'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2673,10 +2690,14 @@ class AuthApi
         ?string $refreshToken = null,
         ?string $scope = null,
         ?string $resource = null,
+        ?string $subjectToken = null,
+        ?string $subjectTokenType = null,
+        ?string $audience = null,
+        ?string $requestedTokenType = null,
         string $contentType = self::contentTypes['issueTokens'][0]
     ): PromiseInterface
     {
-        return $this->issueTokensAsyncWithHttpInfo($grantType, $clientId, $clientSecret, $clientAssertionType, $clientAssertion, $code, $redirectUri, $codeVerifier, $refreshToken, $scope, $resource, $contentType)
+        return $this->issueTokensAsyncWithHttpInfo($grantType, $clientId, $clientSecret, $clientAssertionType, $clientAssertion, $code, $redirectUri, $codeVerifier, $refreshToken, $scope, $resource, $subjectToken, $subjectTokenType, $audience, $requestedTokenType, $contentType)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2690,7 +2711,7 @@ class AuthApi
      * トークンエンドポイント
      *
      * @param  mixed|null $grantType (required)
-     * @param  string|null $clientId OAuth 2.0 クライアント識別子。  HTTP Basic 認証で送信する場合（&#x60;client_secret_basic&#x60;）は本文での指定は任意です。 &#x60;client_secret_post&#x60; / &#x60;private_key_jwt&#x60; で送信する場合は本文に含めることが必須です。 (optional)
+     * @param  string|null $clientId OAuth 2.0 クライアント識別子。  HTTP Basic 認証で送信する場合（&#x60;client_secret_basic&#x60;）は本文での指定は任意です。 &#x60;client_secret_post&#x60; / &#x60;private_key_jwt&#x60; / &#x60;none&#x60; で送信する場合は本文に含めることが必須です。 (optional)
      * @param  string|null $clientSecret OAuth 2.0 クライアントシークレット。&#x60;client_secret_post&#x60; 認証方式でのみ使用します。  &#x60;client_assertion&#x60; と同時に送ることはできません（排他）。HTTP Basic 認証でクレデンシャルを送信する場合は本文に含めないでください。 (optional)
      * @param  string|null $clientAssertionType &#x60;client_assertion&#x60; が JWT bearer assertion であることを示す識別子 (RFC 7521 §4.2)。 &#x60;private_key_jwt&#x60; 認証方式を使う場合は必ず &#x60;client_assertion&#x60; と同時に送信してください。 (optional)
      * @param  string|null $clientAssertion &#x60;private_key_jwt&#x60; 認証方式 (RFC 7523) におけるクライアントアサーション JWT。  - &#x60;header.alg&#x60;: 認可サーバーが対応する非対称アルゴリズム (&#x60;RS256&#x60; / &#x60;ES256&#x60;) - &#x60;header.kid&#x60;: 認可サーバーに登録された公開鍵の識別子 - &#x60;iss&#x60; / &#x60;sub&#x60;: ともに &#x60;client_id&#x60; と一致する必要があります - &#x60;aud&#x60;: Issuer URL（トークンエンドポイント URL も現在は受理します） - &#x60;exp&#x60; / &#x60;iat&#x60;: 必須。&#x60;iat&#x60; は認可サーバーの現在時刻より未来であってはならず、&#x60;exp - iat&#x60; は認可サーバーの許容ライフタイム以内 - &#x60;jti&#x60;: 必須。リプレイ検知のため短期間の一意性が強制されます (optional)
@@ -2699,7 +2720,11 @@ class AuthApi
      * @param  string|null $codeVerifier PKCE (RFC 7636) のコードベリファイア。  クライアントが生成したランダム文字列で、&#x60;code_challenge&#x60; の元となる値です。 トークンエンドポイントで検証に使用されます。 (optional)
      * @param  string|null $refreshToken 事前に発行されたリフレッシュトークン。再発行時には同じスコープまたはそのサブセットを要求できます。 (optional)
      * @param  string|null $scope Refresh Token グラントにおいて、元のトークンより狭い権限を要求する場合に限定して指定できます。 元の認可リクエストで承認されたスコープのサブセットのみが許可されます。 (optional)
-     * @param  string|null $resource アクセストークンを使う先の資源サーバ（RFC 8707）。省略するか、認可リクエストで指定した値と同じ値だけを指定できます。 認可リクエストで指定した場合、発行するアクセストークンの &#x60;aud&#x60; はその値になります。 (optional)
+     * @param  string|null $resource アクセストークンを使う先の資源サーバ（RFC 8707）。省略するか、認可リクエストで指定した値と同じ値だけを指定できます。 認可リクエストで指定した場合、発行するアクセストークンの &#x60;aud&#x60; はその値になります。 Token Exchange グラントでは送れません（&#x60;invalid_target&#x60;）。交換先は &#x60;audience&#x60; で指定します。 (optional)
+     * @param  string|null $subjectToken Token Exchange グラント（RFC 8693）で交換するアクセストークン。この認可サーバーが発行し、&#x60;aud&#x60; がリクエストしたクライアントの資源サーバであるものに限ります。 (optional)
+     * @param  string|null $subjectTokenType &#x60;subject_token&#x60; の種類（RFC 8693 §3）。アクセストークンだけを受け付けます。 (optional)
+     * @param  string|null $audience Token Exchange グラントで発行するアクセストークンの &#x60;aud&#x60;（RFC 8693 §2.1）。認可サーバーが交換先として許可した値と完全一致する必要があります。 (optional)
+     * @param  string|null $requestedTokenType Token Exchange グラントで発行するトークンの種類（RFC 8693 §2.1）。省略するか、アクセストークンだけを指定できます。 (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['issueTokens'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2717,11 +2742,15 @@ class AuthApi
         ?string $refreshToken = null,
         ?string $scope = null,
         ?string $resource = null,
+        ?string $subjectToken = null,
+        ?string $subjectTokenType = null,
+        ?string $audience = null,
+        ?string $requestedTokenType = null,
         string $contentType = self::contentTypes['issueTokens'][0]
     ): PromiseInterface
     {
         $returnType = '\Studio\Auth\Model\TokenResponse';
-        $request = $this->issueTokensRequest($grantType, $clientId, $clientSecret, $clientAssertionType, $clientAssertion, $code, $redirectUri, $codeVerifier, $refreshToken, $scope, $resource, $contentType);
+        $request = $this->issueTokensRequest($grantType, $clientId, $clientSecret, $clientAssertionType, $clientAssertion, $code, $redirectUri, $codeVerifier, $refreshToken, $scope, $resource, $subjectToken, $subjectTokenType, $audience, $requestedTokenType, $contentType);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2793,7 +2822,7 @@ class AuthApi
      * Create request for operation 'issueTokens'
      *
      * @param  mixed|null $grantType (required)
-     * @param  string|null $clientId OAuth 2.0 クライアント識別子。  HTTP Basic 認証で送信する場合（&#x60;client_secret_basic&#x60;）は本文での指定は任意です。 &#x60;client_secret_post&#x60; / &#x60;private_key_jwt&#x60; で送信する場合は本文に含めることが必須です。 (optional)
+     * @param  string|null $clientId OAuth 2.0 クライアント識別子。  HTTP Basic 認証で送信する場合（&#x60;client_secret_basic&#x60;）は本文での指定は任意です。 &#x60;client_secret_post&#x60; / &#x60;private_key_jwt&#x60; / &#x60;none&#x60; で送信する場合は本文に含めることが必須です。 (optional)
      * @param  string|null $clientSecret OAuth 2.0 クライアントシークレット。&#x60;client_secret_post&#x60; 認証方式でのみ使用します。  &#x60;client_assertion&#x60; と同時に送ることはできません（排他）。HTTP Basic 認証でクレデンシャルを送信する場合は本文に含めないでください。 (optional)
      * @param  string|null $clientAssertionType &#x60;client_assertion&#x60; が JWT bearer assertion であることを示す識別子 (RFC 7521 §4.2)。 &#x60;private_key_jwt&#x60; 認証方式を使う場合は必ず &#x60;client_assertion&#x60; と同時に送信してください。 (optional)
      * @param  string|null $clientAssertion &#x60;private_key_jwt&#x60; 認証方式 (RFC 7523) におけるクライアントアサーション JWT。  - &#x60;header.alg&#x60;: 認可サーバーが対応する非対称アルゴリズム (&#x60;RS256&#x60; / &#x60;ES256&#x60;) - &#x60;header.kid&#x60;: 認可サーバーに登録された公開鍵の識別子 - &#x60;iss&#x60; / &#x60;sub&#x60;: ともに &#x60;client_id&#x60; と一致する必要があります - &#x60;aud&#x60;: Issuer URL（トークンエンドポイント URL も現在は受理します） - &#x60;exp&#x60; / &#x60;iat&#x60;: 必須。&#x60;iat&#x60; は認可サーバーの現在時刻より未来であってはならず、&#x60;exp - iat&#x60; は認可サーバーの許容ライフタイム以内 - &#x60;jti&#x60;: 必須。リプレイ検知のため短期間の一意性が強制されます (optional)
@@ -2802,7 +2831,11 @@ class AuthApi
      * @param  string|null $codeVerifier PKCE (RFC 7636) のコードベリファイア。  クライアントが生成したランダム文字列で、&#x60;code_challenge&#x60; の元となる値です。 トークンエンドポイントで検証に使用されます。 (optional)
      * @param  string|null $refreshToken 事前に発行されたリフレッシュトークン。再発行時には同じスコープまたはそのサブセットを要求できます。 (optional)
      * @param  string|null $scope Refresh Token グラントにおいて、元のトークンより狭い権限を要求する場合に限定して指定できます。 元の認可リクエストで承認されたスコープのサブセットのみが許可されます。 (optional)
-     * @param  string|null $resource アクセストークンを使う先の資源サーバ（RFC 8707）。省略するか、認可リクエストで指定した値と同じ値だけを指定できます。 認可リクエストで指定した場合、発行するアクセストークンの &#x60;aud&#x60; はその値になります。 (optional)
+     * @param  string|null $resource アクセストークンを使う先の資源サーバ（RFC 8707）。省略するか、認可リクエストで指定した値と同じ値だけを指定できます。 認可リクエストで指定した場合、発行するアクセストークンの &#x60;aud&#x60; はその値になります。 Token Exchange グラントでは送れません（&#x60;invalid_target&#x60;）。交換先は &#x60;audience&#x60; で指定します。 (optional)
+     * @param  string|null $subjectToken Token Exchange グラント（RFC 8693）で交換するアクセストークン。この認可サーバーが発行し、&#x60;aud&#x60; がリクエストしたクライアントの資源サーバであるものに限ります。 (optional)
+     * @param  string|null $subjectTokenType &#x60;subject_token&#x60; の種類（RFC 8693 §3）。アクセストークンだけを受け付けます。 (optional)
+     * @param  string|null $audience Token Exchange グラントで発行するアクセストークンの &#x60;aud&#x60;（RFC 8693 §2.1）。認可サーバーが交換先として許可した値と完全一致する必要があります。 (optional)
+     * @param  string|null $requestedTokenType Token Exchange グラントで発行するトークンの種類（RFC 8693 §2.1）。省略するか、アクセストークンだけを指定できます。 (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['issueTokens'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2820,6 +2853,10 @@ class AuthApi
         ?string $refreshToken = null,
         ?string $scope = null,
         ?string $resource = null,
+        ?string $subjectToken = null,
+        ?string $subjectTokenType = null,
+        ?string $audience = null,
+        ?string $requestedTokenType = null,
         string $contentType = self::contentTypes['issueTokens'][0]
     ): Request
     {
@@ -2859,6 +2896,16 @@ class AuthApi
             throw new InvalidArgumentException('invalid length for "$resource" when calling AuthApi.issueTokens, must be smaller than or equal to 512.');
         }
         
+        if ($subjectToken !== null && mb_strlen($subjectToken, 'UTF-8') < 1) {
+            throw new InvalidArgumentException('invalid length for "$subjectToken" when calling AuthApi.issueTokens, must be bigger than or equal to 1.');
+        }
+        
+
+        if ($audience !== null && mb_strlen($audience, 'UTF-8') > 512) {
+            throw new InvalidArgumentException('invalid length for "$audience" when calling AuthApi.issueTokens, must be smaller than or equal to 512.');
+        }
+        
+
 
         $resourcePath = '/oauth/token';
         $formParams = [];
@@ -2885,6 +2932,10 @@ class AuthApi
             'refresh_token' => $refreshToken,
             'scope' => $scope,
             'resource' => $resource,
+            'subject_token' => $subjectToken,
+            'subject_token_type' => $subjectTokenType,
+            'audience' => $audience,
+            'requested_token_type' => $requestedTokenType,
         ]);
 
         $formParams = $formDataProcessor->flatten($formData);

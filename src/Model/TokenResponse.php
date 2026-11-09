@@ -66,7 +66,8 @@ class TokenResponse implements ModelInterface, ArrayAccess, JsonSerializable
         'expiresIn' => 'int',
         'refreshToken' => 'string',
         'idToken' => 'string',
-        'scope' => 'string'
+        'scope' => 'string',
+        'issuedTokenType' => 'string'
     ];
 
     /**
@@ -80,7 +81,8 @@ class TokenResponse implements ModelInterface, ArrayAccess, JsonSerializable
         'expiresIn' => null,
         'refreshToken' => null,
         'idToken' => null,
-        'scope' => null
+        'scope' => null,
+        'issuedTokenType' => null
     ];
 
     /**
@@ -94,7 +96,8 @@ class TokenResponse implements ModelInterface, ArrayAccess, JsonSerializable
         'expiresIn' => false,
         'refreshToken' => false,
         'idToken' => false,
-        'scope' => false
+        'scope' => false,
+        'issuedTokenType' => false
     ];
 
     /**
@@ -188,7 +191,8 @@ class TokenResponse implements ModelInterface, ArrayAccess, JsonSerializable
         'expiresIn' => 'expires_in',
         'refreshToken' => 'refresh_token',
         'idToken' => 'id_token',
-        'scope' => 'scope'
+        'scope' => 'scope',
+        'issuedTokenType' => 'issued_token_type'
     ];
 
     /**
@@ -202,7 +206,8 @@ class TokenResponse implements ModelInterface, ArrayAccess, JsonSerializable
         'expiresIn' => 'setExpiresIn',
         'refreshToken' => 'setRefreshToken',
         'idToken' => 'setIdToken',
-        'scope' => 'setScope'
+        'scope' => 'setScope',
+        'issuedTokenType' => 'setIssuedTokenType'
     ];
 
     /**
@@ -216,7 +221,8 @@ class TokenResponse implements ModelInterface, ArrayAccess, JsonSerializable
         'expiresIn' => 'getExpiresIn',
         'refreshToken' => 'getRefreshToken',
         'idToken' => 'getIdToken',
-        'scope' => 'getScope'
+        'scope' => 'getScope',
+        'issuedTokenType' => 'getIssuedTokenType'
     ];
 
     /**
@@ -261,6 +267,19 @@ class TokenResponse implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     public const DISCRIMINATOR_MAP = [];
+    public const ISSUED_TOKEN_TYPE_URN_IETF_PARAMS_OAUTH_TOKEN_TYPE_ACCESS_TOKEN = 'urn:ietf:params:oauth:token-type:access_token';
+
+    /**
+     * Gets allowable values of the enum
+     *
+     * @return string[]
+     */
+    public static function getIssuedTokenTypeAllowableValues()
+    {
+        return [
+            self::ISSUED_TOKEN_TYPE_URN_IETF_PARAMS_OAUTH_TOKEN_TYPE_ACCESS_TOKEN,
+        ];
+    }
 
     /**
      * Associative array for storing property values
@@ -282,6 +301,7 @@ class TokenResponse implements ModelInterface, ArrayAccess, JsonSerializable
         $this->setIfExists('refreshToken', $data ?? [], null);
         $this->setIfExists('idToken', $data ?? [], null);
         $this->setIfExists('scope', $data ?? [], null);
+        $this->setIfExists('issuedTokenType', $data ?? [], null);
     }
 
     /**
@@ -340,8 +360,17 @@ class TokenResponse implements ModelInterface, ArrayAccess, JsonSerializable
             $invalidProperties[] = "invalid value for 'scope', the character length must be smaller than or equal to 500.";
         }
 
-        if (!is_null($this->container['scope']) && !preg_match("/^(openid|email|profile|offline_access)( (openid|email|profile|offline_access))*$/", $this->container['scope'])) {
-            $invalidProperties[] = "invalid value for 'scope', must be conform to the pattern /^(openid|email|profile|offline_access)( (openid|email|profile|offline_access))*$/.";
+        if (!is_null($this->container['scope']) && !preg_match("/^(openid|email|profile|offline_access|studio\\.design\\.read|studio\\.design\\.write)( (openid|email|profile|offline_access|studio\\.design\\.read|studio\\.design\\.write))*$/", $this->container['scope'])) {
+            $invalidProperties[] = "invalid value for 'scope', must be conform to the pattern /^(openid|email|profile|offline_access|studio\\.design\\.read|studio\\.design\\.write)( (openid|email|profile|offline_access|studio\\.design\\.read|studio\\.design\\.write))*$/.";
+        }
+
+        $allowedValues = self::getIssuedTokenTypeAllowableValues();
+        if (!is_null($this->container['issuedTokenType']) && !in_array($this->container['issuedTokenType'], $allowedValues, true)) {
+            $invalidProperties[] = sprintf(
+                "invalid value '%s' for 'issuedTokenType', must be one of '%s'",
+                $this->container['issuedTokenType'],
+                implode("', '", $allowedValues)
+            );
         }
 
         return $invalidProperties;
@@ -527,7 +556,7 @@ class TokenResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets scope
      *
-     * @param string|null $scope 発行されたアクセストークンのスコープ。元の認可リクエストと異なる場合のみ返却されます。 値には RFC 6749 で定義される `scope-token`（空白・ダブルクオート・バックスラッシュを含まない表示可能 ASCII）のみを使用します。
+     * @param string|null $scope 発行されたアクセストークンのスコープ。元の認可リクエストと異なる場合のみ返却されます。Token Exchange グラントでは常に返却されます。 値には RFC 6749 で定義される `scope-token`（空白・ダブルクオート・バックスラッシュを含まない表示可能 ASCII）のみを使用します。
      *
      * @return $this
      */
@@ -539,11 +568,48 @@ class TokenResponse implements ModelInterface, ArrayAccess, JsonSerializable
         if ((mb_strlen($scope, 'UTF-8') > 500)) {
             throw new InvalidArgumentException('invalid length for $scope when calling TokenResponse., must be smaller than or equal to 500.');
         }
-        if ((!preg_match("/^(openid|email|profile|offline_access)( (openid|email|profile|offline_access))*$/", ObjectSerializer::toString($scope)))) {
-            throw new InvalidArgumentException("invalid value for \$scope when calling TokenResponse., must conform to the pattern /^(openid|email|profile|offline_access)( (openid|email|profile|offline_access))*$/.");
+        if ((!preg_match("/^(openid|email|profile|offline_access|studio\\.design\\.read|studio\\.design\\.write)( (openid|email|profile|offline_access|studio\\.design\\.read|studio\\.design\\.write))*$/", ObjectSerializer::toString($scope)))) {
+            throw new InvalidArgumentException("invalid value for \$scope when calling TokenResponse., must conform to the pattern /^(openid|email|profile|offline_access|studio\\.design\\.read|studio\\.design\\.write)( (openid|email|profile|offline_access|studio\\.design\\.read|studio\\.design\\.write))*$/.");
         }
 
         $this->container['scope'] = $scope;
+
+        return $this;
+    }
+
+    /**
+     * Gets issuedTokenType
+     *
+     * @return string|null
+     */
+    public function getIssuedTokenType(): ?string
+    {
+        return $this->container['issuedTokenType'];
+    }
+
+    /**
+     * Sets issuedTokenType
+     *
+     * @param string|null $issuedTokenType 発行したトークンの種類（RFC 8693 §2.2.1）。Token Exchange グラントでだけ返却されます。
+     *
+     * @return $this
+     */
+    public function setIssuedTokenType(?string $issuedTokenType): static
+    {
+        if (is_null($issuedTokenType)) {
+            throw new InvalidArgumentException('non-nullable issuedTokenType cannot be null');
+        }
+        $allowedValues = self::getIssuedTokenTypeAllowableValues();
+        if (!in_array($issuedTokenType, $allowedValues, true)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    "Invalid value '%s' for 'issuedTokenType', must be one of '%s'",
+                    $issuedTokenType,
+                    implode("', '", $allowedValues)
+                )
+            );
+        }
+        $this->container['issuedTokenType'] = $issuedTokenType;
 
         return $this;
     }

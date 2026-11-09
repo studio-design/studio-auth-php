@@ -32,7 +32,7 @@ namespace Studio\Auth\Model;
 /**
  * TokenEndpointAuthMethod Class Doc Comment
  *
- * @description トークンエンドポイントでのクライアント認証方式 (OIDC Core 1.0 Section 9)。  - &#x60;client_secret_basic&#x60;: HTTP Basic 認証 - &#x60;client_secret_post&#x60;: リクエストボディでの送信 - &#x60;private_key_jwt&#x60;: JWT による認証 - &#x60;none&#x60;: クライアント認証なし（public client。PKCE で認可コードを保護する）。現在は受け付けない
+ * @description トークンエンドポイントでのクライアント認証方式 (OIDC Core 1.0 Section 9)。  - &#x60;client_secret_basic&#x60;: HTTP Basic 認証 - &#x60;client_secret_post&#x60;: リクエストボディでの送信 - &#x60;private_key_jwt&#x60;: JWT による認証 - &#x60;none&#x60;: クライアント認証なし（public client。PKCE で認可コードを保護する）。段階投入中で、有効な環境でのみ受け付ける
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
