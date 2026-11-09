@@ -551,7 +551,7 @@ class AdminClientUpdateRequest implements ModelInterface, ArrayAccess, JsonSeria
     /**
      * Sets grantTypesSupported
      *
-     * @param \Studio\Auth\Model\GrantType[]|null $grantTypesSupported このクライアントに許可するグラントタイプのリスト。
+     * @param \Studio\Auth\Model\GrantType[]|null $grantTypesSupported このクライアントに許可するグラントタイプのリスト。 `urn:ietf:params:oauth:grant-type:token-exchange` は認可サーバーで token exchange を有効にしている場合だけ受け付け、public client には付けられません（422 `client-registration-rejected`）。
      *
      * @return $this
      */
@@ -583,7 +583,7 @@ class AdminClientUpdateRequest implements ModelInterface, ArrayAccess, JsonSeria
     /**
      * Sets tokenEndpointAuthMethod
      *
-     * @param \Studio\Auth\Model\TokenEndpointAuthMethod|null $tokenEndpointAuthMethod tokenEndpointAuthMethod
+     * @param \Studio\Auth\Model\TokenEndpointAuthMethod|null $tokenEndpointAuthMethod 変更できるのは `client_secret_basic` と `client_secret_post` の間だけ。それ以外の変更は 422 で拒否する。
      *
      * @return $this
      */
