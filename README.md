@@ -287,6 +287,7 @@ Class | Method | HTTP request | Description
 *AdminApi* | **deleteClient** | **DELETE** /admin/clients/{client_id} | クライアント削除
 *AdminApi* | **getClient** | **GET** /admin/clients/{client_id} | クライアント詳細取得
 *AdminApi* | **getOrganization** | **GET** /admin/organizations/{organization_id} | 組織詳細取得
+*AdminApi* | **getOrganizationMember** | **GET** /admin/organizations/{organization_id}/members/{member_id} | メンバー取得
 *AdminApi* | **listClients** | **GET** /admin/clients | クライアント一覧取得
 *AdminApi* | **listOrganizationInvitations** | **GET** /admin/organizations/{organization_id}/invitations | 招待一覧取得
 *AdminApi* | **listOrganizationMembers** | **GET** /admin/organizations/{organization_id}/members | 組織メンバー一覧取得
@@ -306,6 +307,7 @@ Class | Method | HTTP request | Description
 *AuthApi* | **postUserinfo** | **POST** /oauth/userinfo | ユーザー情報の取得 (POST)
 *AuthApi* | **revokeToken** | **POST** /oauth/revoke | トークン無効化エンドポイント
 *OrganizationApi* | **createMyAdminPortalSession** | **POST** /organizations/{organization_id}/admin-portal-sessions | 自組織のAdmin Portal セッション生成（組織メンバー向け）
+*OrganizationApi* | **getMember** | **GET** /organizations/{organization_id}/members/{member_id} | メンバー取得（組織メンバー向け）
 *OrganizationApi* | **getMemberMe** | **GET** /organizations/{organization_id}/members/me | 自分自身の組織メンバー情報取得（組織メンバー向け）
 *OrganizationApi* | **getMyOrganization** | **GET** /organizations/{organization_id} | 自分が所属する組織情報取得（組織メンバー向け）
 *OrganizationApi* | **listMembers** | **GET** /organizations/{organization_id}/members | 組織メンバー一覧取得（組織メンバー向け）
@@ -373,6 +375,7 @@ Class | Method | HTTP request | Description
 - OrganizationInvitationCreateRequest
 - OrganizationInvitationCreatedResponse
 - OrganizationMember
+- OrganizationMemberDetail
 - OrganizationMemberDomainType
 - OrganizationMemberListResponse
 - OrganizationMemberSortBy
@@ -427,4 +430,4 @@ MIT License - [LICENSE](LICENSE) を参照してください。
 
 ---
 
-このパッケージは [Studio Auth Service の OpenAPI 仕様](https://github.com/studio-design/studio-auth) から自動生成されています（SDK バージョン: `0.8.0`）。
+このパッケージは [Studio Auth Service の OpenAPI 仕様](https://github.com/studio-design/studio-auth) から自動生成されています（SDK バージョン: `0.8.1-rc.120`）。

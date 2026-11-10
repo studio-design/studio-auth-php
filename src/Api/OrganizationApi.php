@@ -81,6 +81,9 @@ class OrganizationApi
         'createMyAdminPortalSession' => [
             'application/json',
         ],
+        'getMember' => [
+            'application/json',
+        ],
         'getMemberMe' => [
             'application/json',
         ],
@@ -471,6 +474,330 @@ class OrganizationApi
         $query = ObjectSerializer::buildQuery($queryParams);
         return new Request(
             'POST',
+            $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation getMember
+     *
+     * メンバー取得（組織メンバー向け）
+     *
+     * @param  string $organizationId 組織識別子（UUID形式）。 (required)
+     * @param  string $memberId メンバー識別子（UUID形式）。 (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['getMember'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return \Studio\Auth\Model\OrganizationMemberDetail
+     */
+    public function getMember(
+        string $organizationId,
+        string $memberId,
+        string $contentType = self::contentTypes['getMember'][0]
+    ): \Studio\Auth\Model\OrganizationMemberDetail
+    {
+        [$response] = $this->getMemberWithHttpInfo($organizationId, $memberId, $contentType);
+
+        return $response;
+    }
+
+    /**
+     * Operation getMemberWithHttpInfo
+     *
+     * メンバー取得（組織メンバー向け）
+     *
+     * @param  string $organizationId 組織識別子（UUID形式）。 (required)
+     * @param  string $memberId メンバー識別子（UUID形式）。 (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['getMember'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return array{0: \Studio\Auth\Model\OrganizationMemberDetail, 1: int, 2: array<string, string[]>}
+     */
+    public function getMemberWithHttpInfo(
+        string $organizationId,
+        string $memberId,
+        string $contentType = self::contentTypes['getMember'][0]
+    ): array
+    {
+        $request = $this->getMemberRequest($organizationId, $memberId, $contentType);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (TransferException $e) {
+                $response = self::responseOf($e);
+
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $response?->getHeaders(),
+                    $response !== null ? (string) $response->getBody() : null,
+                    $e,
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+            // Non-2xx responses are thrown as ApiException by Guzzle (http_errors=true),
+            // so execution reaches here only for 2xx. The guard below is a safety net for
+            // edge cases such as 1xx/3xx responses that bypass Guzzle's RequestException.
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Unexpected non-2xx response status received from API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            return $this->handleResponseWithDataType(
+                '\Studio\Auth\Model\OrganizationMemberDetail',
+                $request,
+                $response,
+            );
+        } catch (ApiException $e) {
+            $problem = ApiException::problemFromResponse($e->getResponseHeaders(), $e->getResponseBody());
+
+            throw ApiException::specialize($e, $problem);
+        }
+    }
+
+    /**
+     * Operation getMemberAsync
+     *
+     * メンバー取得（組織メンバー向け）
+     *
+     * @param  string $organizationId 組織識別子（UUID形式）。 (required)
+     * @param  string $memberId メンバー識別子（UUID形式）。 (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['getMember'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function getMemberAsync(
+        string $organizationId,
+        string $memberId,
+        string $contentType = self::contentTypes['getMember'][0]
+    ): PromiseInterface
+    {
+        return $this->getMemberAsyncWithHttpInfo($organizationId, $memberId, $contentType)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation getMemberAsyncWithHttpInfo
+     *
+     * メンバー取得（組織メンバー向け）
+     *
+     * @param  string $organizationId 組織識別子（UUID形式）。 (required)
+     * @param  string $memberId メンバー識別子（UUID形式）。 (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['getMember'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function getMemberAsyncWithHttpInfo(
+        string $organizationId,
+        string $memberId,
+        string $contentType = self::contentTypes['getMember'][0]
+    ): PromiseInterface
+    {
+        $returnType = '\Studio\Auth\Model\OrganizationMemberDetail';
+        $request = $this->getMemberRequest($organizationId, $memberId, $contentType);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                        if ($returnType !== 'string') {
+                            $content = json_decode($content);
+                        }
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception instanceof TransferException ? self::responseOf($exception) : null;
+
+                    if ($response !== null) {
+                        $statusCode = $response->getStatusCode();
+                        $body = (string) $response->getBody();
+                        $headers = $response->getHeaders();
+
+                        $base = new ApiException(
+                            sprintf(
+                                '[%d] Error connecting to the API (%s)',
+                                $statusCode,
+                                $exception->getRequest()->getUri()
+                            ),
+                            $statusCode,
+                            $headers,
+                            $body,
+                            $exception,
+                        );
+
+                        $problem = ApiException::problemFromResponse($headers, $body);
+
+                        throw ApiException::specialize($base, $problem);
+                    }
+
+                    if ($exception instanceof TransferException) {
+                        // A transport failure without a response carries no HTTP metadata — surface
+                        // it as the base ApiException with status 0, the same contract as the
+                        // synchronous path.
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null,
+                            $exception,
+                        );
+                    }
+
+                    // Any other rejection reason is outside the transport-error contract. The
+                    // synchronous path only converts TransferException, so mirror
+                    // it: rethrow a Throwable unchanged, and normalize a non-Throwable reason into
+                    // Guzzle's RejectionException instead of letting a PHP Error escape.
+                    throw Create::exceptionFor($exception);
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'getMember'
+     *
+     * @param  string $organizationId 組織識別子（UUID形式）。 (required)
+     * @param  string $memberId メンバー識別子（UUID形式）。 (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['getMember'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function getMemberRequest(
+        string $organizationId,
+        string $memberId,
+        string $contentType = self::contentTypes['getMember'][0]
+    ): Request
+    {
+
+        // verify the required parameter 'organizationId' is set
+        if ($organizationId === null || (is_array($organizationId) && count($organizationId) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $organizationId when calling getMember'
+            );
+        }
+
+        // verify the required parameter 'memberId' is set
+        if ($memberId === null || (is_array($memberId) && count($memberId) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $memberId when calling getMember'
+            );
+        }
+
+
+        $resourcePath = '/organizations/{organization_id}/members/{member_id}';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+        // path params
+        if ($organizationId !== null) {
+            $resourcePath = str_replace(
+                '{' . 'organization_id' . '}',
+                ObjectSerializer::toPathValue($organizationId),
+                $resourcePath
+            );
+        }
+        // path params
+        if ($memberId !== null) {
+            $resourcePath = str_replace(
+                '{' . 'member_id' . '}',
+                ObjectSerializer::toPathValue($memberId),
+                $resourcePath
+            );
+        }
+
+
+        $headers = $this->headerSelector->selectHeaders(
+            ['application/json', 'application/problem+json', ],
+            $contentType,
+            $multipart
+        );
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the form parameters
+                try {
+                    $httpBody = json_encode($formParams, JSON_THROW_ON_ERROR);
+                } catch (JsonException $e) {
+                    throw new InvalidArgumentException('json_encode error: ' . $e->getMessage(), 0, $e);
+                }
+            } else {
+                // for HTTP post (form)
+                $httpBody = ObjectSerializer::buildQuery($formParams);
+            }
+        }
+
+        // this endpoint requires Bearer (JWT) authentication (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $operationHost = $this->config->getHost();
+        $query = ObjectSerializer::buildQuery($queryParams);
+        return new Request(
+            'GET',
             $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
             $httpBody

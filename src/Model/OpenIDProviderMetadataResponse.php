@@ -82,6 +82,7 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         'codeChallengeMethodsSupported' => 'string[]',
         'promptValuesSupported' => '\Studio\Auth\Model\Prompt[]',
         'authorizationResponseIssParameterSupported' => 'bool',
+        'clientIdMetadataDocumentSupported' => 'bool',
         'revocationEndpoint' => 'string',
         'introspectionEndpoint' => 'string',
         'endSessionEndpoint' => 'string'
@@ -114,6 +115,7 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         'codeChallengeMethodsSupported' => null,
         'promptValuesSupported' => null,
         'authorizationResponseIssParameterSupported' => null,
+        'clientIdMetadataDocumentSupported' => null,
         'revocationEndpoint' => 'uri',
         'introspectionEndpoint' => 'uri',
         'endSessionEndpoint' => 'uri'
@@ -146,6 +148,7 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         'codeChallengeMethodsSupported' => false,
         'promptValuesSupported' => false,
         'authorizationResponseIssParameterSupported' => false,
+        'clientIdMetadataDocumentSupported' => false,
         'revocationEndpoint' => false,
         'introspectionEndpoint' => false,
         'endSessionEndpoint' => false
@@ -258,6 +261,7 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         'codeChallengeMethodsSupported' => 'code_challenge_methods_supported',
         'promptValuesSupported' => 'prompt_values_supported',
         'authorizationResponseIssParameterSupported' => 'authorization_response_iss_parameter_supported',
+        'clientIdMetadataDocumentSupported' => 'client_id_metadata_document_supported',
         'revocationEndpoint' => 'revocation_endpoint',
         'introspectionEndpoint' => 'introspection_endpoint',
         'endSessionEndpoint' => 'end_session_endpoint'
@@ -290,6 +294,7 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         'codeChallengeMethodsSupported' => 'setCodeChallengeMethodsSupported',
         'promptValuesSupported' => 'setPromptValuesSupported',
         'authorizationResponseIssParameterSupported' => 'setAuthorizationResponseIssParameterSupported',
+        'clientIdMetadataDocumentSupported' => 'setClientIdMetadataDocumentSupported',
         'revocationEndpoint' => 'setRevocationEndpoint',
         'introspectionEndpoint' => 'setIntrospectionEndpoint',
         'endSessionEndpoint' => 'setEndSessionEndpoint'
@@ -322,6 +327,7 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         'codeChallengeMethodsSupported' => 'getCodeChallengeMethodsSupported',
         'promptValuesSupported' => 'getPromptValuesSupported',
         'authorizationResponseIssParameterSupported' => 'getAuthorizationResponseIssParameterSupported',
+        'clientIdMetadataDocumentSupported' => 'getClientIdMetadataDocumentSupported',
         'revocationEndpoint' => 'getRevocationEndpoint',
         'introspectionEndpoint' => 'getIntrospectionEndpoint',
         'endSessionEndpoint' => 'getEndSessionEndpoint'
@@ -405,6 +411,7 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
         $this->setIfExists('codeChallengeMethodsSupported', $data ?? [], null);
         $this->setIfExists('promptValuesSupported', $data ?? [], null);
         $this->setIfExists('authorizationResponseIssParameterSupported', $data ?? [], null);
+        $this->setIfExists('clientIdMetadataDocumentSupported', $data ?? [], null);
         $this->setIfExists('revocationEndpoint', $data ?? [], null);
         $this->setIfExists('introspectionEndpoint', $data ?? [], null);
         $this->setIfExists('endSessionEndpoint', $data ?? [], null);
@@ -1036,6 +1043,33 @@ class OpenIDProviderMetadataResponse implements ModelInterface, ArrayAccess, Jso
             throw new InvalidArgumentException('non-nullable authorizationResponseIssParameterSupported cannot be null');
         }
         $this->container['authorizationResponseIssParameterSupported'] = $authorizationResponseIssParameterSupported;
+
+        return $this;
+    }
+
+    /**
+     * Gets clientIdMetadataDocumentSupported
+     *
+     * @return bool|null
+     */
+    public function getClientIdMetadataDocumentSupported(): ?bool
+    {
+        return $this->container['clientIdMetadataDocumentSupported'];
+    }
+
+    /**
+     * Sets clientIdMetadataDocumentSupported
+     *
+     * @param bool|null $clientIdMetadataDocumentSupported URL 形式の `client_id`（Client ID Metadata Document）を受け付けるか (draft-ietf-oauth-client-id-metadata-document §8)。
+     *
+     * @return $this
+     */
+    public function setClientIdMetadataDocumentSupported(?bool $clientIdMetadataDocumentSupported): static
+    {
+        if (is_null($clientIdMetadataDocumentSupported)) {
+            throw new InvalidArgumentException('non-nullable clientIdMetadataDocumentSupported cannot be null');
+        }
+        $this->container['clientIdMetadataDocumentSupported'] = $clientIdMetadataDocumentSupported;
 
         return $this;
     }
