@@ -1,5 +1,30 @@
 # studio-design/studio-auth-php
 
+## [0.8.1](https://github.com/studio-design/studio-auth/compare/sdk-v0.8.0...sdk-v0.8.1) (2026-11-10)
+
+
+### Features
+
+* CIMD の URL client_id を authorize と refresh で解決する（[#2312](https://github.com/studio-design/studio-auth/issues/2312)、フラグ内） ([22b6f1f](https://github.com/studio-design/studio-auth/commit/22b6f1ff708b40aa33ab91a01db1b49a2340bebe))
+* MCP サーバーのアクセストークンを studio-api 向けに交換する（[#2313](https://github.com/studio-design/studio-auth/issues/2313)、フラグ内） ([30a49f2](https://github.com/studio-design/studio-auth/commit/30a49f28f8d698ef12aba784d97bdb5694fd26c9))
+* **oauth:** MCP の public client を flag の裏で token エンドポイントと admin API に受け入れる ([eba8058](https://github.com/studio-design/studio-auth/commit/eba80582d4b70f696cc2ce280d95234be8a1ec93))
+* **oauth:** 第三者の MCP クライアントには、認可コードを出す前に同意画面を挟む ([1d4e743](https://github.com/studio-design/studio-auth/commit/1d4e743e2e2a6191af9ecc51ddb817a9de591137))
+* **sdk:** accept a Client ID Metadata Document URL as client_id on authorize and token ([889fb75](https://github.com/studio-design/studio-auth/commit/889fb75e12f7e79bdec4fb9226e106569d7ada53))
+* **sdk:** add GET organization member endpoints for the user and admin APIs ([57df2a0](https://github.com/studio-design/studio-auth/commit/57df2a09cc14db3e11c0c336729a48282e44584a))
+* **sdk:** advertise client_id_metadata_document_supported behind auth.mcp_clients.enabled ([8039549](https://github.com/studio-design/studio-auth/commit/8039549c4f70244e4f1ce4507185beb751ff4603))
+* **sdk:** authenticate public clients at the token endpoint behind auth.mcp_clients.enabled ([c69e5a5](https://github.com/studio-design/studio-auth/commit/c69e5a5995bb607c5b44be2c8f6bb6c767b0d1e3))
+* **sdk:** describe login_required for non-SSO sessions whose email domain belongs to an SSO-enforced organization ([4f13157](https://github.com/studio-design/studio-auth/commit/4f131572880a4e8b3fd96c36524d7ff6a5c6b0b8))
+* **sdk:** describe picker re-authentication at the SSO-enforced organization that owns the user's email domain ([1e195a9](https://github.com/studio-design/studio-auth/commit/1e195a93ac73806eb4a53bae169127d3782b8f2f))
+* **sdk:** document error_reason=organization_membership_denied on the callback's membership rejection ([b72e598](https://github.com/studio-design/studio-auth/commit/b72e598601fc63da84ebd04bd2958789f4d7dc0f))
+* **sdk:** document the consent screen redirect and consent_required ([e178dfb](https://github.com/studio-design/studio-auth/commit/e178dfbbbee0abb202437b7aa4928656b32d40c8))
+* **sdk:** exchange MCP access tokens for studio-api tokens behind auth.token_exchange.enabled ([5df15f4](https://github.com/studio-design/studio-auth/commit/5df15f4ffc0c015507c045584ea56b7c779149e2))
+* **sdk:** let admins register public clients behind auth.mcp_clients.enabled ([270cc6e](https://github.com/studio-design/studio-auth/commit/270cc6ec6431c8a35978763f8bc4efe0269cd5f2))
+* **sdk:** register token-exchange clients with a resource_indicator through the admin API ([2188c6c](https://github.com/studio-design/studio-auth/commit/2188c6c97da325ca7ca8ace43b5fa2dc0ff518b0))
+* token-exchange 用のクライアントを admin API で登録できるようにする（[#2313](https://github.com/studio-design/studio-auth/issues/2313)、フラグ内） ([d77b259](https://github.com/studio-design/studio-auth/commit/d77b259be06642b69224e3988ea43f100e895b6f))
+* 組織メンバーでない拒否のリダイレクトに error_reason を付ける ([7db8620](https://github.com/studio-design/studio-auth/commit/7db86204c304c7c24164a3b0f9b9bc22dd3d68b2))
+* 組織メンバーを 1 人取得する GET（ユーザー用・管理者用）を追加する ([52d3a34](https://github.com/studio-design/studio-auth/commit/52d3a3453002cea546be9e5300cd4fe3e356d75b))
+* 組織選択画面でもメールドメインの SSO 強制組織で再認証させる（フラグの裏、[#2366](https://github.com/studio-design/studio-auth/issues/2366) の続き） ([775a9a9](https://github.com/studio-design/studio-auth/commit/775a9a930a81f9370f4ee9b5309300c8dc2eb385))
+
 ## [0.8.0](https://github.com/studio-design/studio-auth/compare/sdk-v0.7.9...sdk-v0.8.0) (2026-11-06)
 
 
