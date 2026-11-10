@@ -68,6 +68,7 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
         'postLogoutRedirectUris' => 'string[]',
         'allowedScopes' => '\Studio\Auth\Model\ScopeValue[]',
         'grantTypesSupported' => '\Studio\Auth\Model\GrantType[]',
+        'resourceIndicator' => 'string',
         'tokenEndpointAuthMethod' => '\Studio\Auth\Model\TokenEndpointAuthMethod',
         'tokenEndpointAuthSigningAlg' => '\Studio\Auth\Model\ClientAssertionSigningAlg',
         'jwks' => '\Studio\Auth\Model\ClientJwkSet',
@@ -87,6 +88,7 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
         'postLogoutRedirectUris' => 'uri',
         'allowedScopes' => null,
         'grantTypesSupported' => null,
+        'resourceIndicator' => null,
         'tokenEndpointAuthMethod' => null,
         'tokenEndpointAuthSigningAlg' => null,
         'jwks' => null,
@@ -106,6 +108,7 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
         'postLogoutRedirectUris' => false,
         'allowedScopes' => false,
         'grantTypesSupported' => false,
+        'resourceIndicator' => true,
         'tokenEndpointAuthMethod' => false,
         'tokenEndpointAuthSigningAlg' => false,
         'jwks' => false,
@@ -205,6 +208,7 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
         'postLogoutRedirectUris' => 'post_logout_redirect_uris',
         'allowedScopes' => 'allowed_scopes',
         'grantTypesSupported' => 'grant_types_supported',
+        'resourceIndicator' => 'resource_indicator',
         'tokenEndpointAuthMethod' => 'token_endpoint_auth_method',
         'tokenEndpointAuthSigningAlg' => 'token_endpoint_auth_signing_alg',
         'jwks' => 'jwks',
@@ -224,6 +228,7 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
         'postLogoutRedirectUris' => 'setPostLogoutRedirectUris',
         'allowedScopes' => 'setAllowedScopes',
         'grantTypesSupported' => 'setGrantTypesSupported',
+        'resourceIndicator' => 'setResourceIndicator',
         'tokenEndpointAuthMethod' => 'setTokenEndpointAuthMethod',
         'tokenEndpointAuthSigningAlg' => 'setTokenEndpointAuthSigningAlg',
         'jwks' => 'setJwks',
@@ -243,6 +248,7 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
         'postLogoutRedirectUris' => 'getPostLogoutRedirectUris',
         'allowedScopes' => 'getAllowedScopes',
         'grantTypesSupported' => 'getGrantTypesSupported',
+        'resourceIndicator' => 'getResourceIndicator',
         'tokenEndpointAuthMethod' => 'getTokenEndpointAuthMethod',
         'tokenEndpointAuthSigningAlg' => 'getTokenEndpointAuthSigningAlg',
         'jwks' => 'getJwks',
@@ -313,6 +319,7 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
         $this->setIfExists('postLogoutRedirectUris', $data ?? [], null);
         $this->setIfExists('allowedScopes', $data ?? [], null);
         $this->setIfExists('grantTypesSupported', $data ?? [], null);
+        $this->setIfExists('resourceIndicator', $data ?? [], null);
         $this->setIfExists('tokenEndpointAuthMethod', $data ?? [], TokenEndpointAuthMethod::CLIENT_SECRET_BASIC);
         $this->setIfExists('tokenEndpointAuthSigningAlg', $data ?? [], null);
         $this->setIfExists('jwks', $data ?? [], null);
@@ -364,13 +371,6 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
         if ($this->container['clientType'] === null) {
             $invalidProperties[] = "'clientType' can't be null";
         }
-        if ($this->container['redirectUris'] === null) {
-            $invalidProperties[] = "'redirectUris' can't be null";
-        }
-        if ((count($this->container['redirectUris']) < 1)) {
-            $invalidProperties[] = "invalid value for 'redirectUris', number of items must be greater than or equal to 1.";
-        }
-
         if ($this->container['allowedScopes'] === null) {
             $invalidProperties[] = "'allowedScopes' can't be null";
         }
@@ -383,6 +383,10 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
         }
         if ((count($this->container['grantTypesSupported']) < 1)) {
             $invalidProperties[] = "invalid value for 'grantTypesSupported', number of items must be greater than or equal to 1.";
+        }
+
+        if (!is_null($this->container['resourceIndicator']) && (mb_strlen($this->container['resourceIndicator'], 'UTF-8') > 512)) {
+            $invalidProperties[] = "invalid value for 'resourceIndicator', the character length must be smaller than or equal to 512.";
         }
 
         if (!is_null($this->container['jwksUri']) && (mb_strlen($this->container['jwksUri'], 'UTF-8') > 512)) {
@@ -482,7 +486,7 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
     /**
      * Sets clientType
      *
-     * @param \Studio\Auth\Model\ClientType $clientType clientType
+     * @param \Studio\Auth\Model\ClientType $clientType `public` は `token_endpoint_auth_method: none` とだけ、`confidential` は `none` 以外とだけ組み合わせられる。
      *
      * @return $this
      */
@@ -499,9 +503,9 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
     /**
      * Gets redirectUris
      *
-     * @return string[]
+     * @return string[]|null
      */
-    public function getRedirectUris(): array
+    public function getRedirectUris(): ?array
     {
         return $this->container['redirectUris'];
     }
@@ -509,19 +513,14 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
     /**
      * Sets redirectUris
      *
-     * @param string[] $redirectUris 許可するリダイレクト URI のリスト。
+     * @param string[]|null $redirectUris 許可するリダイレクト URI のリスト。必須で、1 件以上を指定します。 ただし認可サーバーで token exchange を有効にしている場合は、`grant_types_supported` に `authorization_code` を含まないクライアント（token exchange だけを使うクライアント）に限り省略できます。
      *
      * @return $this
      */
-    public function setRedirectUris(array $redirectUris): static
+    public function setRedirectUris(?array $redirectUris): static
     {
         if (is_null($redirectUris)) {
             throw new InvalidArgumentException('non-nullable redirectUris cannot be null');
-        }
-
-
-        if ((count($redirectUris) < 1)) {
-            throw new InvalidArgumentException('invalid length for $redirectUris when calling AdminClientCreateRequest., number of items must be greater than or equal to 1.');
         }
         $this->container['redirectUris'] = $redirectUris;
 
@@ -600,7 +599,7 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
     /**
      * Sets grantTypesSupported
      *
-     * @param \Studio\Auth\Model\GrantType[] $grantTypesSupported このクライアントに許可するグラントタイプのリスト。
+     * @param \Studio\Auth\Model\GrantType[] $grantTypesSupported このクライアントに許可するグラントタイプのリスト。 `urn:ietf:params:oauth:grant-type:token-exchange` は認可サーバーで token exchange を有効にしている場合だけ受け付け、public client（`token_endpoint_auth_method` が `none`）には付けられません（422 `client-registration-rejected`）。
      *
      * @return $this
      */
@@ -620,6 +619,44 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
     }
 
     /**
+     * Gets resourceIndicator
+     *
+     * @return string|null
+     */
+    public function getResourceIndicator(): ?string
+    {
+        return $this->container['resourceIndicator'];
+    }
+
+    /**
+     * Sets resourceIndicator
+     *
+     * @param string|null $resourceIndicator このクライアントのアクセストークンを受け取る資源サーバの URI（RFC 8707）。認可リクエストの `resource` にはこの値を指定でき、token exchange ではこの値を `aud` に持つトークンだけを交換できます。 認可サーバーで MCP クライアントを有効にしている場合だけ受け付け、他のクライアントと同じ値は登録できません（422 `client-registration-rejected`）。public client には指定できません。作成後は変更できません。
+     *
+     * @return $this
+     */
+    public function setResourceIndicator(?string $resourceIndicator): static
+    {
+        if (is_null($resourceIndicator)) {
+            array_push($this->openAPINullablesSetToNull, 'resourceIndicator');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('resourceIndicator', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        if (!is_null($resourceIndicator) && (mb_strlen($resourceIndicator, 'UTF-8') > 512)) {
+            throw new InvalidArgumentException('invalid length for $resourceIndicator when calling AdminClientCreateRequest., must be smaller than or equal to 512.');
+        }
+
+        $this->container['resourceIndicator'] = $resourceIndicator;
+
+        return $this;
+    }
+
+    /**
      * Gets tokenEndpointAuthMethod
      *
      * @return \Studio\Auth\Model\TokenEndpointAuthMethod|null
@@ -632,7 +669,7 @@ class AdminClientCreateRequest implements ModelInterface, ArrayAccess, JsonSeria
     /**
      * Sets tokenEndpointAuthMethod
      *
-     * @param \Studio\Auth\Model\TokenEndpointAuthMethod|null $tokenEndpointAuthMethod tokenEndpointAuthMethod
+     * @param \Studio\Auth\Model\TokenEndpointAuthMethod|null $tokenEndpointAuthMethod `client_type: public` では `none` が必須（省略できない）、`confidential` では `none` を指定できない。 `none` ではクライアントシークレットを発行せず、`jwks` / `jwks_uri` も指定できない。
      *
      * @return $this
      */
