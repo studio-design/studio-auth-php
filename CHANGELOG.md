@@ -1,5 +1,13 @@
 # studio-design/studio-auth-php
 
+## [0.8.2](https://github.com/studio-design/studio-auth/compare/sdk-v0.8.1...sdk-v0.8.2) (2026-11-11)
+
+
+### Features
+
+* **sdk:** document 422 member-directory-managed on member removal ([e275a34](https://github.com/studio-design/studio-auth/commit/e275a34030239522b271a24a7007defdea6a6125))
+* ディレクトリ管理のメンバーの削除を 422 member-directory-managed で返す ([5ba0607](https://github.com/studio-design/studio-auth/commit/5ba06071f752c5f76981069cc61c6b8f93a401ca))
+
 ## [0.8.1](https://github.com/studio-design/studio-auth/compare/sdk-v0.8.0...sdk-v0.8.1) (2026-11-10)
 
 
