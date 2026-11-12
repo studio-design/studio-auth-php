@@ -38,7 +38,7 @@ use JsonSerializable;
 /**
  * AdminClientUpdateRequest Class Doc Comment
  *
- * @description クライアント更新リクエスト。 指定されたフィールドのみが更新されます。
+ * @description クライアント更新リクエスト。 指定されたフィールドのみが更新されます。 &#x60;client_id_metadata_url&#x60; が入っているクライアントでは &#x60;is_active&#x60; だけを指定できます。
  * @package  Studio\Auth
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
