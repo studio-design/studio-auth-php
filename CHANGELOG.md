@@ -1,5 +1,20 @@
 # studio-design/studio-auth-php
 
+## [0.8.3](https://github.com/studio-design/studio-auth/compare/sdk-v0.8.2...sdk-v0.8.3) (2026-11-13)
+
+
+### Features
+
+* CIMD のクライアントを admin API から削除・編集できないようにし、応答で見分けられるようにする（[#2398](https://github.com/studio-design/studio-auth/issues/2398)） ([1a50e89](https://github.com/studio-design/studio-auth/commit/1a50e89bd9ee7d37906d2fe21afb54b33cd4df87))
+* **sdk:** expose client_id_metadata_url on the admin client responses ([4b9f51a](https://github.com/studio-design/studio-auth/commit/4b9f51a170858bc9146b2ccd2edb7d93f7ae4dd2)), closes [#2398](https://github.com/studio-design/studio-auth/issues/2398)
+* **sdk:** refuse to delete or edit Client ID Metadata Document clients through the admin API ([532342a](https://github.com/studio-design/studio-auth/commit/532342ae12ca5650bd1aec6abe39acd3112f0610)), closes [#2398](https://github.com/studio-design/studio-auth/issues/2398)
+
+
+### Bug Fixes
+
+* **sdk:** document that max_age is forwarded upstream capped at 86399 seconds ([dc63e52](https://github.com/studio-design/studio-auth/commit/dc63e52286950fa7026d73c3a01e6f18a77d555b))
+* WorkOS へ 30 日の max_age を送らず、Entra ID の OIDC 接続で SSO ログインできるようにする ([eb96998](https://github.com/studio-design/studio-auth/commit/eb96998468e77e4009bdebb6d268bc917db61f79))
+
 ## [0.8.2](https://github.com/studio-design/studio-auth/compare/sdk-v0.8.1...sdk-v0.8.2) (2026-11-11)
 
 
